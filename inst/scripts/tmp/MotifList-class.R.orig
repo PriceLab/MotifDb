@@ -1,0 +1,293 @@
+setClass ('MotifList',
+          contains='SimpleList',
+          representation (elementMetadata="DataFrame"),
+          prototype(elementType="matrix")
+          )
+
+setGeneric ('add', signature='obj', function (obj, matrices, tbl.metadata) standardGeneric ('add'))
+#------------------------------------------------------------------------------------------------------------------------
+MotifList = function (matrices=list(),
+                      names=character(),                    # source-species-gene: UniPROBE-Mmusculus-Rhox11-306b; ScerTF-Scerevisiae-ABF2-e73a
+                      providerNames=character(),              # badis.ABF2, Cell08/Rhox11_2205.1_pwm.txt
+                      providerIds=character(),              # badis.ABF2, Cell08/Rhox11_2205.1_pwm.txt
+                      geneSymbols=character(),              # ABF2, Rhox11
+                      geneIds=character(),
+                      geneIdTypes=character(),
+                      proteinIds=character(),
+                      proteinIdTypes=character(),
+                      sequenceCounts=integer(),             # often NA
+                      organisms=character(),                # Scerevisiae, Mmusculus
+                      bindingDomains=character(),       # NA, Homeo
+                      bindingSequences=character(),
+                      dataSources=character(),              # ScerTF, UniPROBE
+                      experimentTypes=character(),          # NA, protein-binding microarray
+                      pubmedIDs=character(),                # 19111667, 1858359
+                      tfFamilies=character())               # NA, NA
+{  
+  names (matrices) = names
+  count = length (matrices)
+  stopifnot (length (names) == count)
+  stopifnot (length (providerNames) == count)
+  stopifnot (length (providerIds) == count)
+  stopifnot (length (geneSymbols) == count)
+  stopifnot (length (geneIds) == count)
+  stopifnot (length (geneIdTypes) == count)
+  stopifnot (length (proteinIds) == count)
+  stopifnot (length (proteinIdTypes) == count)
+  stopifnot (length (sequenceCounts) == count)
+  stopifnot (length (organisms) == count)
+  stopifnot (length (bindingDomains) == count)
+  stopifnot (length (bindingSequences) == count)
+  stopifnot (length (dataSources) == count)
+  stopifnot (length (experimentTypes) == count)
+  stopifnot (length (pubmedIDs) == count)
+  stopifnot (length (tfFamilies) == count)
+
+  elementMetadata = DataFrame (#name=names,
+                               providerName=providerNames,
+                               providerId=providerIds,
+                               geneSymbol=geneSymbols,
+                               geneId=geneIds,
+                               geneIdType=geneIdTypes,
+                               proteinId=proteinIds,
+                               proteinIdType=proteinIdTypes,
+                               sequenceCount=sequenceCounts,
+                               organism=organisms,
+                               bindingDomain=bindingDomains,
+                               bindingSequence=bindingSequences,
+                               dataSource=dataSources,
+                               experimentType=experimentTypes,
+                               pubmedID=pubmedIDs,
+                               tfFamily=tfFamilies)
+  new ('MotifList', listData = matrices, elementMetadata=elementMetadata)
+  
+} # ctor
+#------------------------------------------------------------------------------------------------------------------------
+MotifDb = function (loadAllSources=TRUE, quiet=TRUE)
+{
+  mdb <- MotifList ()
+  if (loadAllSources) {
+    data.path = paste (system.file (package='MotifDb'), 'data', sep='/')
+    data.files = dir (data.path, full.names=TRUE)
+    sources.to.exclude = c () # 'ScerTF.RData')   # pending minor revisions
+    removers = as.integer (sapply (sources.to.exclude, function (source) grep (source, data.files)))
+    if (length (removers) > 0)
+      data.files = data.files [-removers]
+  
+    count = 0
+    if (length (data.files) > 0)   
+      for (data.file in data.files) {
+        tbl.md = NA; matrices = NA;  # define these to keep 'check' happy.  they are loaded by 'load'
+        variables = load (data.file)
+        mdb = add (mdb, matrices, tbl.md)
+        filename.tokens = strsplit (data.file, '\\/') [[1]]
+        shortFilename = filename.tokens [length (filename.tokens)]
+        if (!quiet) 
+          print (noquote (sprintf ('added %s (%d) matrices, length now: %d', shortFilename, length (matrices), length (mdb))))
+      } # for data.file
+  
+    if (!quiet) {
+      print (table (mdb$dataSource))
+      }
+    } # if loadAllSources
+
+  return (mdb)
+
+} # MotifDb
+#------------------------------------------------------------------------------------------------------------------------
+setMethod ('length', signature = 'MotifList',
+
+  function (x) {
+    return (length (x@listData))
+    })
+
+#------------------------------------------------------------------------------------------------------------------------
+setMethod ('subset', signature = 'MotifList',
+
+  function (x, subset, select, drop = FALSE, ...) {
+
+    if (missing (subset)) 
+      i <- TRUE
+    else {
+      i <- eval(substitute (subset), elementMetadata (x), parent.frame ())
+      i <- try(as.logical(i), silent=TRUE)
+      if (inherits(i, "try-error"))
+        stop("'subset' must be coercible to logical")
+      i <- i & !is.na(i)
+      } # else
+    return (x [i])
+  })
+
+#------------------------------------------------------------------------------------------------------------------------
+setMethod ('add', signature = 'MotifList',
+
+  function (obj, matrices, tbl.metadata) { 
+
+     full.names = names (matrices)   # full in this sense:  organism-source-providerName[-possibleUniquifier]
+     size = length (matrices)
+     empty.chars = rep (NA_character_, size)
+     empty.ints = rep (NA_integer_, size)
+     new.list = MotifList (matrices, 
+                           names=full.names,
+                           providerNames=tbl.metadata$providerName,                  # badis.ABF2, Cell08/Rhox11_2205.1_pwm.txt
+                           providerIds=tbl.metadata$providerId,                      # badis.ABF2, Cell08/Rhox11_2205.1_pwm.txt
+                           geneSymbols=tbl.metadata$geneSymbol,                      # ABF2, Rhox11n
+                           geneIds=tbl.metadata$geneId,
+                           geneIdTypes=tbl.metadata$geneIdType,
+                           proteinIds=tbl.metadata$proteinId,
+                           proteinIdTypes=tbl.metadata$proteinIdType,
+                           sequenceCounts=tbl.metadata$sequenceCount,                # often NA
+                           organisms=tbl.metadata$organism,                          # Scerevisiae, Mmusculus
+                           bindingDomains=tbl.metadata$bindingDomain,                # NA, Homeo
+                           bindingSequences=tbl.metadata$bindingSequence,    
+                           dataSources=tbl.metadata$dataSource,                      # ScerTF, UniPROBE
+                           experimentTypes=tbl.metadata$experimentType,              # NA, protein-binding microarray, SELEX, 
+                           pubmedIDs=tbl.metadata$pubmedID,                          # 19111667, 1858359
+                           tfFamilies=tbl.metadata$tfFamily)                         # NA
+     obj@listData = c (obj@listData, new.list@listData)
+     elementMetadata (obj) = rbind (elementMetadata (obj), elementMetadata (new.list))
+     return (obj)
+    })
+
+#------------------------------------------------------------------------------------------------------------------------
+setMethod("$", signature="MotifList", 
+
+  function(x, name) {
+    elementMetadata (x)[[name]]
+    })
+#------------------------------------------------------------------------------------------------------------------------
+# transpose 4-row matrices to 4-column, so that there are as many rows as there are nucleotides in the motif sequence
+# normalize the values, so that at each position the frequency of the 4 bases sums to 1
+#
+# for example, this count matrix for a sequence 10 bases long
+#
+#    1  2  3  4  5  6  7  8  9 10
+# A  0  3 79 40 66 48 65 11 65  0
+# C 94 75  4  3  1  2  5  2  3  3
+# G  1  0  3  4  1  0  5  3 28 88
+# T  2 19 11 50 29 47 22 81  1  6
+#
+# becomes this
+#            1          2          3          4          5          6          7          8          9         10
+# A 0.00000000 0.03092784 0.81443299 0.41237113 0.68041237 0.49484536 0.67010309 0.11340206 0.67010309 0.00000000
+# C 0.96907216 0.77319588 0.04123711 0.03092784 0.01030928 0.02061856 0.05154639 0.02061856 0.03092784 0.03092784
+# G 0.01030928 0.00000000 0.03092784 0.04123711 0.01030928 0.00000000 0.05154639 0.03092784 0.28865979 0.90721649
+# T 0.02061856 0.19587629 0.11340206 0.51546392 0.29896907 0.48453608 0.22680412 0.83505155 0.01030928 0.06185567
+#
+# and then this
+# 
+#             A          C          G          T
+# 1  0.00000000 0.96907216 0.01030928 0.02061856
+# 2  0.03092784 0.77319588 0.00000000 0.19587629
+# 3  0.81443299 0.04123711 0.03092784 0.11340206
+# 4  0.41237113 0.03092784 0.04123711 0.51546392
+# 5  0.68041237 0.01030928 0.01030928 0.29896907
+# 6  0.49484536 0.02061856 0.00000000 0.48453608
+# 7  0.67010309 0.05154639 0.05154639 0.22680412
+# 8  0.11340206 0.02061856 0.03092784 0.83505155
+# 9  0.67010309 0.03092784 0.28865979 0.01030928
+# 10 0.00000000 0.03092784 0.90721649 0.06185567
+transformMatrixToMemeRepresentation = function (m)
+{
+  stopifnot (class (m) == 'matrix')
+  stopifnot (rownames (m) == c ('A', 'C', 'G', 'T'))
+  col.sums = round (colSums (m))
+  stopifnot (all (col.sums == 1))
+  return (t (m))
+
+} # transformMatrixToMemeRepresentation
+#------------------------------------------------------------------------------------------------------------------------
+matrixToMemeText = function (matrices)
+{
+  matrix.count = length (matrices)
+
+    # incoming matrices have nucleotide rows, position columns.  meme format, however, requires position-rows, and nucleotide-columns
+    # calculate the number of lines of text by counting columns
+  total.transposed.matrix.rows = sum (as.integer (sapply (matrices, ncol)))
+  predicted.line.count = 12 + (3 * length (matrices)) + total.transposed.matrix.rows
+  s = vector ('character', predicted.line.count)
+
+  #printf ("length of pre-allocated vector: %d", length (s))
+  s [1] = 'MEME version 4'
+  s [2] = ''
+  s [3] = 'ALPHABET= ACGT'
+  s [4] = ''
+  s [5] = 'strands: + -'
+  s [6] = ''
+  s [7] = 'Background letter frequencies'
+  s [8] = 'A 0.250 C 0.250 G 0.250 T 0.250 '
+  s [9] = '' 
+
+  index = 10
+  for (name in names (matrices)) {
+       # transpose the frequency matrix version of the incoming matrix, hence 'tfMat'
+    tfMat = transformMatrixToMemeRepresentation (matrices [[name]])
+       # meme output may be used by tomtom, which uses matrix names as part of image filenames. 
+       # removed all file-system-unfriendly characters here
+    fixed.name = gsub ('\\/', '_', name)
+    s [index] = sprintf ('MOTIF %s', fixed.name)
+    index = index + 1
+    s [index] = sprintf ('letter-probability matrix: alength= 4 w= %d nsites= %d E=8.1e-020', nrow (tfMat), 45, 8.1e-020)
+    index = index + 1
+    for (r in 1:nrow (tfMat)) {
+      new.row = sprintf (' %12.10f  %12.10f  %12.10f  %12.10f', tfMat [r,1], tfMat [r,2], tfMat [r,3], tfMat [r,4])
+      s [index] = new.row
+      index = index + 1
+      }
+    s [index] = ''
+    index = index + 1
+    } # for name
+
+  invisible (s)
+
+} # matrixToMemeText
+#------------------------------------------------------------------------------------------------------------------------
+# write to connection with specified format
+# if connection is a character string, create a file by that name, open the file.
+# if it is an already-open connection, use that directly
+# format includes TRANSFAC, meme (also good for tomtom), and tsv
+
+setMethod ('export',  signature=c(object='MotifList', con='character', format='character'),
+
+  function (object, con, format, ...) {
+
+    fmt = match.arg (tolower (format), c ('meme', 'transfac'))
+    if (fmt %in% c ('meme', 'transfac')) {
+      text = matrixToMemeText (object)
+      }
+    con = file (con, 'w')
+    cat (text, sep='\n', file=con)
+    close (con)
+    })
+
+#------------------------------------------------------------------------------------------------------------------------
+# write to connection with specified format
+# if connection is a character string, create a file by that name, open the file.
+# if it is an already-open connection, use that directly
+# format includes TRANSFAC, meme (also good for tomtom), and tsv
+
+setMethod ('export',  signature=c(object='MotifList', con='connection', format='character'),
+
+  function (object, con, format, ...) {
+
+    fmt = match.arg (tolower (format), c ('meme', 'transfac'))
+    if (fmt %in% c ('meme', 'transfac')) {
+      text = matrixToMemeText (object)
+      }
+    cat (text, sep='\n', file=con)
+    close (con)
+    })
+
+#------------------------------------------------------------------------------------------------------------------------
+# write to connection, using default format,  ??? for matrix list, tsv for metadata
+setMethod ('export',  signature=c(object='MotifList',  con='missing', format='character'),
+
+  function (object, con, format,  ...) {
+
+    fmt = match.arg (tolower (format), c ('meme')) # , 'transfac'))
+    if (fmt == 'meme') 
+      text = matrixToMemeText (object)
+    return (text)
+    })
+
+#------------------------------------------------------------------------------------------------------------------------

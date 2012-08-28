@@ -1,0 +1,16 @@
+exportClasses (MotifList)
+exportMethods (
+   subset,
+   export,
+   show,
+   query
+   )
+
+export(
+    MotifDb
+)
+
+importMethodsFrom(IRanges, rbind, eval, sapply, subset, values)
+importFrom(IRanges, DataFrame)
+importFrom(rtracklayer, export)
+
