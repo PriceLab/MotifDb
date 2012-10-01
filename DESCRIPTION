@@ -1,7 +1,7 @@
 Package: MotifDb
 Type: Package
 Title: An Annotated Collection of Protein-DNA Binding Sequence Motifs
-Version: 1.0.0
+Version: 1.1.0
 Date: 2012-08-12
 Author: Paul Shannon
 Maintainer: Paul Shannon <pshannon@fhcrc.org>
