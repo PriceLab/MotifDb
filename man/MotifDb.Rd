@@ -21,13 +21,14 @@ FlyFactorSurvey: \tab 614\cr
 hPDI: \tab 437\cr
 JASPAR_CORE: \tab 459\cr
 ScerTF: \tab 196\cr
+stamlab: \tab 683\cr
 UniPROBE: \tab 380\cr
 }
 
 Representing primarily four organsisms:
 \tabular{ll}{
 Dmelanogaster: \tab 739\cr
-Hsapiens: \tab 505\cr
+Hsapiens: \tab 1188\cr
 Scerevisiae: \tab 464\cr
 Mmusculus: \tab 329\cr
 Rnorvegicus: \tab 8\cr
@@ -172,6 +173,10 @@ an example (see below for the associated position frequency matrix):
 
 \itemize{
 
+\item Neph S, Stergachis AB, Reynolds A, Sandstrom R, Borenstein E,
+Stamatoyannopoulos JA. Circuitry and dynamics of human transcription factor regulatory networks.
+Cell. 2012 Sep 14;150(6):1274-86.
+  
 \item Portales-Casamar E, Thongjuea S, Kwon AT, Arenillas D, Zhao X, Valen E, Yusuf D, Lenhard B, Wasserman WW, Sandelin A. JASPAR 2010: the greatly expanded open-access database of transcription factor binding profiles. Nucleic Acids Res. 2010 Jan;38(Database issue):D105-10. Epub 2009 Nov 11.
 
 \item Robasky K, Bulyk ML. UniPROBE, update 2011: expanded content and search tools in the online database of protein-binding microarray data on protein-DNA interactions. Nucleic Acids Res. 2011 Jan;39(Database issue):D124-8. Epub 2010 Oct 30.
