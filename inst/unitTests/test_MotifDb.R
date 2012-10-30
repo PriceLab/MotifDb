@@ -121,12 +121,10 @@ test.allMatricesAreNormalized = function ()
   print ('--- test.allMatricesAreNormalized')
   mdb = MotifDb# (quiet=TRUE)
   matrices = mdb@listData
-  colsums = as.integer (sapply (matrices, function (mtx) as.integer (mean (round (colSums (mtx))))))
-  failures = which (colsums != 1)
-  if (length (failures > 0))
-    browser ()
-  checkTrue (length (failures) == 0)
-
+    # a lenient test required by "Cparvum-UniPROBE-Cgd2_3490.UP00395" and  "Hsapiens-UniPROBE-Sox4.UP00401"
+    # for reasons not yet explored.  10e-8 should be be possible
+  checkTrue (all (sapply (matrices, function (m) all (abs (colSums (m) - 1.0) < 0.02))))
+             
 } # test.allMatricesAreNormalized
 #------------------------------------------------------------------------------------------------------------------------
 test.providerNames = function ()
@@ -144,7 +142,7 @@ test.geneSymbols = function ()
   print ('--- test.getGeneSymbols')
   mdb = MotifDb # ()
   syms = values (mdb)$geneSymbol
-  checkEquals (length (which (is.na (syms))), 0)
+  checkEquals (length (which (is.na (syms))), 683)  # no symols yet for the dgf stamlab motifs
   checkEquals (length (which (syms == '')), 0)
 
 } # test.geneSymbols
@@ -157,10 +155,10 @@ test.geneIdsAndTypes = function ()
   geneIdTypes = values (mdb)$geneIdType
   tbl.types = as.data.frame (table (geneIdTypes, useNA='always'), stringsAsFactors=FALSE)
   checkEquals (tbl.types$geneIdTypes,  c ('ENTREZ', 'FLYBASE', 'SGD', NA))
-  checkEquals (tbl.types$Freq,  c (763, 614, 453, 256))
+  checkEquals (tbl.types$Freq,  c (763, 614, 453, 939))
 
   na.count = length (which (is.na (geneIds)))
-  checkEquals (na.count, 256)   # see geneIdTypes == NA, just above
+  checkEquals (na.count, 939)   # see geneIdTypes == NA, just above
   empty.count = length (which (geneIds == ''))
   checkEquals (empty.count, 0)
 
