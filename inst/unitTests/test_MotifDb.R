@@ -154,11 +154,11 @@ test.geneIdsAndTypes = function ()
   geneIds = values (mdb)$geneId
   geneIdTypes = values (mdb)$geneIdType
   tbl.types = as.data.frame (table (geneIdTypes, useNA='always'), stringsAsFactors=FALSE)
-  checkEquals (tbl.types$geneIdTypes,  c ('ENTREZ', 'FLYBASE', 'SGD', NA))
-  checkEquals (tbl.types$Freq,  c (763, 614, 453, 939))
+  checkEquals (sort (tbl.types$geneIdTypes), sort (c ('comment', 'ENTREZ', 'FLYBASE', 'SGD', NA)))
+  checkEquals (sort (tbl.types$Freq),  sort (c (683, 763, 614, 453, 256)))
 
   na.count = length (which (is.na (geneIds)))
-  checkEquals (na.count, 939)   # see geneIdTypes == NA, just above
+  checkEquals (na.count, 256)   # see geneIdTypes == NA, just above
   empty.count = length (which (geneIds == ''))
   checkEquals (empty.count, 0)
 
