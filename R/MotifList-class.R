@@ -197,13 +197,12 @@ setMethod ('export',  signature=c(object='MotifList',  con='missing',
 setMethod('show', 'MotifList',
 
     function(object) {
-        
       msg = sprintf ('MotifDb object of length %d', length (object))
       cat (msg, '\n', sep='')
       if (length (object) == 0)
         return ()
       
-      cat ('| Created from downloaded public sources: 2012-Jul6', '\n', sep='')
+      cat ('| Created from downloaded public sources: 2012-Nov-01', '\n', sep='')
 
       tbl.dataSource = as.data.frame (table (values (object)$dataSource))
       tbl.org = as.data.frame (table (values (object)$organism))
