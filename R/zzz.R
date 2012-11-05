@@ -7,17 +7,15 @@ MotifDb <- NULL
   if(loadAllSources) {
     data.path = system.file('extdata', package='MotifDb')
     data.files = dir(data.path, full.names=TRUE)
-  
-    if(length(data.files) > 0)   
-      for(data.file in data.files) {
-         # define these to keep 'check' happy.  they are loaded by 'load'
-        tbl.md = NA; matrices = NA;  
-        variables = load(data.file)
-        mdb = append(mdb, MotifList(matrices, tbl.md))
-        if(!quiet) 
-          message(noquote(sprintf('added %s(%d) matrices, length now: %d',
-                   basename(data.file), length(matrices), length(mdb))))
-      } # for data.file
+    for(data.file in data.files) {
+       # define these to keep 'check' happy.  they are loaded by 'load'
+      tbl.md = NA; matrices = NA;  
+      variables = load(data.file)
+      mdb = append(mdb, MotifList(matrices, tbl.md))
+      if(!quiet) 
+        message(noquote(sprintf('added %s(%d) matrices, length now: %d',
+                 basename(data.file), length(matrices), length(mdb))))
+    } # for data.file
   
     if(!quiet) {
       print(table(values(mdb)$dataSource))
