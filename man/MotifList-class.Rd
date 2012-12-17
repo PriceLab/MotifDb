@@ -36,7 +36,7 @@
       \code{show(x)}: describe matrices compactly
     }
    \item{}{
-      \code{query(x)}: find matrics
+      \code{query(x)}: find matrices
     }
    }
  }
