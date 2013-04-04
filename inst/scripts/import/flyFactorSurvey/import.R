@@ -5,8 +5,9 @@ library(biomaRt)
 #------------------------------------------------------------------------------------------------------------------------
 bindingDomainXrefSourceFile <- function() {"TFfile2b.tsv"}
 printf <- function(...) print(noquote(sprintf(...)))
+kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb/flyFactorSurvey"   # on rhino
 #------------------------------------------------------------------------------------------------------------------------
-run = function (flyFactorSurveyRootDir)
+run = function (flyFactorSurveyRootDir=kDataDir)
 {
   filenames = getMatrixFilenames (flyFactorSurveyRootDir)
 
@@ -31,7 +32,7 @@ run = function (flyFactorSurveyRootDir)
   serializedFile <- "flyFactorSurvey.RData"
   save (matrices, tbl.md, file=serializedFile)
   printf("saved %d matrices to %s", length(matrices), serializedFile)
-  printf("copy %s to <packageRoot>/MotifDb/inst/extdata, rebuild package", serializedFile)
+  printf("now please copy %s to <packageRoot>/MotifDb/inst/extdata, and rebuild package", serializedFile)
 
 } # run
 #------------------------------------------------------------------------------------------------------------------------
