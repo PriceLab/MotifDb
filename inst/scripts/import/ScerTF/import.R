@@ -6,8 +6,8 @@ library(tools)   # for md5sum
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
-kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb/ScerTF"
 kDataDir <- "~/s/data/public/TFBS/ScerTF/recommended/PCM"
+kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb/ScerTF"
 #------------------------------------------------------------------------------------------------------------------------
 run = function (dataDir=kDataDir)
 {
