@@ -4,7 +4,10 @@ library (RUnit)
 #-------------------------------------------------------------------------------
 source("import.R")
 #-------------------------------------------------------------------------------
-run.tests = function (flyFactorSurveyRootDir="~/s/data/public/TFBS/flyFactorSurvey/unpacked")
+#kDataDir <- "~/s/data/public/TFBS/flyFactorSurvey/unpacked"
+kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb/flyFactorSurvey"
+#-------------------------------------------------------------------------------
+run.tests = function (flyFactorSurveyRootDir=kDataDir)
 {
     freshStart ()
     test.fbgnToIDs()
@@ -60,10 +63,11 @@ test.getMatrixFilenames = function (flyFactorSurveyRootDir)
        # as of (03 apr 2013): 614 matrix files, one binding domains extra
        # file, TFfile2b.tsv
     
-    checkEquals (length (filenames), 615)
-    checkEquals(filenames[1:3],
-                c("Abd-A_FlyReg_FBgn0000014.pfm", "Abd-B_FlyReg_FBgn0000015.pfm",
-                  "AbdA_Cell_FBgn0000014.pfm"))
+    checkTrue(length (filenames) > 600)
+    sample.files <- c("Abd-A_FlyReg_FBgn0000014.pfm", "Abd-B_FlyReg_FBgn0000015.pfm",
+                      "AbdA_Cell_FBgn0000014.pfm")
+    checkTrue(all(sample.files %in% filenames))
+
     invisible (filenames)
 
 } # test.getMatrixFilenames
@@ -81,8 +85,9 @@ test.createExperimentRefTable = function ()
 test.parsePWMfromText = function (flyFactorSurveyRootDir)
 {
     print ('--- test.parsePWMfromText')
-    path <- file.path(flyFactorSurveyRootDir, 'Tup_SOLEXA_10_FBgn0003896.pfm')
-
+    path <- file.path(flyFactorSurveyRootDir, 'tup_SOLEXA_10_FBgn0003896.pfm')
+    checkTrue(file.exists(path))
+    
     lines.of.text =  scan (path, sep='\n',
                            what=character(0), comment='#', quiet=TRUE)
     pwm.tup =  parsePWMfromText (lines.of.text)
@@ -101,8 +106,12 @@ test.readAndParse = function (flyFactorSurveyRootDir)
     all.files = file.path(flyFactorSurveyRootDir,
                           getMatrixFilenames (flyFactorSurveyRootDir))
     
-    sample.files = all.files [1:3]   # grep ('FBgn0003896', all.files)
-    checkEquals (length (sample.files), 3)
+    sample.files <- c("Abd-A_FlyReg_FBgn0000014.pfm",
+                      "Abd-B_FlyReg_FBgn0000015.pfm",
+                      "AbdA_Cell_FBgn0000014.pfm")
+
+    checkTrue(all(sample.files %in% list.files(flyFactorSurveyRootDir)))
+    sample.files <- file.path(flyFactorSurveyRootDir, sample.files)
     checkTrue(all(file.exists(sample.files)))
 
       # by sorting these filenames, we know the order of the three returned
@@ -111,6 +120,8 @@ test.readAndParse = function (flyFactorSurveyRootDir)
     mtx.test = readAndParse (sample.files)
 
     checkEquals (length (mtx.test), 3)
+        # names are alphabetized, and sort differently in linux and macos
+        # work around that by 
     expected.names = c("Abd-A_FlyReg_FBgn0000014.pfm",
                        "Abd-B_FlyReg_FBgn0000015.pfm",
                        "AbdA_Cell_FBgn0000014.pfm")
@@ -160,6 +171,21 @@ test.createMetadata = function (matrices, tbl.ref, xref, list.BD)
 
 } # test.createMetadata
 #-------------------------------------------------------------------------------
+test.normalizeMatrices = function (matrices)
+{
+  print ('--- test.normalizeMatrices')
+
+  colsums = as.integer (sapply (matrices, function (mtx) as.integer (mean (round (colSums (mtx))))))
+  checkTrue (all (colsums > 1))
+
+  matrices.norm = normalizeMatrices (matrices)
+
+  colsums = as.integer (sapply (matrices.norm, function (mtx) as.integer (mean (round (colSums (mtx))))))
+  checkTrue (all (colsums == 1))
+  invisible (matrices.norm)
+
+} # test.normalizeMatrices
+#------------------------------------------------------------------------------------------------------------------------
 test.renameMatrices = function (matrices, tbl.md)
 {
     print ('--- test.renameMatrices')
