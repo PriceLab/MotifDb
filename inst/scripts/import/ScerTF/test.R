@@ -16,7 +16,7 @@ run.tests = function (dataDir=kDataDir)
   txx3 <<- test.parsePWMfromText (dataDir)
   x.matrices <<- test.readAndParse (dataDir)
   x.tbl.md  <<- test.createMetadata (dataDir)
-  x.matrices.renamed <<- test.renameMatrices (x.matrices, x.tbl.md)
+  x.matrices.renamed <<- test.renameMatrices (dataDir, x.matrices, x.tbl.md)
 
 } # run.tests
 #------------------------------------------------------------------------------------------------------------------------
@@ -143,7 +143,7 @@ test.getMatrixFilenames = function (dataDir)
 
 } # test.getMatrixFilenames
 #-----------------------------------------------------------------------------------------------------------------------
-test.renameMatrices = function (matrices, tbl.md, tbl.anno)
+test.renameMatrices = function (dataDir, matrices, tbl.md, tbl.anno)
 {
   print ('--- test.renameMatrices')
 
