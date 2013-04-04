@@ -94,7 +94,6 @@ parsePWMfromText = function (lines.of.text)
 {
   stopifnot (sum (sapply (c ('A', 'C', 'T', 'G'), function (token) length (grep (token, lines.of.text)))) == 4)
 
-
   for (line in lines.of.text) {
     tokens = strsplit (line, '\\s*[:\\|]') [[1]]
     nucleotide = tokens [1]
@@ -118,11 +117,10 @@ readAndParse = function (filenames)
   matrices = list ()
 
   for (filename in filenames) {
-    lines.of.text = scan (filename, what=character(0), sep='\n', comment='#', quiet=TRUE)
-    mtx = parsePWMfromText (lines.of.text)
-    #mtx.normalized = apply (mtx, 2, function (colvector) colvector / sum (colvector))
-    matrices [[basename(filename)]] = mtx
-    }
+      lines.of.text = scan (filename, what=character(0), sep='\n', comment='#', quiet=TRUE)
+      mtx = parsePWMfromText (lines.of.text)
+      matrices [[basename(filename)]] = mtx
+       }
  
    invisible (matrices)
 
