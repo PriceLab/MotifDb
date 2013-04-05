@@ -4,19 +4,20 @@ library (RUnit)
 #-------------------------------------------------------------------------------
 source("import.R")
 #-------------------------------------------------------------------------------
-#kDataDir <- "~/s/data/public/TFBS/flyFactorSurvey/unpacked"
-kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb/flyFactorSurvey"
+#kDataDir <- "~/s/data/public/TFBS"
+kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb"
 #-------------------------------------------------------------------------------
-run.tests = function (flyFactorSurveyRootDir=kDataDir)
+run.tests = function (dataDir=kDataDir)
 {
+    dataDir <- file.path(dataDir, "flyFactorSurvey")
     freshStart ()
     test.fbgnToIDs()
-    x.list.BD <- test.createXrefBindingDomain (flyFactorSurveyRootDir)
+    x.list.BD <- test.createXrefBindingDomain (dataDir)
     x.xref <- test.createXref ()
-    x.filenames <- test.getMatrixFilenames (flyFactorSurveyRootDir)
+    x.filenames <- test.getMatrixFilenames (dataDir)
     x.tbl.ref <- test.createExperimentRefTable ()
-    x.pwm <- test.parsePWMfromText (flyFactorSurveyRootDir)
-    x.mat3 <- test.readAndParse (flyFactorSurveyRootDir)
+    x.pwm <- test.parsePWMfromText (dataDir)
+    x.mat3 <- test.readAndParse (dataDir)
     x.tbl.md <- test.createMetadata (x.mat3, x.tbl.ref, x.xref, x.list.BD)
     x.mat3f <- test.normalizeMatrices (x.mat3)
     x.mat3fr <- test.renameMatrices (x.mat3f, x.tbl.md [1:3,])
@@ -31,10 +32,10 @@ freshStart = function ()
 
 } # freshStart
 #-------------------------------------------------------------------------------
-test.createXrefBindingDomain = function (flyFactorSurveyRootDir)
+test.createXrefBindingDomain = function (dataDir)
 {
     print ('--- test.createXrefBindingDomain')
-    list.BD = createXrefBindingDomain (flyFactorSurveyRootDir)
+    list.BD = createXrefBindingDomain (dataDir)
     checkEquals (length (list.BD), 777)
     checkTrue (all (grepl ('FBgn', names (list.BD))))
         # most abundant domain is zf-C2H2
@@ -55,11 +56,11 @@ test.createXref = function ()
 
 } # test.createXref
 #-------------------------------------------------------------------------------
-test.getMatrixFilenames = function (flyFactorSurveyRootDir)
+test.getMatrixFilenames = function (dataDir)
 {
     print ('--- test.getMatrixFilenames')
 
-    filenames = getMatrixFilenames (flyFactorSurveyRootDir)
+    filenames = getMatrixFilenames (dataDir)
        # as of (03 apr 2013): 614 matrix files, one binding domains extra
        # file, TFfile2b.tsv
     
@@ -82,10 +83,10 @@ test.createExperimentRefTable = function ()
 
 } # test.createExperimentRefTable
 #-------------------------------------------------------------------------------
-test.parsePWMfromText = function (flyFactorSurveyRootDir)
+test.parsePWMfromText = function (dataDir)
 {
     print ('--- test.parsePWMfromText')
-    path <- file.path(flyFactorSurveyRootDir, 'tup_SOLEXA_10_FBgn0003896.pfm')
+    path <- file.path(dataDir, 'tup_SOLEXA_10_FBgn0003896.pfm')
     checkTrue(file.exists(path))
     
     lines.of.text =  scan (path, sep='\n',
@@ -99,19 +100,19 @@ test.parsePWMfromText = function (flyFactorSurveyRootDir)
   
 } # test.parsePWMfromText
 #-------------------------------------------------------------------------------
-test.readAndParse = function (flyFactorSurveyRootDir)
+test.readAndParse = function (dataDir)
 {
     print ('--- test.readAndParse')
 
-    all.files = file.path(flyFactorSurveyRootDir,
-                          getMatrixFilenames (flyFactorSurveyRootDir))
+    all.files = file.path(dataDir,
+                          getMatrixFilenames (dataDir))
     
     sample.files <- c("Abd-A_FlyReg_FBgn0000014.pfm",
                       "Abd-B_FlyReg_FBgn0000015.pfm",
                       "AbdA_Cell_FBgn0000014.pfm")
 
-    checkTrue(all(sample.files %in% list.files(flyFactorSurveyRootDir)))
-    sample.files <- file.path(flyFactorSurveyRootDir, sample.files)
+    checkTrue(all(sample.files %in% list.files(dataDir)))
+    sample.files <- file.path(dataDir, sample.files)
     checkTrue(all(file.exists(sample.files)))
 
       # by sorting these filenames, we know the order of the three returned
@@ -295,14 +296,14 @@ test.fbgnToIDs <- function()
 # make sure we get this right
 # the matrix files are:
 #
-#     flyFactorSurveyRootDir/ab_SANGER_10_FBgn0259750.pfm
-#     flyFactorSurveyRootDir/ab_SOLEXA_5_FBgn0259750.pfm
+#     dataDir/ab_SANGER_10_FBgn0259750.pfm
+#     dataDir/ab_SOLEXA_5_FBgn0259750.pfm
 #
-test.geneNaming <- function(flyFactorSurveyRootDir)
+test.geneNaming <- function(dataDir)
 {
 
-   flyFactorSurveyRootDir <- "/Users/pshannon/s/data/public/TFBS/flyFactorSurvey/unpacked"
-   filenames = getMatrixFilenames (flyFactorSurveyRootDir)
+   dataDir <- "/Users/pshannon/s/data/public/TFBS/flyFactorSurvey/unpacked"
+   filenames = getMatrixFilenames (dataDir)
 
    removers <- grep (bindingDomainXrefSourceFile(), filenames)
    if(length(removers) > 0)
@@ -311,8 +312,8 @@ test.geneNaming <- function(flyFactorSurveyRootDir)
    keepers <- grep("FBgn0259750", filenames)
    checkTrue(length(keepers) == 2)
    filenames <- filenames[keepers]
-   full.filenames = file.path(flyFactorSurveyRootDir, filenames)
-   list.BD = createXrefBindingDomain (flyFactorSurveyRootDir)
+   full.filenames = file.path(dataDir, filenames)
+   list.BD = createXrefBindingDomain (dataDir)
    xref = createXref ()  # maps flybase ids to uniprot
    tbl.ref = createExperimentRefTable ()
    matrices = readAndParse (full.filenames)
