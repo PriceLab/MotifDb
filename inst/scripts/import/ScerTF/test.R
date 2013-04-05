@@ -7,6 +7,7 @@ source("import.R")
 #------------------------------------------------------------------------------------------------------------------------
 run.tests = function (dataDir=kDataDir)
 {
+  dataDir <- file.path(dataDir, "ScerTF")
   freshStart ()
   x.filenames <<- test.getMatrixFilenames (dataDir)
   txxa <<- test.createMatrixNameUniqifier ()

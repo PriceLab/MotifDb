@@ -6,11 +6,12 @@ library(tools)   # for md5sum
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
-kDataDir <- "~/s/data/public/TFBS/ScerTF/recommended/PCM"
-kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb/ScerTF"
+kDataDir <- "~/s/data/public/TFBS"
+kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb"
 #------------------------------------------------------------------------------------------------------------------------
 run = function (dataDir=kDataDir)
 {
+  dataDir <- file.path(dataDir, "ScerTF")
   freshStart ()
   tbl.ref = createExperimentRefTable ()
   all.files = getMatrixFilenames (dataDir)
