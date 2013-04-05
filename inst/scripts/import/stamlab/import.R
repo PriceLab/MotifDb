@@ -5,11 +5,12 @@ library (org.Mm.eg.db)
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
-kDataDir <- "~/s/data/public/TFBS/stam"
-kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb/stamlab"
+kDataDir <- "~/s/data/public/TFBS"
+kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb"
 #------------------------------------------------------------------------------------------------------------------------
 run = function (dataDir=kDataDir)
 {
+  dataDir <- file.path(dataDir, "stamlab")
   rawMatrixList <- readRawMatrices (dataDir)
   novels <- readNovelStatus (dataDir)
   matrices <- extractAndNormalizeMatrices (rawMatrixList)
