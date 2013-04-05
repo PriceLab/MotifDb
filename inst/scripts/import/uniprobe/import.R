@@ -9,9 +9,6 @@ library(tools)   # for md5sum
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
-kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb/uniprobe"
-kDataDir <- "~/s/data/public/TFBS/uniprobe"
-#------------------------------------------------------------------------------------------------------------------------
 run = function (dataDir)
 {
   all.files = identifyFiles (file.path(dataDir,'All_PWMs'))
@@ -25,7 +22,7 @@ run = function (dataDir)
   serializedFile <- "uniprobe.RData"
   save (matrices, tbl.md, file=serializedFile)
   printf("saved %d matrices to %s", length(matrices), serializedFile)
-  printf("copy %s to <packageRoot>/MotifDb/inst/extdata, rebuild package", serializedFile)
+  printf("next step: copy %s to <packageRoot>/MotifDb/inst/extdata, rebuild package", serializedFile)
 
 } # run
 #------------------------------------------------------------------------------------------------------------------------
