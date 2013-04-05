@@ -7,6 +7,7 @@ source("import.R")
 #------------------------------------------------------------------------------------------------------------------------
 run.tests = function (dataDir=kDataDir)
 {
+  dataDir <- file.path(dataDir, "jaspar")
   x.tbl.rmat <<- test.readRawMatrices (dataDir)
   x.matrices <<- test.convertRawMatricesToStandard (x.tbl.rmat)
   x.tbl.anno <<- test.createAnnotationTable (dataDir)

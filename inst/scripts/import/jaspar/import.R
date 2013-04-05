@@ -7,11 +7,12 @@ library (org.Mm.eg.db)
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
-kDataDir <- "~/s/data/public/TFBS/jaspar/sql_tables"
-kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb/jaspar"
+kDataDir <- "~/s/data/public/TFBS"
+kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb"
 #------------------------------------------------------------------------------------------------------------------------
 run = function (dataDir=kDataDir)
 {
+  dataDir <- file.path(dataDir, "jaspar")
   tbl.rmat = readRawMatrices (dataDir)
   matrices = convertRawMatricesToStandard (tbl.rmat)
   tbl.anno = createAnnotationTable (dataDir)
