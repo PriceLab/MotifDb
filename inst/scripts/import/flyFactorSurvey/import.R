@@ -32,7 +32,7 @@ run = function (flyFactorSurveyRootDir=kDataDir)
   serializedFile <- "flyFactorSurvey.RData"
   save (matrices, tbl.md, file=serializedFile)
   printf("saved %d matrices to %s", length(matrices), serializedFile)
-  printf("now please copy %s to <packageRoot>/MotifDb/inst/extdata, and rebuild package", serializedFile)
+  printf("next step: copy %s to <packageRoot>/MotifDb/inst/extdata, and rebuild package", serializedFile)
 
 } # run
 #------------------------------------------------------------------------------------------------------------------------
