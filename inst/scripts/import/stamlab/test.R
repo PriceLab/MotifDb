@@ -6,7 +6,7 @@ library (RUnit)
 #------------------------------------------------------------------------------------------------------------------------
 source("import.R")
 #------------------------------------------------------------------------------------------------------------------------
-run.tests = function (dataDir=kDataDir)
+run.tests = function (dataDir)
 {
   dataDir <- file.path(dataDir, "stamlab")
   x.rawMatrixList <<- test.readRawMatrices (dataDir)
