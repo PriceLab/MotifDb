@@ -5,8 +5,8 @@ library (org.Mm.eg.db)
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
-kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb/stamlab"
 kDataDir <- "~/s/data/public/TFBS/stam"
+kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb/stamlab"
 #------------------------------------------------------------------------------------------------------------------------
 run = function (dataDir=kDataDir)
 {
