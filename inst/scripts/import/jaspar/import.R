@@ -7,10 +7,7 @@ library (org.Mm.eg.db)
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
-kDataDir <- "~/s/data/public/TFBS"
-kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb"
-#------------------------------------------------------------------------------------------------------------------------
-run = function (dataDir=kDataDir)
+run = function (dataDir)
 {
   dataDir <- file.path(dataDir, "jaspar")
   tbl.rmat = readRawMatrices (dataDir)
