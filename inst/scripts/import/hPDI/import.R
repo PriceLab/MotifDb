@@ -4,8 +4,8 @@ library (org.Hs.eg.db)
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
-kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb"
 kDataDir <- "~/s/data/public/TFBS"
+kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb"
 #------------------------------------------------------------------------------------------------------------------------
 run = function (dataDir=kDataDir)
 {
