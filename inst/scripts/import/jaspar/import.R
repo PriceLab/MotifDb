@@ -7,10 +7,10 @@ library (org.Mm.eg.db)
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
-kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb/jaspar"
 kDataDir <- "~/s/data/public/TFBS/jaspar/sql_tables"
+kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb/jaspar"
 #------------------------------------------------------------------------------------------------------------------------
-run = function (dataDir)
+run = function (dataDir=kDataDir)
 {
   tbl.rmat = readRawMatrices (dataDir)
   matrices = convertRawMatricesToStandard (tbl.rmat)
