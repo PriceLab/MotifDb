@@ -5,7 +5,7 @@ library(biomaRt)
 #------------------------------------------------------------------------------------------------------------------------
 bindingDomainXrefSourceFile <- function() {"TFfile2b.tsv"}
 printf <- function(...) print(noquote(sprintf(...)))
-kDataDir <- "~/s/data/public/TFBS"
+#kDataDir <- "~/s/data/public/TFBS"
 kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb"
 #------------------------------------------------------------------------------------------------------------------------
 run = function (dataDir=kDataDir)
