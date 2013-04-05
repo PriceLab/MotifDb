@@ -6,6 +6,7 @@ source("import.R")
 #------------------------------------------------------------------------------------------------------------------------
 run.tests = function (dataDir=kDataDir)
 {
+  dataDir <- file.path(dataDir, "hPDI")
   #freshStart ()
 
   x.filenames <- test.getMatrixFilenames (dataDir)

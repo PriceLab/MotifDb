@@ -4,12 +4,15 @@ library (org.Hs.eg.db)
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
-kDataDir <- "~/s/data/public/TFBS/hPDI"
-kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb/hPDI"
+kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb"
+kDataDir <- "~/s/data/public/TFBS"
 #------------------------------------------------------------------------------------------------------------------------
 run = function (dataDir=kDataDir)
 {
+  dataDir <- file.path(dataDir, "hPDI")
+
   filenames = getMatrixFilenames (dataDir)
+  browser("hpdi")
   matrices = readMatrices (filenames)
   tbl.anno = readAnnotation (dataDir)
 
