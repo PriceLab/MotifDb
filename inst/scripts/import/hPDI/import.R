@@ -12,7 +12,6 @@ run = function (dataDir=kDataDir)
   dataDir <- file.path(dataDir, "hPDI")
 
   filenames = getMatrixFilenames (dataDir)
-  browser("hpdi")
   matrices = readMatrices (filenames)
   tbl.anno = readAnnotation (dataDir)
 
