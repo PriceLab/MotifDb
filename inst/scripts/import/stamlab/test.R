@@ -8,6 +8,7 @@ source("import.R")
 #------------------------------------------------------------------------------------------------------------------------
 run.tests = function (dataDir=kDataDir)
 {
+  dataDir <- file.path(dataDir, "stamlab")
   x.rawMatrixList <<- test.readRawMatrices (dataDir)
   x.novels <<- test.readNovelStatus (dataDir)
   x.matrices <<- test.extractAndNormalizeMatrices (x.rawMatrixList)
