@@ -4,10 +4,7 @@ library (RUnit)
 #-------------------------------------------------------------------------------
 source("import.R")
 #-------------------------------------------------------------------------------
-#kDataDir <- "~/s/data/public/TFBS"
-kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb"
-#-------------------------------------------------------------------------------
-run.tests = function (dataDir=kDataDir)
+run.tests = function (dataDir)
 {
     dataDir <- file.path(dataDir, "flyFactorSurvey")
     freshStart ()

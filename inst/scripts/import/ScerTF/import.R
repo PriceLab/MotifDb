@@ -6,10 +6,7 @@ library(tools)   # for md5sum
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
-kDataDir <- "~/s/data/public/TFBS"
-kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb"
-#------------------------------------------------------------------------------------------------------------------------
-run = function (dataDir=kDataDir)
+run = function (dataDir)
 {
   dataDir <- file.path(dataDir, "ScerTF")
   freshStart ()
@@ -21,8 +18,7 @@ run = function (dataDir=kDataDir)
   serializedFile <- 'ScerTF.RData'
   save (matrices, tbl.md, file=serializedFile)
   printf("saved %d matrices to %s", length(matrices), serializedFile)
-  printf("copy %s to <packageRoot>/MotifDb/inst/extdata, rebuild package", serializedFile)
-
+  printf("next step: copy %s to <packageRoot>/MotifDb/inst/extdata, rebuild package", serializedFile)
 
   invisible (list (mtx=matrices, md=tbl.md))
 
@@ -112,7 +108,6 @@ readAndParse = function (filenames)
   matrices = list ()
 
   for (filename in filenames) {
-    #browser("readAndParse")
     lines.of.text = scan (filename, what=character(0), sep='\n', quiet=TRUE)
     mtx = parsePWMfromText (lines.of.text)
     mtx.normalized = apply (mtx, 2, function (colvector) colvector / sum (colvector))
