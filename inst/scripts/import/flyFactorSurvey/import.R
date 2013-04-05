@@ -5,11 +5,13 @@ library(biomaRt)
 #------------------------------------------------------------------------------------------------------------------------
 bindingDomainXrefSourceFile <- function() {"TFfile2b.tsv"}
 printf <- function(...) print(noquote(sprintf(...)))
-kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb/flyFactorSurvey"   # on rhino
+kDataDir <- "~/s/data/public/TFBS"
+kDataDir <- "/shared/silo_researcher/Morgan_M/BioC/MotifDb"
 #------------------------------------------------------------------------------------------------------------------------
-run = function (flyFactorSurveyRootDir=kDataDir)
+run = function (dataDir=kDataDir)
 {
-  filenames = getMatrixFilenames (flyFactorSurveyRootDir)
+  dataDir <- file.path(dataDir, "flyFactorSurvey")
+  filenames = getMatrixFilenames (dataDir)
 
      # the rootDir has only matrix files, with one exception:
      # a file which describes the protein binding domains
@@ -19,9 +21,9 @@ run = function (flyFactorSurveyRootDir=kDataDir)
   if(length(removers) > 0)
       filenames <- filenames[-removers]
   
-  full.filenames = file.path(flyFactorSurveyRootDir, filenames)
+  full.filenames = file.path(dataDir, filenames)
 
-  list.BD = createXrefBindingDomain (flyFactorSurveyRootDir)
+  list.BD = createXrefBindingDomain (dataDir)
   xref = createXref ()  # maps flybase ids to uniprot
   tbl.ref = createExperimentRefTable ()
   matrices = readAndParse (full.filenames)
@@ -38,9 +40,9 @@ run = function (flyFactorSurveyRootDir=kDataDir)
 #------------------------------------------------------------------------------------------------------------------------
 # rec'd extra xref info from michael brodsky on (18 jul 2012)
 # protein binding domains are of immediate interest.
-createXrefBindingDomain = function (flyFactorSurveyRootDir)
+createXrefBindingDomain = function (dataDir)
 {
-  f1 = file.path(flyFactorSurveyRootDir, bindingDomainXrefSourceFile())
+  f1 = file.path(dataDir, bindingDomainXrefSourceFile())
   tbl.raw = read.table (f1, sep='\t', header=TRUE, as.is=TRUE, comment.char='')
   list.BD = tbl.raw$DNAbindingDomain_Primary
   names (list.BD) = tbl.raw$FlybaseID
@@ -58,11 +60,11 @@ createXref = function ()
   names (xref) = tbl.xref [, 2]
   invisible (xref)
 
-} # createXref
+} # createXrefp
 #------------------------------------------------------------------------------------------------------------------------
-getMatrixFilenames = function (flyFactorSurveyRootDir)
+getMatrixFilenames = function (dataDir)
 {
-  all.files = list.files (flyFactorSurveyRootDir)
+  all.files = list.files (dataDir)
   files.to.exclude = c ('go.R', 'RCS', 'rdata')
   for (file in files.to.exclude) {
     removers = grep (file, all.files, ignore.case=T)
