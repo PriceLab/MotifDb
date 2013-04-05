@@ -246,7 +246,10 @@ test.fbgnToIDs <- function()
     checkEquals(as.character(as.list(tbl.ids[1,],)),
                 c(rep("FBgn0003986", 3), "FLYBASE"))
     
-    load("../../../extdata/fbgns.RData")
+    serializedFbgnsForTesting <- system.file(package="MotifDb", "scripts",
+                                             "import", "fbgns.RData")
+    checkTrue(file.exists(serializedFbgnsForTesting))
+    load(serializedFbgnsForTesting)
     checkEquals(length(fbgns), 326)
     tbl.ids <- fbgnToIDs(fbgns)
     checkEquals(dim(tbl.ids), c(length(fbgns), 4))
