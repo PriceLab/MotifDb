@@ -5,7 +5,7 @@
 library (RUnit)
 source("import.R")
 #------------------------------------------------------------------------------------------------------------------------
-run.tests = function (dataDir=kDataDir)
+run.tests = function (dataDir)
 {
   dataDir <- file.path(dataDir, "jaspar")
   x.tbl.rmat <<- test.readRawMatrices (dataDir)

@@ -3,7 +3,7 @@
 library(RUnit)
 source("import.R")
 #------------------------------------------------------------------------------------------------------------------------
-run.tests = function (dataDir=kDataDir)
+run.tests = function (dataDir)
 {
   txxa <<- test.createMatrixNameUniqifier ()   # in ../common.R
   txx1 <<- test.extractNativeNames (dataDir)
