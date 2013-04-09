@@ -1,6 +1,7 @@
 # uniprobe/import.R
 #------------------------------------------------------------------------------------------------------------------------
-library (RMySQL)
+#library (RMySQL)
+library (RSQLite)
 library (org.Hs.eg.db)
 library (org.Mm.eg.db)
 library (org.Sc.sgd.db)
@@ -14,7 +15,7 @@ run = function (dataDir)
   all.files = identifyFiles (file.path(dataDir,'All_PWMs'))
   matrices = readAndParse (all.files)
   tbl.pubRef = createPublicationRefTable ()
-  tbl.geneRef = createGeneRefTable ()
+  tbl.geneRef = createGeneRefTable (dataDir)
   tbl.md = createMetadata (matrices, tbl.pubRef, tbl.geneRef)
   stopifnot (length (matrices) == nrow (tbl.md))
   matrices = renameMatrices (matrices, tbl.md)
@@ -28,9 +29,9 @@ run = function (dataDir)
 #------------------------------------------------------------------------------------------------------------------------
 createMatrixNameUniqifier = function (matrix)
 {
-  temporary.file <<- tempfile ()
+  temporary.file <- tempfile ()
   write (as.character (matrix), file=temporary.file)
-  md5sum.string <<- as.character (md5sum (temporary.file))
+  md5sum.string <- as.character (md5sum (temporary.file))
   stopifnot (nchar (md5sum.string) == 32)
   md5.6chars = substr (md5sum.string, 29, 32)
   #unlink (temporary.file)
@@ -51,13 +52,10 @@ parsePWMfromText = function (lines.of.text)
     tokens = strsplit (line, '\\s*[:\\|]') [[1]]
     nucleotide = tokens [1]
     numbers.raw = tokens [2]
-    zz = numbers.raw
     number.tokens = strsplit (numbers.raw, '\\s+', perl=T)[[1]]
     while (nchar (number.tokens [1]) == 0)
       number.tokens = number.tokens [-1]
-    zzz = number.tokens
     numbers = as.numeric (number.tokens)
-    zzzz = numbers
     #printf ('adding %s: %s', nucleotide, list.to.string (numbers))
     result [nucleotide,] = numbers
     }
@@ -82,10 +80,6 @@ extractPWMfromFile = function (filename)
 #------------------------------------------------------------------------------------------------------------------------
 createPublicationRefTable = function ()
 {
-  # tbl.pubmed <<- data.frame (folder=c('CR09', 'Cell08', 'Cell09', 'EMBO10', 'GD09', 'GR09', 'MMB08', 'NBT06', 'PNAS08', 'SCI09'),
-  #                     pmid=c('19147588', '18585359', '19632181', '20517297', '19204119', '19158363', '18681939', '16998473', '18541913', '19443739'),
-  #                     stringsAsFactors=FALSE)
-
   options (stringsAsFactors=FALSE)
   tbl.ref = data.frame (folder=c('CR09', 'Cell08', 'Cell09', 'EMBO10', 'GD09', 'GR09', 'MMB08', 'NBT06', 'PNAS08', 'SCI09'))
   tbl.ref = cbind (tbl.ref, author=c('Scharer', 'Berger', 'Grove', 'Wei', 'Lesch', 'Zhu', 'Pompeani', 'Berger', 'De Silva', 'Badis'))
@@ -146,15 +140,11 @@ readAndParse = function (file.list)
   for (file in file.list) {
     #printf ('read and parse %s', file)
     text = scan (file, sep='\n', what=character (0), quiet=TRUE)
-    aaa <<- text
     matrix.start.lines = grep ('A:', text)
     stopifnot (length (matrix.start.lines) == 1)
     start.line = matrix.start.lines [1]
     end.line = start.line + 3
-    bbb <<- start.line
-    ccc <<- end.line
     lines.of.text = text [start.line:end.line]
-    zzz <<- lines.of.text
     pwm.matrix = parsePWMfromText (lines.of.text)
     name.tokens <- strsplit(file,"/")[[1]]
     token.count <- length(name.tokens)
@@ -295,9 +285,7 @@ createMetadata = function (matrices, tbl.pubRef, tbl.geneRef)
                     tfFamily=tfFamily,
                     experimentType=experimentType,
                     pubmedID=pubmedID)
-    #if (native.name == 'Cart1')  browser (text='Cart1')
     if (native.name.uniq %in% rownames (tbl.md)) browser (text='dup row name')
-    #print (new.row)
     tbl.md = rbind (tbl.md, data.frame (new.row, stringsAsFactors=FALSE))
     if (length (native.name.uniq) != 1) browser (text='native.name.unique length != 1')
     rownames (tbl.md) [m] = native.name.uniq
@@ -387,10 +375,14 @@ uniprotToStandardID = function (organism, uniprot.ids)
 #------------------------------------------------------------------------------------------------------------------------
 # see ~/v/snotes/log "* load uniprobe sql dump file (11 may 2012)" for info on the uniprobe mysql database 
 # used here.  
-createGeneRefTable = function ()
+createGeneRefTable = function (dataDir)
 {
-  if (!exists ('db'))
-    db <<- dbConnect (MySQL (), dbname='uniprobe')
+  if (!exists ('db')){
+      dbFile <- file.path(dataDir, "uniprobe.sqlite")
+      browser("dbFile")
+      stopifnot(file.exists(dbFile))
+      db <<- dbConnect (dbDriver("SQLite"), dbFile)
+      }
 
   tbl.pubmed = data.frame (folder=c('CR09', 'Cell08', 'Cell09', 'EMBO10', 'GD09', 'GR09', 'MMB08', 'NBT06', 'PNAS08', 'SCI09'),
                  pmid=c('19147588', '18585359', '19632181', '20517297', '19204119', '19158363', '18681939', '16998473', '18541913', '19443739'),
