@@ -13,6 +13,7 @@ printf <- function(...) print(noquote(sprintf(...)))
 run = function (dataDir)
 {
   dataDir <- file.path(dataDir, "uniprobe")
+  stopifnot(file.exists(dataDir))
 
   all.files = identifyFiles (file.path(dataDir, 'All_PWMs'))
   matrices = readAndParse (all.files)
