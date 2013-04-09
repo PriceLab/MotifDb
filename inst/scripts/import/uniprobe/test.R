@@ -5,11 +5,11 @@ source("import.R")
 #------------------------------------------------------------------------------------------------------------------------
 run.tests = function (dataDir)
 {
-  dataDir <- file.path(dataDir, "uniprobe")
-  
   stopifnot(!missing(dataDir))
+  dataDir <- file.path(dataDir, "uniprobe")
+  stopifnot(file.exists(dataDir))  
   
-  txxa <- test.createMatrixNameUniqifier ()  # in ../common.R
+  txxa <- test.createMatrixNameUniqifier ()
   txx1 <- test.extractNativeNames (dataDir)
   txx2 <- test.createPublicationRefTable ()
   txxb <- test.standardizeSpeciesNames ()
@@ -422,7 +422,6 @@ test.emptyStringProteinId = function (dataDir)
   all.files = identifyFiles (file.path(dataDir, 'All_PWMs'))
   filename.gsm1 = grep ('Gsm1', all.files, v=T)
   mtx = readAndParse (filename.gsm1)
-  #browser (text='test.emptyStringProteinId')
   tbl.pubRef = createPublicationRefTable ()
   tbl.geneRef = createGeneRefTable (dataDir)
   tbl.md = createMetadata (mtx, tbl.pubRef, tbl.geneRef)
