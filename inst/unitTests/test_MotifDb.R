@@ -150,15 +150,14 @@ test.geneSymbols = function ()
 test.geneIdsAndTypes = function ()
 {
   print ('--- test.getGeneIdsAndTypes')
-  mdb = MotifDb # ()
+  mdb = MotifDb
   geneIds = values (mdb)$geneId
   geneIdTypes = values (mdb)$geneIdType
-  tbl.types = as.data.frame (table (geneIdTypes, useNA='always'), stringsAsFactors=FALSE)
-  checkEquals (sort (tbl.types$geneIdTypes), sort (c ('comment', 'ENTREZ', 'FLYBASE', 'SGD', NA)))
-  checkEquals (sort (tbl.types$Freq),  sort (c (683, 763, 614, 453, 256)))
+  typeCounts = as.list (table (geneIdTypes))
+  checkEquals(typeCounts, list(ENTREZ=1354, FLYBASE=30, SGD=453, comment=683))
 
   na.count = length (which (is.na (geneIds)))
-  checkEquals (na.count, 256)   # see geneIdTypes == NA, just above
+  checkEquals (na.count, 249) 
   empty.count = length (which (geneIds == ''))
   checkEquals (empty.count, 0)
 
