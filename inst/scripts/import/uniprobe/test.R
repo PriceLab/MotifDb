@@ -5,26 +5,26 @@ source("import.R")
 #------------------------------------------------------------------------------------------------------------------------
 run.tests = function (dataDir)
 {
-  txxa <<- test.createMatrixNameUniqifier ()   # in ../common.R
-  txx1 <<- test.extractNativeNames (dataDir)
-  txx2 <<- test.createPublicationRefTable ()
-  txxb <<- test.standardizeSpeciesNames ()
-  txx4 <<- test.createGeneRefTable ()      # read mysql database to get, uniprobe-style, pwm-specific metadata
-  txx3 <<- test.uniprotToStandardID ()
-  txx5 <<- test.getAllStandardIDs ()       # build a 'stdID' column to add to tbl.geneRef
-  txx5a <<- test.parsePWMfromText (dataDir)
-
-
+  stopifnot(!missing(dataDir))
   
-  txx6 <<- test.extractPWMfromFile (dataDir)
-  txx7 <<- test.translateFileNameToGeneName ()
-  txx8 <<- test.readAndParse (dataDir)
-  txx9 <<- test.createMetadata (dataDir)
-  txxb <<- test.createMetadata.sox4 (dataDir)
-  txxb <<- test.createMetadata.cbf1 (dataDir)
-  txxba <<- test.createMetadata.fixTrailingSpaceInBindingDomain (dataDir)
-  txxc <<- test.renameMatrices ()
-  txxd <<- test.emptyStringProteinId (dataDir)
+  txxa <- test.createMatrixNameUniqifier ()  # in ../common.R
+  txx1 <- test.extractNativeNames (dataDir)
+  txx2 <- test.createPublicationRefTable ()
+  txxb <- test.standardizeSpeciesNames ()
+  txx4 <- test.createGeneRefTable(dataDir)  # read mysql database to get, uniprobe-style, pwm-specific metadata
+  txx3 <- test.uniprotToStandardID ()
+  txx5 <- test.getAllStandardIDs (dataDir)   # build a 'stdID' column to add to tbl.geneRef
+  txx5a <- test.parsePWMfromText (dataDir)
+
+  txx6 <- test.extractPWMfromFile (dataDir)
+  txx7 <- test.translateFileNameToGeneName ()
+  txx8 <- test.readAndParse (dataDir)
+  txx9 <- test.createMetadata (dataDir)
+  txxb <- test.createMetadata.sox4 (dataDir)
+  txxb <- test.createMetadata.cbf1 (dataDir)
+  txxba <- test.createMetadata.fixTrailingSpaceInBindingDomain (dataDir)
+  txxc <- test.renameMatrices ()
+  txxd <- test.emptyStringProteinId (dataDir)
   
 } # run.tests
 #------------------------------------------------------------------------------------------------------------------------
@@ -167,7 +167,7 @@ test.createMetadata = function (dataDir)
 
   matrices.10 = readAndParse (sample.files)
   tbl.pubRef = createPublicationRefTable ()
-  tbl.geneRef = createGeneRefTable ()
+  tbl.geneRef = createGeneRefTable (dataDir)
   tbl.md = createMetadata (matrices.10, tbl.pubRef, tbl.geneRef)
 
   checkEquals (dim (tbl.md), c (10, 15))
@@ -222,7 +222,7 @@ test.createMetadata.cbf1 = function (dataDir)
 
   matrices.cbf1 = readAndParse (cbf1.files)
   tbl.pubRef = createPublicationRefTable ()
-  tbl.geneRef = createGeneRefTable ()
+  tbl.geneRef = createGeneRefTable (dataDir)
   tbl.md = createMetadata (matrices.cbf1, tbl.pubRef, tbl.geneRef)
   checkEquals (dim (tbl.md), c (2, 15))
   checkEquals (tbl.md$geneSymbol, c ('Cbf1', 'Cbf1'))
@@ -244,7 +244,7 @@ test.createMetadata.fixTrailingSpaceInBindingDomain = function (dataDir)
   filenames = all.files [sample.trailingSpaceCulpritFiles]
   matrices.tmp = readAndParse (filenames)
   tbl.pubRef = createPublicationRefTable ()
-  tbl.geneRef = createGeneRefTable ()
+  tbl.geneRef = createGeneRefTable (dataDir)
     # the fix is in here.  
   tbl.md = createMetadata (matrices.tmp, tbl.pubRef, tbl.geneRef)
   checkEquals (dim (tbl.md), c (1, 15))
@@ -265,7 +265,7 @@ test.createMetadata.sox4 = function (dataDir)
 
   matrices.sox4 = readAndParse (sox4.files)
   tbl.pubRef = createPublicationRefTable ()
-  tbl.geneRef = createGeneRefTable ()
+  tbl.geneRef = createGeneRefTable (dataDir)
   tbl.md = createMetadata (matrices.sox4, tbl.pubRef, tbl.geneRef)
   checkEquals (dim (tbl.md), c (2, 15))
 
@@ -347,10 +347,10 @@ test.uniprotToStandardID = function ()
 
 } # test.uniprotToStandardID
 #------------------------------------------------------------------------------------------------------------------------
-test.createGeneRefTable = function ()
+test.createGeneRefTable = function (dataDir)
 { 
   print ('--- test.createGeneRefTable')
-  tbl.geneRef = createGeneRefTable ()  
+  tbl.geneRef = createGeneRefTable (dataDir)  
   checkEquals (length (grep (' ', tbl.geneRef$species)), 0)   # no spaces in the species names
   checkEquals (ncol (tbl.geneRef), 13)
   checkEquals (sort (colnames (tbl.geneRef)),
@@ -364,11 +364,11 @@ test.createGeneRefTable = function ()
 
 } # test.createGeneRefTable
 #------------------------------------------------------------------------------------------------------------------------
-test.getAllStandardIDs = function ()
+test.getAllStandardIDs = function (dataDir)
 {
   print ('--- test.getAllStandardIDs')
   if (!exists ('tbl.geneRef'))
-     tbl.geneRef =  createGeneRefTable ()  
+     tbl.geneRef =  createGeneRefTable (dataDir)  
 
   stdID = getAllStandardIDs (tbl.geneRef)
   checkEquals (length (stdID), nrow (tbl.geneRef))
@@ -422,7 +422,7 @@ test.emptyStringProteinId = function (dataDir)
   mtx = readAndParse (filename.gsm1)
   #browser (text='test.emptyStringProteinId')
   tbl.pubRef = createPublicationRefTable ()
-  tbl.geneRef = createGeneRefTable ()
+  tbl.geneRef = createGeneRefTable (dataDir)
   tbl.md = createMetadata (mtx, tbl.pubRef, tbl.geneRef)
   checkEquals (nrow (tbl.md), 1)
   md.list = as.list (tbl.md)
