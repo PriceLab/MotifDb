@@ -12,7 +12,9 @@ printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
 run = function (dataDir)
 {
-  all.files = identifyFiles (file.path(dataDir,'All_PWMs'))
+  dataDir <- file.path(dataDir, "uniprobe")
+
+  all.files = identifyFiles (file.path(dataDir, 'All_PWMs'))
   matrices = readAndParse (all.files)
   tbl.pubRef = createPublicationRefTable ()
   tbl.geneRef = createGeneRefTable (dataDir)
@@ -105,6 +107,8 @@ createPublicationRefTable = function ()
 #------------------------------------------------------------------------------------------------------------------------
 identifyFiles = function (filePath)
 {
+  stopifnot(file.exists(filePath))
+  
   cmd = sprintf ('find %s -name "*pwm*"', filePath)
 
   files.raw = system (cmd, intern=TRUE)
@@ -379,7 +383,6 @@ createGeneRefTable = function (dataDir)
 {
   if (!exists ('db')){
       dbFile <- file.path(dataDir, "uniprobe.sqlite")
-      browser("dbFile")
       stopifnot(file.exists(dbFile))
       db <<- dbConnect (dbDriver("SQLite"), dbFile)
       }

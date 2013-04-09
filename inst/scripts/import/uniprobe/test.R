@@ -5,6 +5,8 @@ source("import.R")
 #------------------------------------------------------------------------------------------------------------------------
 run.tests = function (dataDir)
 {
+  dataDir <- file.path(dataDir, "uniprobe")
+  
   stopifnot(!missing(dataDir))
   
   txxa <- test.createMatrixNameUniqifier ()  # in ../common.R
