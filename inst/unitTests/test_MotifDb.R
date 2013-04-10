@@ -35,7 +35,7 @@ run.tests = function ()
   test.export_memeFormatToFile_run_tomtom ()
   test.run_MotIV ()
   test.MotIV.toTable ()
-  
+  test.flyFactorGeneSymbols()
 
 } # run.tests
 #------------------------------------------------------------------------------------------------------------------------
@@ -644,5 +644,47 @@ pwmMatch.toTable = function (motifMatch) {
    }
    names(df.list) <- names(motifMatch)
    return (df.list)
-}
-#------------------------------------------------------------------------------------------------------------------------
+
+} # pwmMatch.toTable
+#------------------------------------------------------------------------------
+# Robert Stojnic reports incorrect gene symbols for matrices obtained from
+# flyFactorSurvey.
+# the solution was to abandon the original strategy of extracting the
+# symbol from the matrix (and file) name.
+# now, the flybase importer ("inst/scripts/import/flyFactorSurvey/import.R")
+# uses FBgn id (which can be reliably extracted) and uses indpendent
+# data sources to learn the gene symbol.
+#
+# robert's email:
+#  I'm working on using MotifDb motifs in my PWMEnrich package and I
+#  have noticed that there is a slight problem with gene symbols for
+#  Drosophila. In particular, the gene symbols do not always correspond
+#  to the gene ID and are frequently mis-capitalized. In Drosophila z
+#  and Z are two different genes and capitalization does matter if
+#  someone is to use the gene symbols. Also, in some cases the symbols
+#  are missing hyphens or parenthesis. I have used the gene IDs and the
+#  Flybase annotation database to set the correct gene symbols for
+#  Drosophila, please find attached the result of my re-annotation.
+#
+#  looking at his correctedMotifDbDmel.csv 
+#
+#    head(read.table("correctedMotifDbDmel.csv", sep=",", header=TRUE, stringsAsFactors=FALSE))
+#                  providerName oldGeneSymbol newGeneSymbol
+#    1 ab_SANGER_10_FBgn0259750            Ab            ab
+#    2  ab_SOLEXA_5_FBgn0259750            Ab            ab
+#    3 Abd-A_FlyReg_FBgn0000014         Abd-a         abd-A
+#    4 Abd-B_FlyReg_FBgn0000015         Abd-b         Abd-B
+#    5    AbdA_Cell_FBgn0000014          Abda         abd-A
+#    6  AbdA_SOLEXA_FBgn0000014          Abda         abd-A
+#
+test.flyFactorGeneSymbols <- function()
+{
+    print ("--- test.flyFactorGeneSymbols")
+    mdb = MotifDb
+    checkEquals(mcols(query(mdb, "FBgn0259750"))$geneSymbol, c("ab", "ab"))
+    checkEquals(mcols(query(mdb, "FBgn0000014"))$geneSymbol, rep("abd-A", 3))
+    checkEquals(mcols(query(mdb, "FBgn0000015"))$geneSymbol, rep("Abd-B", 3))
+
+} # test.flyFactorGeneSymbols
+#-------------------------------------------------------------------------------
+
