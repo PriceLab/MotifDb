@@ -1,0 +1,42 @@
+Bioconductor Package MotifDb: LICENSE
+
+MotifDb is a collection of position weight matrices and metadata obtained
+from six sources, with some restriction upon commercial use as described
+below:
+
+| 2769 position frequency matrices from 6 sources:
+|    FlyFactorSurvey:  614
+|        JASPAR_CORE:  459
+|             ScerTF:  196
+|           UniPROBE:  380
+|               hPDI:  437
+|            stamlab:  683
+
+FlyFactorSurvey:  all data described as "public"
+[http://pgfe.umassmed.edu/ffs/DownloadData.php]
+
+JASPAR_CORE:  "The JASPAR CORE database contains a curated,
+non-redundant set of profiles, derived from published collections of
+experimentally defined transcription factor binding sites for
+eukaryotes. The prime difference to similar resources (TRANSFAC, etc)
+consist of the open data acess, non-redundancy and quality."
+  [http://jaspar.genereg.net/]
+
+ScerTF: "The entire database of optimal matrices selected for all S.
+cerevisiae transcription factors is available for download here."  No
+restrictions mentioned.   Spivak and Stormo explain that they curated
+their collection from ten sources, listed here:
+http://stormo.wustl.edu/ScerTF/download/.
+
+UniPROBE: "Please note that any files which contain PBM probe sequences
+are protected by an academic research use license, which will require
+confirmation prior to file download." (from ).  I exchanged email with
+Martha Bulyk and her staff in May 2012, explained the MotifDb project,
+they were helpful.  I will check my import code to see whether I use
+their PBM probe sequences.
+
+hPDI:  "The content in the hPDI database is free to academic and
+non-profit organizations. Users for commercial purpose please contact
+the authors before download the data sets."
+
+stamlab: These motifs are part of the ENCODE project, and (I assume) public.

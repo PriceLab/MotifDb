@@ -22,6 +22,8 @@ MotifDb <- NULL
       }
     } # if loadAllSources
 
+   message('See system.file("LICENSE", package="MotifDb") for use restrictions.')
+  
   return(mdb)
 
 } # MotifDb
