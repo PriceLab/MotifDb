@@ -15,11 +15,12 @@
 This object is automatically created and fully populated by data from
 five public sources (see below) when the package is loaded into your R environment via the
 \code{library} call. 
-The matrices are obtained from five public sources:
+The matrices are obtained from six public sources:
 \tabular{ll}{
 FlyFactorSurvey: \tab 614\cr
 hPDI: \tab 437\cr
 JASPAR_CORE: \tab 459\cr
+jolma2013: \tab 843\cr
 ScerTF: \tab 196\cr
 stamlab: \tab 683\cr
 UniPROBE: \tab 380\cr
@@ -28,9 +29,9 @@ UniPROBE: \tab 380\cr
 Representing primarily four organsisms:
 \tabular{ll}{
 Dmelanogaster: \tab 739\cr
-Hsapiens: \tab 1188\cr
+Hsapiens: \tab 1898\cr
 Scerevisiae: \tab 464\cr
-Mmusculus: \tab 329\cr
+Mmusculus: \tab 462\cr
 Rnorvegicus: \tab 8\cr
 Celegans: \tab 7\cr
 Zmays: \tab 6\cr
@@ -187,6 +188,7 @@ Cell. 2012 Sep 14;150(6):1274-86.
 
 \item Zhu LJ, et al. 2011. FlyFactorSurvey: a database of Drosophila transcription factor binding specificities determined using the bacterial one-hybrid system. Nucleic Acids Res. 2011 Jan;39(Database issue):D111-7. Epub 2010 Nov 19.
 
+\item Jolma A, et al. 2013. DNA-binding specificities of human transcription factors. Cell  2013 Jan 17.
 
 } %% itemize
 
