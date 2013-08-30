@@ -202,7 +202,7 @@ setMethod('show', 'MotifList',
       if (length (object) == 0)
         return ()
       
-      cat ('| Created from downloaded public sources: 2012-Nov-01', '\n', sep='')
+      cat ('| Created from downloaded public sources: 2013-Aug-30', '\n', sep='')
 
       tbl.dataSource = as.data.frame (table (values (object)$dataSource))
       tbl.org = as.data.frame (table (values (object)$organism))
