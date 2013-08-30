@@ -154,10 +154,10 @@ test.geneIdsAndTypes = function ()
   geneIds = values (mdb)$geneId
   geneIdTypes = values (mdb)$geneIdType
   typeCounts = as.list (table (geneIdTypes))
-  checkEquals(typeCounts, list(ENTREZ=1354, FLYBASE=30, SGD=453, comment=683))
+  checkEquals(typeCounts, list(ENTREZ=2197, FLYBASE=30, SGD=453, comment=683))
 
   na.count = length (which (is.na (geneIds)))
-  checkEquals (na.count, 249) 
+  checkEquals (na.count, 304) 
   empty.count = length (which (geneIds == ''))
   checkEquals (empty.count, 0)
 
@@ -532,11 +532,11 @@ test.export_memeFormatToFileDuplication = function ()
   print ('--- test.export_memeFormatToFileDuplication')
   mdb = MotifDb # ()
   mdb.mouse = subset (mdb, organism=='Mmusculus')
-  checkEquals (length (mdb.mouse), 329)
+  checkEquals (length (mdb.mouse), 462)
   output.file = 'mouse.txt' # tempfile ()
   max = 3
   meme.text = export (mdb.mouse [1:max], output.file, 'meme')
-  retrieved = scan (output.file, what=character (0), sep='\n')
+  retrieved = scan (output.file, what=character (0), sep='\n', quiet=TRUE)
   invisible (retrieved)
 
 } # test.exportMemeFormatToFileDuplication
