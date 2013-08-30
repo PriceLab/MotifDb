@@ -209,7 +209,6 @@ createMetadata = function (matrices, tbl.ref, xref, list.BD)
 
   tbl.md = cbind (tbl.md, pubmedID=pubmedIDs)
 
-  
   invisible (tbl.md)
 
 } # createMetadata
