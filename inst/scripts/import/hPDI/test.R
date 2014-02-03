@@ -165,7 +165,7 @@ test.uniprotToRefSeq = function (tbl.anno)
   samples.2 = c ('foo', "Q9UER7")
   result.2 = uniprotToRefSeq (samples.2)
   checkEquals (names (result.2), samples.2)
-  checkEquals (as.vector (result.2), c (NA_character_, "NP_001135441"))
+  checkEquals (as.vector (result.2), c (NA_character_, "NP_001341"))
 
   invisible (result)
 

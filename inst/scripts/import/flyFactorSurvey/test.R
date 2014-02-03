@@ -8,7 +8,7 @@ run.tests = function (dataDir)
 {
     dataDir <- file.path(dataDir, "flyFactorSurvey")
     freshStart ()
-    test.fbgnToIDs()
+    #test.fbgnToIDs()
     x.list.BD <- test.createXrefBindingDomain (dataDir)
     x.xref <- test.createXref ()
     x.filenames <- test.getMatrixFilenames (dataDir)
