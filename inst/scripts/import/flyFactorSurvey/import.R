@@ -271,7 +271,8 @@ fbgnToIDs <- function(fbgns, useInputForMissingValues=TRUE)
    failed.count <- length(failed.lookups)
    if(useInputForMissingValues & failed.count > 0) {
       failed.names <- rownames(result)[failed.lookups]
-      names.matrix <- matrix(rep(failed.names, failed.count), nrow=failed.count)
+        # an n x 3 matrix, all entries in each row the same
+      names.matrix <- matrix(rep(failed.names, 3), nrow=failed.count, byrow=FALSE)
       result[failed.lookups,] <- names.matrix
       }
 
