@@ -112,7 +112,7 @@ test.noNAorganisms = function ()
 
 {
   print ('--- test.noNAorganisms')
-  checkEquals (which (is.na (values (MotifDb)$organism)), integer (0))
+  checkEquals (which (is.na (mcols(MotifDb)$organism)), integer (0))
 
 } # test.noNAorganisms
 #------------------------------------------------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ test.providerNames = function ()
 {
   print ('--- test.getProviderNames')
   mdb = MotifDb # ()
-  pn = values (mdb)$providerName
+  pn = mcols(mdb)$providerName
   checkEquals (length (which (is.na (pn))), 0)
   checkEquals (length (which (pn == '')), 0)
 
@@ -141,7 +141,7 @@ test.geneSymbols = function ()
 {
   print ('--- test.getGeneSymbols')
   mdb = MotifDb # ()
-  syms = values (mdb)$geneSymbol
+  syms = mcols(mdb)$geneSymbol
   checkEquals (length (which (is.na (syms))), 683)  # no symols yet for the dgf stamlab motifs
   checkEquals (length (which (syms == '')), 0)
 
@@ -151,8 +151,8 @@ test.geneIdsAndTypes = function ()
 {
   print ('--- test.getGeneIdsAndTypes')
   mdb = MotifDb
-  geneIds = values (mdb)$geneId
-  geneIdTypes = values (mdb)$geneIdType
+  geneIds = mcols(mdb)$geneId
+  geneIdTypes = mcols(mdb)$geneIdType
   typeCounts = as.list (table (geneIdTypes))
   checkEquals(typeCounts, list(ENTREZ=2197, FLYBASE=30, SGD=453, comment=683))
 
@@ -170,10 +170,10 @@ test.proteinIds = function ()
 {
   print ('--- test.proteinIds')
   mdb = MotifDb # (quiet=TRUE)
-  NA.string.count = length (grep ('NA', values (mdb)$proteinId))
+  NA.string.count = length (grep ('NA', mcols(mdb)$proteinId))
   checkEquals (NA.string.count, 0)
   
-  empty.count = length (which (values (mdb)$proteinId==""))
+  empty.count = length (which (mcols(mdb)$proteinId==""))
   if (empty.count > 0)
     browser ('test.proteinIds')     
 
@@ -183,7 +183,7 @@ test.proteinIds = function ()
      # Herve' pointed out that this applied also to entries with no proteinId.
      # make sure this is fixed
 
-  x = values (mdb)
+  x = mcols(mdb)
   checkEquals (nrow (subset (x, !is.na (proteinIdType) & is.na (proteinId))), 0)
 
 } # test.proteinIds
@@ -193,7 +193,7 @@ test.sequenceCount = function ()
 {
   print ('--- test.sequenceCount')
   mdb = MotifDb # ()
-  x = values (mdb)
+  x = mcols(mdb)
   if (interactive ()) {
     x.up = subset (x, dataSource == 'UniPROBE')
     checkTrue (all (is.na (x.up$sequenceCount)))
@@ -216,8 +216,8 @@ test.longNames = function ()
   
   dataSources = unique (sapply (longNames, '[', 2))
 
-  recognized.dataSources = unique (values (mdb)$dataSource)
-  recognized.organisms = unique (values (mdb)$organism)
+  recognized.dataSources = unique (mcols(mdb)$dataSource)
+  recognized.organisms = unique (mcols(mdb)$organism)
     # a few (3) matrices from JASPAR core have NA organism.  make this into a character
     # so that it can be matched up against the 'NA' extracted from longNames just above
   na.indices = which (is.na (recognized.organisms))
@@ -234,14 +234,14 @@ test.organisms = function ()
 {
   print ('--- test.organisms')
   mdb = MotifDb # (quiet=TRUE)
-  organisms = values (mdb)$organism
+  organisms = mcols(mdb)$organism
 
      # jaspar_core has 3 NA speciesId: TBP, HNF4A and CEBPA (MA0108.2, MA0114.1, MA0102.2)
      # their website shows these as vertebrates, which I map to 'Vertebrata'.  An organismID of '-'
      # gets the same treatment, matching website also.
-  checkEquals (which (is.na (values (MotifDb)$organism)), integer (0))
+  checkEquals (which (is.na (mcols(MotifDb)$organism)), integer (0))
 
-  empty.count = length (which (values (mdb)$organism==""))
+  empty.count = length (which (mcols(mdb)$organism==""))
   checkEquals (empty.count, 0)
 
 } # test.organisms
@@ -250,7 +250,7 @@ test.bindingDomains = function ()
 {
   print ('--- test.bindingDomains')
   mdb = MotifDb # (quiet=TRUE)
-  checkTrue (length (unique (values (mdb)$bindingDomain)) > 1)
+  checkTrue (length (unique (mcols(mdb)$bindingDomain)) > 1)
 
 } # test.bindingDomains
 #------------------------------------------------------------------------------------------------------------------------
@@ -258,7 +258,7 @@ test.flyBindingDomains = function ()
 {
   print ('--- test.flyBindingDomains')
 
-  x = values (MotifDb)
+  x = mcols(MotifDb)
   tmp = as.list (head (sort (table (subset (x, organism=='Dmelanogaster')$bindingDomain), decreasing=TRUE), n=3))
 
     # these counts will likely change with a fresh load of data from FlyFactorSurvey.
@@ -274,7 +274,7 @@ test.experimentTypes = function ()
 {
   print ('--- test.experimentTypes')
   mdb = MotifDb # (quiet=TRUE)
-  x = values (mdb)
+  x = mcols(mdb)
   checkTrue (length (unique (x$experimentType)) >= 18)
   checkEquals (length (which (x$experimentType=='')), 0)
 
@@ -284,7 +284,7 @@ test.tfFamilies = function ()
 {
   print ('--- test.tfFamilies')
   mdb = MotifDb # (quiet=TRUE)
-  checkTrue (length (unique (values (mdb)$tfFamily)) > 1)
+  checkTrue (length (unique (mcols(mdb)$tfFamily)) > 1)
 
 } # test.tfFamilies
 #------------------------------------------------------------------------------------------------------------------------
@@ -292,14 +292,14 @@ test.bindingSequences = function ()
 {
   print ('--- test.bindingSequences')
   mdb = MotifDb # (quiet=TRUE)
-  checkTrue (length (unique (values (mdb)$bindingSequence)) > 1)
+  checkTrue (length (unique (mcols(mdb)$bindingSequence)) > 1)
 
 } # test.tfFamilies
 #------------------------------------------------------------------------------------------------------------------------
 test.pubmedIDs = function ()
 {
   print ('--- test.pubmedIDs')
-  x = values (MotifDb) # (quiet=TRUE))
+  x = mcols(MotifDb) # (quiet=TRUE))
   checkTrue (length (unique (x$pubmedID)) >= 139)
   checkEquals (length (which (x$pubmedID == '')), 0)
 
@@ -323,7 +323,7 @@ test.allFullNames = function ()
   matrices = mdb@listData
   fullNames = names (matrices)
 
-  all.dataSources = unique (values (mdb)$dataSource)
+  all.dataSources = unique (mcols(mdb)$dataSource)
   checkTrue (length (all.dataSources) >= 4)
   
   for (source in all.dataSources) {
@@ -374,7 +374,7 @@ test.query = function ()
   mdb = MotifDb
 
     # do queries on dataSource counts match those from a contingency table?
-  sources.list = as.list (table (values (mdb)$dataSource))
+  sources.list = as.list (table (mcols(mdb)$dataSource))
   checkEquals (length (query (mdb, 'flyfactorsurvey')), sources.list$FlyFactorSurvey)
   checkEquals (length (query (mdb, 'uniprobe')), sources.list$UniPROBE)
   checkEquals (length (query (mdb, 'UniPROBE')), sources.list$UniPROBE)
@@ -399,9 +399,9 @@ test.query = function ()
   checkTrue (length (uniprobe.sox.matrices) > 10)
   checkTrue (length (uniprobe.sox.matrices) < 30)
 
-   checkEquals (unique (values (uniprobe.sox.matrices)$dataSource), 'UniPROBE')
-   checkEquals (unique (values (sox.uniprobe.matrices)$dataSource), 'UniPROBE')
-   gene.symbols = sort (unique (values (uniprobe.sox.matrices)$geneSymbol))
+   checkEquals (unique (mcols(uniprobe.sox.matrices)$dataSource), 'UniPROBE')
+   checkEquals (unique (mcols(sox.uniprobe.matrices)$dataSource), 'UniPROBE')
+   gene.symbols = sort (unique (mcols(uniprobe.sox.matrices)$geneSymbol))
   
 } # test.query
 #------------------------------------------------------------------------------------------------------------------------
