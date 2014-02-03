@@ -195,7 +195,7 @@ createMetadataTable = function (matrices, novels)
   novels.ordered = novels [tbl.md$providerName]  # make sure we follow the order in the tbl
   novelPFM [which (novels.ordered)] = 'novelMotif'
   tbl.md$geneId = novelPFM
-  tbl.md$geneIdType = rep ('comment', nrow (tbl.md))
+  tbl.md$geneIdType = rep (NA_character_, nrow (tbl.md))
 
   invisible (tbl.md)
 

@@ -93,13 +93,13 @@ test.createAnnotationTable = function ()
 #------------------------------------------------------------------------------------------------------------------------
 test.createMetadataTable = function (x.matrices, x.novels)
 {
-  print ('--- test.createMetadataTable')
-   # try it first with just two matrices
-  tbl.md = createMetadataTable (x.matrices [1:12], x.novels [1:12])
-  checkEquals (dim (tbl.md), c (12, 15))
-  checkEquals (colnames (tbl.md), c ("providerName", "providerId", "dataSource", "geneSymbol", "geneId", "geneIdType", 
-                                     "proteinId", "proteinIdType", "organism", "sequenceCount", "bindingSequence",
-                                     "bindingDomain", "tfFamily", "experimentType", "pubmedID"))
+   print ('--- test.createMetadataTable')
+    # try it first with just two matrices
+   tbl.md = createMetadataTable (x.matrices [1:12], x.novels [1:12])
+   checkEquals (dim (tbl.md), c (12, 15))
+   checkEquals (colnames (tbl.md), c ("providerName", "providerId", "dataSource", "geneSymbol", "geneId", "geneIdType", 
+                                      "proteinId", "proteinIdType", "organism", "sequenceCount", "bindingSequence",
+                                      "bindingDomain", "tfFamily", "experimentType", "pubmedID"))
    checkEquals (tbl.md$providerName [1:2], c ('UW.Motif.0001', 'UW.Motif.0002'))
    checkEquals (tbl.md$providerId [1:2], c ('UW.Motif.0001', 'UW.Motif.0002'))
    checkEquals (tbl.md$pubmedID [1:2], c ('22959076', '22959076'))
@@ -107,8 +107,9 @@ test.createMetadataTable = function (x.matrices, x.novels)
    checkEquals (tbl.md$organism [1:2], c ('Hsapiens', 'Hsapiens'))
    checkEquals (tbl.md$experimentType [1:2], c ('digital genomic footprinting', 'digital genomic footprinting'))
    checkEquals (tbl.md$geneId, c (rep ('knownMotif', 11), 'novelMotif'))
+   checkTrue(all(is.na(tbl.md$geneIdType)))
 
-  invisible (tbl.md)
+   invisible (tbl.md)
 
 } # test.createMetadataTable
 #------------------------------------------------------------------------------------------------------------------------
