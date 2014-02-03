@@ -204,11 +204,11 @@ setMethod('show', 'MotifList',
       
       cat ('| Created from downloaded public sources: 2013-Aug-30', '\n', sep='')
 
-      tbl.dataSource = as.data.frame (table (values (object)$dataSource))
-      tbl.org = as.data.frame (table (values (object)$organism))
+      tbl.dataSource = as.data.frame (table (mcols (object)$dataSource))
+      tbl.org = as.data.frame (table (mcols (object)$organism))
       tbl.org = head (tbl.org [order (tbl.org$Freq, decreasing=TRUE),])
       totalMatrixCount = length (object)
-      totalOrganismCount = length (unique (values (object)$organism))
+      totalOrganismCount = length (unique (mcols (object)$organism))
       dataSourceCount = nrow (tbl.dataSource)
 
       source.singular.or.plural = 'sources'
@@ -255,9 +255,9 @@ setMethod('show', 'MotifList',
 setMethod ('query', 'MotifList',
 
    function (object, queryString, ignore.case=TRUE) {
-       indices = unique (as.integer (unlist (sapply (colnames (values (object)), 
+       indices = unique (as.integer (unlist (sapply (colnames (mcols (object)), 
                     function (colname) 
-                       grep (queryString, values (object)[, colname], 
+                       grep (queryString, mcols (object)[, colname], 
                              ignore.case=ignore.case)))))
         object [indices]
       })
