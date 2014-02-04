@@ -185,7 +185,7 @@ createMetadataTable = function (matrices, novels)
                     bindingDomain=NA,
                     tfFamily=NA,
                     experimentType='digital genomic footprinting',
-                    pubmedID='22959076')
+                    pubmedID="22955618")
     tbl.md = rbind (tbl.md, data.frame (new.row, stringsAsFactors=FALSE))
     full.name = sprintf ('%s-%s-%s', 'Hsapiens', 'stamlab', matrix.id)
     rownames (tbl.md) [nrow (tbl.md)] = full.name
