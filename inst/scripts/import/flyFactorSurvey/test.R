@@ -8,7 +8,7 @@ run.tests = function (dataDir)
 {
     dataDir <- file.path(dataDir, "flyFactorSurvey")
     freshStart ()
-    #test.fbgnToIDs()
+    test.fbgnToIDs()
     x.list.BD <- test.createXrefBindingDomain (dataDir)
     x.xref <- test.createXref ()
     x.filenames <- test.getMatrixFilenames (dataDir)
@@ -234,17 +234,16 @@ test.fbgnToIDs <- function()
     checkEquals(tbl.ids$symbol, c("ro", "exd", "pdm2", "Six4", "da"))
     checkEquals(tbl.ids$geneIdType, rep("ENTREZ", 5))
 
-         # 0259750 is obsolete, replace by 0264442
-    tbl.ids <- fbgnToIDs("FBgn0259750")
-    checkEquals(as.list(tbl.ids),
-                list(flybase_id="FBgn0264442", symbol="ab", gene_id="34560",
-                     geneIdType="ENTREZ"))
+         # 0259750 is obsolete, replaced by 0264442
+    x <- "FBgn0259750"
+    tbl.ids <- fbgnToIDs(x)
+    checkEquals(as.character(tbl.ids[1,]), c(rep(x,3), "FLYBASE"))
 
        # http://flybase.org/static_pages/downloads/IDConv.html
        # FBgn0003986 	 FBgn0261930 	FBgn0261930	 vnd 
-    tbl.ids <- fbgnToIDs("FBgn0003986")
-    checkEquals(as.character(as.list(tbl.ids[1,],)),
-                c(rep("FBgn0003986", 3), "FLYBASE"))
+    x <- "FBgn0003986"
+    tbl.ids <- fbgnToIDs(x)
+    checkEquals(as.character(tbl.ids[1,]), c(rep(x, 3), "FLYBASE"))
     
     serializedFbgnsForTesting <- system.file(package="MotifDb", "scripts",
                                              "import", "fbgns.RData")
@@ -260,7 +259,7 @@ test.fbgnToIDs <- function()
        # what percentage of the 326 ids fail to map?  do NOT convert NAs
     tbl.ids <- fbgnToIDs(fbgns, useInputForMissingValues=FALSE)
     failure.count <- length(which(is.na(tbl.ids$flybase_id)))
-    checkEquals(failure.count, 18)
+    checkEquals(failure.count, 23)   # as of (3 feb 2014)
 
 } # test.fbgnToIDsp
 #-------------------------------------------------------------------------------
