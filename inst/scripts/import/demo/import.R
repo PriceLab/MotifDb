@@ -13,7 +13,9 @@ run = function (dataDir)
   matrices <- normalizeMatrices (matrices)
   matrices <- renameMatrices (matrices, tbl.md)
 
-  serializedFile <- "demo.RData"
+  serializedFile <- file.path(getwd(), dataDir, "demo.RData")
+  printf("writing %s to %s", "demo.RData", dataDir)
+
   save (matrices, tbl.md, file=serializedFile)
   printf("saved %d matrices to %s", length(matrices), serializedFile)
   printf("next step:  copy %s to <packageRoot>/MotifDb/inst/extdata, rebuild package", serializedFile)
