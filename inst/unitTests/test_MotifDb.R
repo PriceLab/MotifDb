@@ -151,12 +151,21 @@ test.geneIdsAndTypes = function ()
 {
   print ('--- test.getGeneIdsAndTypes')
   mdb = MotifDb
-  geneIds = mcols(mdb)$geneId
-  geneIdTypes = mcols(mdb)$geneIdType
+  tbl <- mcols(mdb)
+  geneIds = tbl$geneId
+  geneIdTypes = tbl$geneIdType
   typeCounts = as.list (table (geneIdTypes))
-  checkEquals(typeCounts$ENTREZ, 2197)
-  checkEquals(typCounts$FLYBASE, 30)
-  checkEquals(typeCounts$SGD, 453)
+
+  #browser()
+  #fout <- file("/tmp/pshannon.txt", "w")
+  #write("ENTREZ", file=fout)
+  #write(typeCounts$ENTREZ, file=fout)
+  
+  checkTrue(typeCounts$ENTREZ == 2180)
+  checkTrue(typeCounts$FLYBASE >= 47)
+  checkTrue(typeCounts$SGD >= 453)
+  checkEquals(nrow(subset(tbl, is.na(geneIdType))), 932)
+  
 
   #checkEquals(typeCounts, list(ENTREZ=2197, FLYBASE=30, SGD=453, comment=683))
 
@@ -685,7 +694,8 @@ test.flyFactorGeneSymbols <- function()
 {
     print ("--- test.flyFactorGeneSymbols")
     mdb = MotifDb
-    checkEquals(mcols(query(mdb, "FBgn0259750"))$geneSymbol, c("ab", "ab"))
+    checkEquals(mcols(query(mdb, "FBgn0259750"))$geneSymbol,
+                c("FBgn0259750", "FBgn0259750"))
     checkEquals(mcols(query(mdb, "FBgn0000014"))$geneSymbol, rep("abd-A", 3))
     checkEquals(mcols(query(mdb, "FBgn0000015"))$geneSymbol, rep("Abd-B", 3))
 
