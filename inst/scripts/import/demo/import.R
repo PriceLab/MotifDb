@@ -13,7 +13,7 @@ run = function (dataDir)
   matrices <- normalizeMatrices (matrices)
   matrices <- renameMatrices (matrices, tbl.md)
 
-  serializedFile <- file.path(getwd(), dataDir, "demo.RData")
+  serializedFile <- file.path(dataDir, "demo.RData")
   printf("writing %s to %s", "demo.RData", dataDir)
 
   save (matrices, tbl.md, file=serializedFile)
