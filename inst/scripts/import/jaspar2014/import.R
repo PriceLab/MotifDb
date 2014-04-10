@@ -1,180 +1,131 @@
 # jaspar2014/import.R
-# 
-#------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------
 library (org.Hs.eg.db)
 library (org.Mm.eg.db)
 #------------------------------------------------------------------------------------------------------------------------
+options (stringsAsFactors=FALSE)
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
 run = function (dataDir)
 {
-  dataDir <- file.path(dataDir, "jaspar")
-  tbl.rmat = readRawMatrices (dataDir)
-  matrices = convertRawMatricesToStandard (tbl.rmat)
-  tbl.anno = createAnnotationTable (dataDir)
-  tbl.md = createMetadataTable (tbl.anno, matrices)
-  matrices = renameMatrices (matrices, tbl.md)
-  matrices = normalizeMatrices (matrices)
-  serializedFile <- "jaspar.RData"
+  dataDir <- file.path(dataDir,"jaspar2014")
+  rawMatrixList <- readRawMatrices (dataDir)
+  matrices <- extractMatrices (rawMatrixList)
+  tbl.anno <- createAnnotationTable(dataDir)
+  tbl.md <- createMetadataTable (tbl.anno, matrices)
+  matrices <- normalizeMatrices (matrices)
+  matrices <- renameMatrices (matrices, tbl.md)
+  serializedFile <- file.path(dataDir, "jaspar2014.RData")
   save (matrices, tbl.md, file=serializedFile)
   printf("saved %d matrices to %s", length(matrices), serializedFile)
-  printf("next step: copy %s to <packageRoot>/MotifDb/inst/extdata, rebuild package", serializedFile)
+  printf("next step:  copy %s to <packageRoot>/MotifDb/inst/extdata, rebuild package", serializedFile)
 
 } # run
 #------------------------------------------------------------------------------------------------------------------------
-
 readRawMatrices = function (dataDir)
 {
-  file <- file.path(dataDir, 'MATRIX_DATA.txt')
-  #tbl.matrices = read.table (file, sep='\t', header=FALSE, as.is=TRUE, colClasses=c ('character', 'character', 'numeric', 'numeric'))
-  #colnames (tbl.matrices) = c ('id', 'base', 'pos', 'count')
-  tbl.matrices = read.table (file, sep='\n', header=FALSE )
-  
-  invisible (tbl.matrices)
+    # our convention is that there is a shared "dataDir" visible to
+    # the importer, and that within that directory there is one
+    # subdirectory for each data source.
+    # for this example importer, that directory will be <dataDir>/test
+    # within which we will look for one small file "sample.pcm"
+    
 
+  filename <- file.path(dataDir, "matrix_data.txt")
+  stopifnot(file.exists(filename))
+  
+  all.lines = scan (filename, what=character(0), sep='\n', quiet=TRUE)
+  title.lines = grep ('^>', all.lines)
+  title.line.count <<- length (title.lines)
+  max = title.line.count - 1
+
+  pwms = list ()
+  
+  for (i in 1:max) {
+    start.line = title.lines [i]
+    end.line = title.lines [i+1] - 1
+    new.pwm = parsePwm (all.lines [start.line:end.line])
+    pwms = c (pwms, list (new.pwm))
+    } # for i
+  invisible (pwms)
 } # readRawMatrices
 #------------------------------------------------------------------------------------------------------------------------
-convertRawMatricesToStandard = function (tbl.rmat)
+extractMatrices = function (pwm.list)
 {
-  #matrix.ids = unique (tbl.rmat$id)
-  #result =  vector ('list', length (matrix.ids))
-
-  #i = 1
-  #for (matrix.id in matrix.ids) {
-  #  tbl.sub = subset (tbl.rmat, id == matrix.id)
-  #    # sanity check this rather unusual representation of a position count matrix
-  #  base.count = as.data.frame (table (tbl.sub$base))
-  #  stopifnot (base.count$Var1 == c ('A', 'C', 'G', 'T'))
-      # conservative length check.  actually expect sequence lengths of 6 - 20 bases
-  #  if  (base.count$Freq [1] < 4 && base.count$Freq [1] > 30) {
-  #    printf ('matrix.id %s has sequence of length %d', matrix.id, base.count$Freq [1])
-  #    }
-  #  stopifnot (all (base.count$Freq == base.count$Freq [1]))
-  # nucleotide.counts = tbl.sub$count
-  #  row.names = c('A', 'C', 'G', 'T'); 
-  #  col.names = 1:(nrow (tbl.sub) / 4)
-  #  m = matrix (nucleotide.counts, byrow=TRUE, nrow=4, dimnames=list(row.names, col.names))
-  #  result [[i]] = m
-  #  i = i + 1
-  #  } # for matrix.id
-
-  #names (result) = matrix.ids
-
-  result<- vector("list",length=593)
-  matrices.id <-grep('>',tbl.matrices[[1]],value=TRUE)
-  names (result) = matrices.id
-  #Get a list of the ID's and then assign them as names 
-  m.d <-grep('>',tbl.matrices[[1]],value=TRUE,invert=TRUE)
-  data.list=list()
-  x = 1
-  y = 1
-  while (x < length(m.d))
-    {   
-      matrices.position <- rbind(m.d[x],m.d[x+1],m.d[x+2],m.d[x+3])
-      matrices.formatted <- gsub("\t"," ",matrices.position)
-      #matrices.formatted2 <- as.numeric(strsplit(matrices.position, "\t"))
-      row.names = c('A', 'C', 'G', 'T')
-      col.names = 1:(ncol (matrices.formatted))
-      #matrices.matrix <- matrix (matrices.formatted, byrow=TRUE, nrow=4,dimnames=list(row.names,))
-      result[[y]] <- matrices.formatted
-      y=y+1
-      x=x+4
-    }
-  browser()
-  return (result)
-
-} # convertRawMatricesToStandard 
+  matrices = sapply (pwm.list, function (element) element$matrix)
+  matrix.names <- sapply (pwm.list, function (element) element$title)
+  matrix.names <- sub("^>", "", matrix.names)
+  names (matrices) <- matrix.names
+  
+  return (matrices)
+} # extractMatrices
 #------------------------------------------------------------------------------------------------------------------------
-# read 'mysql' tables provide by jaspar: 
-#          MATRIX.txt:  9229	CORE	MA0001	1	AGL3
-#  MATRIX_PROTEIN.txt: 9229	P29383
-#  MATRIX_SPECIES.txt: 9229	3702
-#  MATRIX_ANNOTATION.txt: 
-#     9229	class	Other Alpha-Helix
-#     9229	comment	-
-#     9229	family	MADS
-#     9229	medline	7632923
-#     9229	tax_group	plants
-#     9229	type	SELEX
-createAnnotationTable = function (dataDir)
+createAnnotationTable <- function(dataDir)
 {
-  file <- file.path(dataDir, "MATRIX.txt")
-  tbl.matrix =  read.table (file, sep='\t', header=F, as.is=TRUE)
-  colnames (tbl.matrix) = c ('id', 'category', 'mID', 'version', 'binder')
+    file <- file.path(dataDir, "Matrix.txt")
+    tbl.matrix <-  read.table(file, sep='\t', header=FALSE, as.is=TRUE)
+    colnames(tbl.matrix) <- c('id', 'category', 'mID', 'version', 'binder')
+      
+    file <- file.path(dataDir, "MATRIX_PROTEIN.txt")
+    stopifnot(file.exists(file))
+    tbl.protein <- read.table(file, sep='\t', header=FALSE, as.is=TRUE)
+    colnames(tbl.protein) <- c('id', 'proteinID')
 
-  file <- file.path(dataDir, "MATRIX_PROTEIN.txt")
-  tbl.protein = read.table (file, sep='\t', header=F, as.is=TRUE)
-  colnames (tbl.protein) =  c ('id', 'proteinID')
+    file <- file.path(dataDir, "MATRIX_SPECIES.txt")
+    stopifnot(file.exists(file))
+    tbl.species <- read.table(file, sep='\t', header=FALSE, as.is=TRUE)
+    colnames(tbl.species) <- c('id', 'speciesID')
+    
+    file <- file.path(dataDir, "MATRIX_ANNOTATION.txt")
+    stopifnot(file.exists(file))
+    tbl.anno <- read.table(file, sep='\t', header=FALSE, as.is=TRUE, quote="")
+    colnames(tbl.anno) <- c('id', 'attribute', 'value')
 
-  file <- file.path(dataDir, "MATRIX_SPECIES.txt")
-  tbl.species = read.table (file, sep='\t', header=F, as.is=TRUE)
-  colnames (tbl.species) = c ('id', 'speciesID')
+    file <- file.path(dataDir, "MATRIX_ANNOTATION.txt")
+    tbl.family  <- subset(tbl.anno, attribute=='family') [, -2];   
+    colnames(tbl.family) <- c('id', 'family')
+       # create 5 2-column data.frames out of tbl.anno
+       # which can all then be merged on the "id" column
+    tbl.tax <- subset(tbl.anno, attribute=='tax_group') [,-2]; 
+    colnames(tbl.tax) <- c('id', 'tax')
 
-  file <- file.path(dataDir, "MATRIX_ANNOTATION.txt")
-  tbl.anno = read.table (file, sep='\t', header=F, as.is=TRUE, quote="")
-  colnames (tbl.anno) = c ('id', 'attribute', 'value')
+    tbl.class <- subset(tbl.anno, attribute=='class') [,-2];     
+    colnames(tbl.class) <- c('id', 'class')
 
-  tbl.family  = subset (tbl.anno, attribute=='family') [, -2];   
-  colnames (tbl.family) = c ('id', 'family')
+    tbl.comment <- subset(tbl.anno, attribute=='comment')[,-2];    
+    colnames(tbl.comment) <- c('id', 'comment')
 
-  tbl.tax     = subset (tbl.anno, attribute=='tax_group') [,-2]; 
-  colnames (tbl.tax) = c ('id', 'tax')
+    tbl.pubmed  <- subset(tbl.anno, attribute=='medline')[,-2];    
+    colnames(tbl.pubmed) <- c('id', 'pubmed')
 
-  tbl.class   = subset (tbl.anno, attribute=='class') [,-2];     
-  colnames (tbl.class) = c ('id', 'class')
+    tbl.type    <- subset(tbl.anno, attribute=='type')[,-2];       
+    colnames(tbl.type) <- c('id', 'type')
 
-  tbl.comment = subset (tbl.anno, attribute=='comment')[,-2];    
-  colnames (tbl.comment) = c ('id', 'comment')
+    tbl.md <- merge(tbl.matrix, tbl.species, all.x=TRUE)
+    tbl.md <- merge(tbl.md, tbl.protein, all.x=TRUE)
+    tbl.md <- merge(tbl.md, tbl.family, all.x=TRUE)
+    tbl.md <- merge(tbl.md, tbl.tax, all.x=TRUE)
+    tbl.md <- merge(tbl.md, tbl.class, all.x=TRUE)
+    tbl.md <- merge(tbl.md, tbl.pubmed, all.x=TRUE)
+    tbl.md <- merge(tbl.md, tbl.type, all.x=TRUE)
 
-  tbl.pubmed  = subset (tbl.anno, attribute=='medline')[,-2];    
-  colnames (tbl.pubmed) = c ('id', 'pubmed')
+    fullID <- paste(tbl.md$mID, tbl.md$version, sep='.')
+    tbl.md <- cbind(fullID, tbl.md, stringsAsFactors=FALSE)
 
-  tbl.type    = subset (tbl.anno, attribute=='type')[,-2];       
-  colnames (tbl.type) = c ('id', 'type')
-
-
-  tbl.md = merge (tbl.matrix, tbl.species, all.x=TRUE)
-  tbl.md = merge (tbl.md, tbl.protein, all.x=TRUE)
-  tbl.md = merge (tbl.md, tbl.family, all.x=TRUE)
-  tbl.md = merge (tbl.md, tbl.tax, all.x=TRUE)
-  tbl.md = merge (tbl.md, tbl.class, all.x=TRUE)
-  tbl.md = merge (tbl.md, tbl.pubmed, all.x=TRUE)
-  tbl.md = merge (tbl.md, tbl.type, all.x=TRUE)
-
-  fullID = paste (tbl.md$mID, tbl.md$version, sep='.')
-  tbl.md = cbind (fullID, tbl.md, stringsAsFactors=FALSE)
-
-  invisible (tbl.md)
-
+    invisible(tbl.md)
+    
 } # createAnnotationTable
-#------------------------------------------------------------------------------------------------------------------------
-# assemble these columns:
-#                      names=character(),                    # source-species-gene: UniPROBE-Mmusculus-Rhox11-306b; ScerTF-Scerevisiae-ABF2-e73a
-#                      nativeNames=character(),              # badis.ABF2, Cell08/Rhox11_2205.1_pwm.txt
-#                      geneSymbols=character(),              # ABF2, Rhox11
-#                      sequenceCounts=integer(),             # often NA
-#                      organisms=character(),                # Scerevisiae, Mmusculus
-#                      bindingMolecules=character(),         # YMR072W, 194738
-#                      bindingMoleculeIdTypes=character(),   # SGD, entrez gene
-#                      bindingDomainTypes=character(),       # NA, Homeo
-#                      dataSources=character(),              # ScerTF, UniPROBE
-#                      experimentTypes=character(),          # NA, protein-binding microarray
-#                      pubmedIDs=character(),                # 19111667, 1858359
-#                      tfFamilies=character())               # NA, NA
-#
-# from these
-#
+#-------------------------------------------------------------------------------
 createMetadataTable = function (tbl.anno, matrices)
 {
   options (stringsAsFactors=FALSE)
   tbl.md = data.frame ()
   matrix.ids = names (matrices) 
-  dataSource = 'JASPAR_CORE'
+  dataSource = 'JASPAR_2014'
   
   for (matrix.id in matrix.ids) {
     matrix = matrices [[matrix.id]]
-    stopifnot (length (intersect (matrix.id, tbl.anno$id)) == 1)
-    tbl.sub = subset (tbl.anno, id==matrix.id)
+    tbl.sub = subset (tbl.anno, fullID==substr(matrix.id,0,8))
     if (nrow (tbl.sub) > 1) {  
         # the binder is a dimer, perhaps a homodimer, and two proteinIDs are provided. Arnt::Ahr
         # some others, a sampling:  P05412;P01100, P08047, P22814;Q24040, EAW80806;EAW53510
@@ -208,18 +159,76 @@ createMetadataTable = function (tbl.anno, matrices)
     NA.string.indices = grep ('NA', tbl.md$proteinId)
     if (length (NA.string.indices) > 0)
       tbl.md$proteinId [NA.string.indices] = NA
-     
    invisible (tbl.md)
-
-} # createMetadataTable
+}#createMetadataTable
 #------------------------------------------------------------------------------------------------------------------------
 renameMatrices = function (matrices, tbl.md)
 {
   stopifnot (length (matrices) == nrow (tbl.md))
   names (matrices) = rownames (tbl.md)
   invisible (matrices)
-
+  
 } # renameMatrices
+#------------------------------------------------------------------------------------------------------------------------
+# an empirical and not altogether trustworthy solution to identifying identifier types.
+guessProteinIdentifierType = function (moleculeName)
+{
+  if (nchar (moleculeName) == 0)
+    return (NA_character_)
+  if (is.na (moleculeName))
+    return (NA_character_) 
+
+  first.char = substr (moleculeName, 1, 1)
+
+  if (first.char == 'Y')
+    return ('SGD')
+
+  if (first.char %in% c ('P', 'Q', 'O', 'A', 'C'))
+    return ('UNIPROT')
+
+  if (length (grep ('^NP_', moleculeName)) == 1)
+    return ('REFSEQ')
+
+   return (NA_character_)
+
+} # guessProteinIdentifierType
+#------------------------------------------------------------------------------------------------------------------------
+normalizeMatrices = function (matrices)
+{
+  mtx.normalized = sapply (matrices,
+      function (mtx) apply (mtx, 2, function (colvector) colvector / sum (colvector)))
+
+  invisible (mtx.normalized)
+
+} # normalizeMatrices
+#------------------------------------------------------------------------------------------------------------------------
+parsePwm = function (text)
+{
+   lines = strsplit (text, '\t')
+   #browser()
+   stopifnot(length(lines)==5) # title line, one line for each base
+   title = lines [[1]][1]
+   line.count = length(lines)
+
+     # expect 4 rows, and a number of columns we can discern from
+     # the incoming text.
+  cols <- length(lines[[2]])
+  result <- matrix (nrow=4, ncol=cols,
+                   dimnames=list(c('A','C','G','T'),
+                                 as.character(1:cols)))
+  row = 1
+  for(i in 2:line.count){
+    result [row,] = as.numeric (lines[[i]])
+    row = row + 1
+    } # for i
+
+  #result = t (result)
+    
+  #return (list (title=title, consensus.sequence=consensus.sequence, matrix=result))
+  return (list (title=title, matrix=result))
+
+} # parsePwm
+#----------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------
 # full names:   ('Mus musculus', 'Rattus norvegicus', 'Rattus rattus', 'Arabidopsis thaliana', 'Pisum sativum', 
 #                'Nicotiana sylvestris', 'Petunia hybrida', 'Antirrhinum majus', 'Hordeum vulgare', 'Triticum aestivam',
@@ -248,52 +257,16 @@ convertTaxonCode = function (ncbi.code)
   index = which (tbl$code == ncbi.code)
   if (length (index) == 1)
     return (tbl$name [index])
+  if (nchar(ncbi.code)>6)
+    return ('Vertebrata')
   else {
-    write (sprintf (" unable to map organism code |%s|", ncbi.code), stderr ())
+    browser()
+    write (sprintf ("unable to map organism code |%s|", ncbi.code), stderr ())
     return (NA_character_)
     }
 
 } # convertTaxonCode
-#------------------------------------------------------------------------------------------------------------------------
-# an empirical and not altogether trustworthy solution to identifying identifier types.
-guessProteinIdentifierType = function (moleculeName)
-{
-  if (nchar (moleculeName) == 0)
-    return (NA_character_)
-  if (is.na (moleculeName))
-    return (NA_character_) 
-
-  first.char = substr (moleculeName, 1, 1)
-
-  if (first.char == 'Y')
-    return ('SGD')
-
-  if (first.char %in% c ('P', 'Q', 'O', 'A', 'C'))
-    return ('UNIPROT')
-
-  if (length (grep ('^EAW', moleculeName)) == 1)
-    return ('NCBI')
-
-  if (length (grep ('^EAX', moleculeName)) == 1)
-    return ('NCBI')
-
-  if (length (grep ('^NP_', moleculeName)) == 1)
-    return ('REFSEQ')
-
-  if (length (grep ('^BAD', moleculeName)) == 1)
-    return ('EMBL')
-
-   return (NA_character_)
-
-} # guessProteinIdentifierType
-#------------------------------------------------------------------------------------------------------------------------
-normalizeMatrices = function (matrices)
-{
-  mtx.normalized = sapply (matrices, function (mtx) apply (mtx, 2, function (colvector) colvector / sum (colvector)))
-  invisible (mtx.normalized)
-
-} # normalizeMatrices
-#------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
 assignGeneId = function (proteinId)
 {
   if (!exists ('id.uniprot.human')) {
@@ -339,4 +312,4 @@ assignGeneId = function (proteinId)
   return (list (geneId=NA_character_, type=NA_character_))
 
 } # assignGeneId
-#------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
