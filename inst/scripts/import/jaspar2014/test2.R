@@ -1,7 +1,7 @@
 # jaspar2014/test.R
 #------------------------------------------------------------------------------------------------------------------------
 library (RUnit)
-source("import.R")
+source("import2.R")
 #------------------------------------------------------------------------------------------------------------------------
 run.tests = function (dataDir)
 {
@@ -21,6 +21,7 @@ test.readRawMatrices = function (dataDir)
 {
   print ('--- test.readMatrices')
   tbl.rmat = readRawMatrices (dataDir)
+  browser()
   checkTrue (length (tbl.rmat) == 592)
   testMatrice <-tbl.rmat[[2]]
   checkTrue(testMatrice[1]==">MA0006.1 Arnt::Ahr")
