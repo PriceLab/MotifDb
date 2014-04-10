@@ -156,21 +156,13 @@ test.geneIdsAndTypes = function ()
   geneIdTypes = tbl$geneIdType
   typeCounts = as.list (table (geneIdTypes))
 
-  #browser()
-  #fout <- file("/tmp/pshannon.txt", "w")
-  #write("ENTREZ", file=fout)
-  #write(typeCounts$ENTREZ, file=fout)
   
-  checkTrue(typeCounts$ENTREZ == 2180)
+  checkTrue(typeCounts$ENTREZ == 2347)
   checkTrue(typeCounts$FLYBASE >= 47)
-  checkTrue(typeCounts$SGD >= 453)
-  checkEquals(nrow(subset(tbl, is.na(geneIdType))), 932)
+  checkTrue(typeCounts$SGD >= 629)
+  checkEquals(nrow(subset(tbl, is.na(geneIdType))), 1181)
   
 
-  #checkEquals(typeCounts, list(ENTREZ=2197, FLYBASE=30, SGD=453, comment=683))
-
-  #na.count = length (which (is.na (geneIds)))
-  #checkEquals (na.count, 304) 
   empty.count = length (which (geneIds == ''))
   checkEquals (empty.count, 0)
 
@@ -278,7 +270,7 @@ test.flyBindingDomains = function ()
 
   checkEquals (tmp$Homeobox, 212)
   checkEquals (tmp[['zf-C2H2']], 160)
-  checkEquals (tmp$HLH, 109)
+  checkEquals (tmp[["Helix-Turn-Helix"]], 182)
   checkEquals (length (which (is.na (subset (x, organism=='Dmelanogaster')$bindingDomain))), 24)
 
 } # test.flyBindingDomains
@@ -514,7 +506,7 @@ test.export_memeFormatStdOut = function ()
   print ('--- test.export_memeFormatStdOut')
   mdb = MotifDb # ()
   mdb.chicken = subset (mdb, organism=='Gallus')
-  checkEquals (length (mdb.chicken), 2)
+  checkEquals (length (mdb.chicken), 3)
     # text is cat-ed to stdout, so not avaialable here to check.
     # but just like print, export also returns the text invisibly.
     # so that CAN be checked.
@@ -532,7 +524,7 @@ test.export_memeFormatToFile = function ()
   print ('--- test.export_memeFormatToFile')
   mdb = MotifDb # ()
   mdb.chicken = subset (mdb, organism=='Gallus')
-  checkEquals (length (mdb.chicken), 2)
+  checkEquals (length (mdb.chicken), 3)
   output.file = tempfile ()
   meme.text = export (mdb.chicken, output.file, 'meme')
   retrieved = scan (output.file, what=character (0), sep='\n', quiet=TRUE)
@@ -545,7 +537,7 @@ test.export_memeFormatToFileDuplication = function ()
   print ('--- test.export_memeFormatToFileDuplication')
   mdb = MotifDb # ()
   mdb.mouse = subset (mdb, organism=='Mmusculus')
-  checkEquals (length (mdb.mouse), 462)
+  checkEquals (length (mdb.mouse), 528)
   output.file = 'mouse.txt' # tempfile ()
   max = 3
   meme.text = export (mdb.mouse [1:max], output.file, 'meme')
