@@ -11,7 +11,7 @@ run = function (dataDir)
   
   #TODO change tsv
   #tbl.md <- createMetadataTable (dataDir, matrices,
-                                 raw.metadata.filename="md-raw.tsv")
+                                 #raw.metadata.filename="md-raw.tsv")
   matrices <- normalizeMatrices (matrices)
   #matrices <- renameMatrices (matrices, tbl.md)
   
