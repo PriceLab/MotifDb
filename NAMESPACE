@@ -10,7 +10,8 @@ export(
     MotifDb
 )
 
-importMethodsFrom(IRanges, rbind, eval, sapply, subset, values)
-importFrom(IRanges, DataFrame)
+import(BiocGenerics)
+import(S4Vectors)
+import(IRanges)
 importFrom(rtracklayer, export)
 
