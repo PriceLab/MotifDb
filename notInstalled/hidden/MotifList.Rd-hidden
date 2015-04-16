@@ -1,0 +1,61 @@
+\name{MotifList}
+\alias{MotifList}
+\title{MotifList}
+\description{
+This is the constructor for the underlying class providing the
+mechanisms and data storage for the MotifDb package.  It should not
+ordinarily be be called by users. }
+\usage{
+MotifList (matrices=list(),               
+           tbl.metadata=data.frame ())
+}
+
+
+\arguments{
+       \item{matrices}{named list of 4-row, n-column numeric matrices,
+       frequency matrices, in which each column sums to 1.0}
+       \item{tbl.metadata}{a \code{data.frame} with 15 columns,
+	 explained below}
+}
+     
+\details{
+\code{tbl.metadata} is a data.frame with fifteen columns, and as many
+       rows as there are matrices in the matrices list.  The names of
+       the matrices correspond precisely to the row.names of the
+       data.frame.
+
+The tbl.metadata columns are
+\tabular{ll}{
+providerName: \tab The default (and usually human-friendly) name used for the matrix by the provider.\cr
+providerId: \tab A more formal name, often less recognizable, could be a database accession identifier. \cr
+dataSource: \tab FlyFactorSurvey, hPDI, JASPAR_CORE, ScerTF, UniPROBE\cr
+geneSymbol: \tab Ab (FlyFactorSurvey), ABCF2 (hPDI), AGL3 (JASPAR_CORE), ABF2 (ScerTF), Sox4 (UniPROBE)\cr
+geneId: \tab FBgn0259750 (FlyFactorSurvey), 10061 (hPDI), NA (JASPAR_CORE), YMR072W (ScerTF), 6659 (UniPROBE)\cr
+geneIdType: \tab FLYBASE (FlyFactorSurvey), ENTREZ (hPDI), NA (JASPAR_CORE), SGD (ScerTF), ENTREZ (UniPROBE)\cr
+proteinId: \tab E1JHF4 (FlyFactorSurvey), NP_005683 (hPDI), P29383 (JASPAR_CORE), Q02486 (ScerTF), Q06945 (UniPROBE)\cr
+proteinIdType: \tab UNIPROT (FlyFactorSurvey), REFSEQ (hPDI), UNIPROT (JASPAR_CORE), UNIPROT (ScerTF), UNIPROT (UniPROBE)\cr
+organism: \tab Dmelanogaster (FlyFactorSurvey), Hsapiens (hPDI), Athaliana (JASPAR_CORE), Scerevisiae (ScerTF), Hsapiens (UniPROBE)\cr
+sequenceCount: \tab 20 (FlyFactorSurvey), 6 (hPDI), 97 (JASPAR_CORE), NA (ScerTF), NA (UniPROBE) \cr
+bindingSequence: \tab (not yet implemented) NA (FlyFactorSurvey), NA (hPDI), NA (JASPAR_CORE), NA (ScerTF), NA (UniPROBE)\cr
+bindingDomain: \tab NA (FlyFactorSurvey), ABC_tran (hPDI), Other Alpha-Helix (JASPAR_CORE), NA (ScerTF), HMG_box (UniPROBE)\cr
+tfFamily: \tab NA (FlyFactorSurvey), NA (hPDI), MADS (JASPAR_CORE), NA (ScerTF), NA (UniPROBE)\cr
+experimentType : \tab bacterial 1-hybrid, SANGER sequencing (FlyFactorSurvey), NA (hPDI), SELEX (JASPAR_CORE), NA (ScerTF), protein binding microarray (UniPROBE)\cr
+pubmedID: \tab NA (FlyFactorSurvey), NA (hPDI), 7632923 (JASPAR_CORE), 19111667 (ScerTF), 19147588 (UniPROBE)\cr
+}
+
+
+
+}
+
+\value{
+A MotifList object.
+}
+\author{Paul Shannon}
+
+\examples{
+    # the empty ctor
+  mList <- MotifList ()
+  print (length (mList))
+}
+
+\keyword{utilities}
