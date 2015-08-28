@@ -2,28 +2,77 @@
 #------------------------------------------------------------------------------------------------------------------------
 options (stringsAsFactors=FALSE)
 printf <- function(...) print(noquote(sprintf(...)))
-library (RMySQL)
-db <- dbConnect(MySQL(), user='pshannon', dbname='cisbp')
 #------------------------------------------------------------------------------------------------------------------------
 run = function (dataDir)
 {
-  dataDir <- file.path(dataDir, "cisbp")
-  rawMatrixList <- readRawMatrices (dataDir)
-  matrices <- extractMatrices (rawMatrixList)
-  tbl.md <- createMetadataTable (dataDir, matrices,
-                                 raw.metadata.filename="md-raw.tsv")
-  matrices <- normalizeMatrices (matrices)
-  matrices <- renameMatrices (matrices, tbl.md)
-
-  serializedFile <- file.path(dataDir, "demo.RData")
-  printf("writing %s to %s", "demo.RData", dataDir)
-
-  save (matrices, tbl.md, file=serializedFile)
-  printf("saved %d matrices to %s", length(matrices), serializedFile)
-  printf("next step:  copy %s to <packageRoot>/MotifDb/inst/extdata, rebuild package",
-         serializedFile)
+  printf("cisbp matrix and metadata import");
+  createMotifDbArchiveFile(dataDir, "cisbp.RData", count=NA)
 
 } # run
+#------------------------------------------------------------------------------------------------------------------------
+# cisbp distributes metadata in a MySQL database with many tables.  i have cobbled together an sql query to
+# extract a metadata data.frame from this database.  first, however, here are my notes on creating and filling
+# that database.
+# not that an alternative to all that fuss is to simply used this file, created by me and with all the
+# information we currenly need:
+#
+#    file.path(dataDir, "cisbp", "cisbp-metadata-6559-matrices.Rdata")
+#
+# to create from scratch:
+#   cd dataDir/cisbp/sqlTables
+#   --- create accounts
+#      bash> mysql -u root
+#      mysql> create user 'pshannon'@'localhost';
+#      mysql> grant all privileges on *.* to 'pshannon'@'localhost';
+#      mysql> quit
+#      bash> mysql -u pshannon
+#      mysql> create database cisbp;
+#      mysql> quit
+#   --- load the data
+#      bash> bash load.sh
+#
+createMetadataTableFromDatabase <- function(dataDir, user)
+{
+
+      # we want metadata only for those matrices found in the cisbp pwms download directory
+      # so begin by getting those nams
+
+   pwm.directory <- file.path(dataDir, "cisbp", "pwms")    
+   matrix.names <- list.files(pwm.directory)
+   matrix.names <- sub(".txt", "", matrix.names, fixed=TRUE)
+   printf("matrix names: %d", length(matrix.names))
+   s <- paste(matrix.names, collapse="','")
+   formatted.matrix.names.as.group <- sprintf("'%s'", s)
+
+   require(RMySQL)
+   db <- dbConnect(MySQL(), user='pshannon', dbname='cisbp')
+   matrix.selector <- sprintf("where ma.Motif_ID in (%s)", formatted.matrix.names.as.group)
+
+   select <- "select ma.ma_id, ma.tf_id, ma.motif_id, ma.species, tf.TF_Name, ms.PMID, fa.Family_Name, pr.DBID"
+   from <- "from motif_all as ma, tfs as tf, motifs as mo, motif_sources as ms, tf_families as fa, proteins as pr"
+   where <- paste(matrix.selector,
+                  "and ma.Motif_ID=mo.Motif_ID",
+                  "and ma.TF_ID = tf.TF_ID",
+                  "and ma.Evidence = 'D'",
+                  "and mo.MSource_ID = ms.MSource_ID",
+                  "and tf.Family_ID = fa.Family_ID",
+                  "and pr.TF_ID = tf.TF_ID"
+                  )
+
+   query <- paste(select, from, where, sep=" ")
+   tbl <- dbGetQuery(db, query)
+   print(dim(tbl))
+   print(dim(unique(tbl[, 1:8])))   # [1] 15694     8
+   print(dim(unique(tbl[, 1:7])))   # [1]  6559    7
+   dups <- which(duplicated(tbl[, 1:7]))
+   if(length(dups) > 0)
+      tbl <- tbl[-dups,]
+   dim(tbl)
+   filename <- file.path(dataDir, "cisbp", "cisbp-metadata-6559-matrices.Rdata")
+   printf("saving metdata data.frame to %s", filename)
+   save(tbl, file=filename)
+
+} # createMetadataTableFromDatabase
 #------------------------------------------------------------------------------------------------------------------------
 readRawMatrices = function (dataDir)
 {
@@ -120,7 +169,7 @@ deduceProteinIdType <- function(id, organism)
 #------------------------------------------------------------------------------------------------------------------------
 standardizeOrganism <- function(x)
 {
-   printf("standardizeOrganism: %s", x);
+   #printf("standardizeOrganism: %s", x);
    tokens <- strsplit(x, "_")[[1]]
 
    if(length(tokens) != 2){
@@ -145,7 +194,6 @@ createMotifDbArchiveFile <- function(dataDir, RDataFileName, count=NA)
       full.path <- file.path(dataDir, "cisbp", "pwms", filename)
       checkTrue(file.exists(full.path))
       text <- scan(full.path, sep="\n", quiet=TRUE, what=character(0)) 
-      #printf("asking parse for %s", filename);
       pwm <- parsePwm(title, text)
       pwm$matrix
       }
@@ -180,7 +228,7 @@ createMotifDbArchiveFile <- function(dataDir, RDataFileName, count=NA)
    for(title in titles){
      tbl.md.row <- tbl.md.row + 1
      if(!title %in% tbl$motif_id){
-        printf("skipping matrix %d, no metadata for %s", tbl.md.row, title)
+        #printf("skipping matrix %d, no metadata for %s", tbl.md.row, title)
         next
         }
      row <- grep(title, tbl$motif_id)
@@ -189,14 +237,15 @@ createMotifDbArchiveFile <- function(dataDir, RDataFileName, count=NA)
      tbl.md[tbl.md.row,] <- as.data.frame(md.fixed)
      } # for title
           
-   
    empties <- which(nchar(tbl.md$providerName) == 0)
    if(length(empties) > 0){
       tbl.md <- tbl.md[-empties,]
       }
-   rownames(tbl.md) <- tbl.md$providerName
-   matrices <- matrices[rownames(tbl.md)]
-   printf("saving %d matrices with metadata to %s", nrow(tbl.md), RDataFileName)
+   rownames(tbl.md) <- paste(tbl.md$organism, tbl.md$dataSource, tbl.md$providerName, sep="-")
+   matrices <- matrices[1:nrow(tbl.md)]
+   names(matrices) <- rownames(tbl.md)
+
+   printf("saving %d matrices with metadata to %s", nrow(tbl.md), file.path(getwd(), RDataFileName))
    save(tbl.md, matrices, file=RDataFileName)
 
      # rebuild & install MotifDb, then watch as it loads:

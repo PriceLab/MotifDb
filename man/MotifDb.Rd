@@ -24,32 +24,18 @@ jolma2013: \tab 843\cr
 ScerTF: \tab 196\cr
 stamlab: \tab 683\cr
 UniPROBE: \tab 380\cr
+cisbp 1.02 \tab 874\cr
 }
 
-Representing primarily four organsisms:
+Representing primarily five organsisms (and 49 total):
 \tabular{ll}{
-Dmelanogaster: \tab 739\cr
-Hsapiens: \tab 1898\cr
-Scerevisiae: \tab 464\cr
-Mmusculus: \tab 462\cr
-Rnorvegicus: \tab 8\cr
-Celegans: \tab 7\cr
-Zmays: \tab 6\cr
-Athaliana: \tab 5\cr
-Psativum: \tab 3\cr
-Amajus: \tab 3\cr
-Pfalciparum: \tab 2\cr
-Gallus: \tab 2\cr
-Xlaevis: \tab 1\cr
-Vertebrata: \tab 1\cr
-Taestivam: \tab 1\cr
-Rrattus: \tab 1\cr
-Phybrida: \tab 1\cr
-Ocuniculus: \tab 1\cr
-Nsylvestris: \tab 1\cr
-Hvulgare: \tab 1\cr
-Hroretzi: \tab 1\cr
-Cparvum: \tab 1\cr
+Hsapiens: \tab 2328\cr
+Dmelanogaster: \tab 1008\cr
+Scerevisiae:  \tab 701\cr
+Mmusculus:  \tab 660\cr
+Athaliana:  \tab 160\cr
+Celegans:   \tab 44\cr
+other:  \tab 177\cr
 }
 
 All the matrices are stored as position frequency matrices, in which

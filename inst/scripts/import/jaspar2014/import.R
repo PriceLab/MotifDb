@@ -32,7 +32,7 @@ readRawMatrices = function (dataDir)
     
 
   filename <- file.path(dataDir, "matrix_data.txt")
-  stopifnot(file.exists(filename))
+    stopifnot(file.exists(filename))
   
   all.lines = scan (filename, what=character(0), sep='\n', quiet=TRUE)
   title.lines = grep ('^>', all.lines)

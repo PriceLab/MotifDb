@@ -122,11 +122,11 @@ createMetadataTable = function (dataDir, matrices, raw.metadata.filename)
                     tfFamily=NA, #family
                     experimentType="low- and high-throughput methods",
                     pubmedID="23175603")
-    printf("i: %d", i);
+    printf("matrix.id: %s", matrix.id);
     tbl.md = rbind (tbl.md, data.frame (new.row, stringsAsFactors=FALSE))
     full.name = sprintf ('%s-%s-%s', organism, dataSource, matrix.id)
     rownames (tbl.md) [nrow (tbl.md)] = full.name
-  } # for i
+  } # for matrix.id
   
   invisible (tbl.md)
   
