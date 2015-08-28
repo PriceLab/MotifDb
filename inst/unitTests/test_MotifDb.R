@@ -1,6 +1,6 @@
 library (MotifDb)
 library (RUnit)
-library (MotIV)
+#library (MotIV)
 library (seqLogo)
 #------------------------------------------------------------------------------------------------------------------------
 run.tests = function ()
@@ -33,8 +33,8 @@ run.tests = function ()
   test.export_memeFormatToFile ()
   test.export_memeFormatToFileDuplication ()
   test.export_memeFormatToFile_run_tomtom ()
-  test.run_MotIV ()
-  test.MotIV.toTable ()
+  #test.run_MotIV ()
+  #test.MotIV.toTable ()
   test.flyFactorGeneSymbols()
 
 } # run.tests
@@ -123,7 +123,7 @@ test.allMatricesAreNormalized = function ()
   matrices = mdb@listData
     # a lenient test required by "Cparvum-UniPROBE-Cgd2_3490.UP00395" and  "Hsapiens-UniPROBE-Sox4.UP00401"
     # for reasons not yet explored.  10e-8 should be be possible
-  checkTrue (all (sapply (matrices, function (m) all (abs (colSums (m) - 1.0) < 0.02))))
+  checkTrue(all(sapply(matrices, function (m) all (abs (colSums (m) - 1.0) < 0.02))))
              
 } # test.allMatricesAreNormalized
 #------------------------------------------------------------------------------------------------------------------------
@@ -160,9 +160,8 @@ test.geneIdsAndTypes = function ()
   checkTrue(typeCounts$ENTREZ == 2347)
   checkTrue(typeCounts$FLYBASE >= 47)
   checkTrue(typeCounts$SGD >= 629)
-  checkEquals(nrow(subset(tbl, is.na(geneIdType))), 1181)
+  checkEquals(nrow(subset(tbl, is.na(geneIdType))), 2055)
   
-
   empty.count = length (which (geneIds == ''))
   checkEquals (empty.count, 0)
 
@@ -219,7 +218,7 @@ test.longNames = function ()
   longNames = strsplit (names (mdb), '-')
   organisms = unique (sapply (longNames, '[', 1))
   
-  dataSources = unique (sapply (longNames, '[', 2))
+  dataSources = unique (lapply (longNames, '[', 2))
 
   recognized.dataSources = unique (mcols(mdb)$dataSource)
   recognized.organisms = unique (mcols(mdb)$organism)
@@ -227,7 +226,7 @@ test.longNames = function ()
     # so that it can be matched up against the 'NA' extracted from longNames just above
   na.indices = which (is.na (recognized.organisms))
   if (length (na.indices) > 0)
-  recognized.organisms [na.indices] = 'NA'
+     recognized.organisms [na.indices] = 'NA'
 
   checkTrue (all (organisms %in% recognized.organisms))
   checkTrue (all (dataSources %in% recognized.dataSources))
@@ -271,7 +270,7 @@ test.flyBindingDomains = function ()
   checkEquals (tmp$Homeobox, 212)
   checkEquals (tmp[['zf-C2H2']], 160)
   checkEquals (tmp[["Helix-Turn-Helix"]], 182)
-  checkEquals (length (which (is.na (subset (x, organism=='Dmelanogaster')$bindingDomain))), 24)
+  checkEquals (length (which (is.na (subset (x, organism=='Dmelanogaster')$bindingDomain))), 162) # lots of cisbp
 
 } # test.flyBindingDomains
 #------------------------------------------------------------------------------------------------------------------------
@@ -537,7 +536,7 @@ test.export_memeFormatToFileDuplication = function ()
   print ('--- test.export_memeFormatToFileDuplication')
   mdb = MotifDb # ()
   mdb.mouse = subset (mdb, organism=='Mmusculus')
-  checkEquals (length (mdb.mouse), 528)
+  checkEquals (length (mdb.mouse), 660)
   output.file = 'mouse.txt' # tempfile ()
   max = 3
   meme.text = export (mdb.mouse [1:max], output.file, 'meme')
@@ -564,11 +563,13 @@ test.export_memeFormatToFile_run_tomtom = function (max=50)
 
        # find similarity of motif #1 to all the motifs in mdbMany
 
-    cmd = sprintf ('tomtom -no-ssc -oc %s -verbosity 3 -min-overlap 5 -mi 1 -dist pearson -evalue -thresh 10 %s %s',
-                    tomtom.tmp.dir, sox4.file.path, all.human.file.path)
-    system (cmd)
-    cmd = sprintf ('open %s/tomtom.html', tomtom.tmp.dir)
-    system (cmd)
+       # cannot rely upon tomtom being present
+
+    #cmd = sprintf ('tomtom -no-ssc -oc %s -verbosity 3 -min-overlap 5 -mi 1 -dist pearson -evalue -thresh 10 %s %s',
+    #                tomtom.tmp.dir, sox4.file.path, all.human.file.path)
+    #system (cmd)
+    #cmd = sprintf ('open %s/tomtom.html', tomtom.tmp.dir)
+    #system (cmd)
     } # if interactive
 
 } # test.export_memeFormatToFile_run_tomtom
