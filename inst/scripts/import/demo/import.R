@@ -32,9 +32,10 @@ readRawMatrices = function (dataDir)
     # within which we will look for one small file "sample.pcm"
     
 
-  filename <- file.path(dataDir, "jaspar2014", "sample.pcm")
+  filename <- file.path(dataDir, "sample.pcm")
   printf("checking for readable matrix file:")
   printf("     %s", filename)
+  browser()
   stopifnot(file.exists(filename))
   
   all.lines = scan (filename, what=character(0), sep='\n', quiet=TRUE)
@@ -69,7 +70,7 @@ extractMatrices = function (pwm.list)
 #------------------------------------------------------------------------------------------------------------------------
 createMetadataTable = function (dataDir, matrices, raw.metadata.filename)
 {
-  filename <- file.path(dataDir, "jaspar2014", "md-raw.tsv")
+  filename <- file.path(dataDir, "md-raw.tsv")
   printf("checking for readable metadata file:")
   printf("   %s", filename)
   stopifnot(file.exists(filename))
@@ -84,8 +85,7 @@ createMetadataTable = function (dataDir, matrices, raw.metadata.filename)
     stopifnot(length(grep(short.matrix.name, tbl.raw$ma.name)) == 1)
     md <- as.list(subset(tbl.raw, ma.name==short.matrix.name))
     dataSource <- "jaspar2014"
-    #browser()
-    organism <- ncbiTaxonimicCodeToLinnaean(md$ncbi.tax.code)
+    organism <- ncbiTaxonimicCodeToBiocLinnaean(md$ncbi.tax.code)
     new.row = list (providerName=matrix.id,
                     providerId=matrix.id,
                     dataSource=dataSource,
@@ -94,7 +94,7 @@ createMetadataTable = function (dataDir, matrices, raw.metadata.filename)
                     geneIdType=NA,
                     proteinId=md$uniprot,
                     proteinIdType=guessProteinIdentifierType(md$uniprot),
-                    organism=ncbiTaxonimicCodeToLinnaean(md$ncbi.tax.code),
+                    organism=organism,
                     sequenceCount=max(colSums(matrix)),
                     bindingSequence=NA_character_,
                     bindingDomain=NA,
@@ -177,33 +177,33 @@ parsePwm = function (text)
 
 } # parsePwm
 #----------------------------------------------------------------------------------------------------
-ncbiTaxonimicCodeToLinnaean <- function(code)
+ncbiTaxonimicCodeToBiocLinnaean <- function(code)
 {
   code <- as.character(code)
   
-  lookup <- list("3702" = "Arabidopsis thaliana",
-                 "3888" = "Pisum sativum",
-                 "4094" = "Nicontia sp.",
-                 "4102" = "Petunia hybrida",
-                 "4151" = "Antirrhinum majus",
-                 "4513" = "Hordeum vulgare",
-                 "4565" = "Triticum aestivam",
-                 "4577" = "Zea mays",
-                 "4932" = "Saccaromyces cerevisiae",
-                 "6239" = "Caenorhabditis elegans",
-                 "7227" = "Drosophila melanogaster",
-                 "7729" = "Halocynthia roretzi",
+  lookup <- list("3702" = "Athaliana",
+                 "3888" = "Psativum",
+                 "4094" = "Nsp.",
+                 "4102" = "Phybrida",
+                 "4151" = "Amajus",
+                 "4513" = "Hvulgare",
+                 "4565" = "Taestivam",
+                 "4577" = "Zmays",
+                 "4932" = "Scerevisiae",
+                 "6239" = "Celegans",
+                 "7227" = "Dmelanogaster",
+                 "7729" = "Hroretzi",
                  "7742" = "Vertebrata",
-                 "8022" = "Onchorhynchus mykiss",
-                 "8355" = "Xenopus laevis",
-                 "8364" = "Silurana tropicalis",
-                 "9031" = "Gallus gallus",
-                 "9606" = "Homo sapiens",
-                 "9913" = "Bos taurus",
-                 "9986" = "Oryctolagus cuniculus",
-                 "10090" = "Mus musculus",
-                 "10116" = "Rattus norvegicus",
-                 "10117" = "Rattus rattus")
+                 "8022" = "Omykiss",
+                 "8355" = "Xlaevis",
+                 "8364" = "Stropicalis",
+                 "9031" = "Ggallus",
+                 "9606" = "Hsapiens",
+                 "9913" = "Btaurus",
+                 "9986" = "Ocuniculus",
+                 "10090" = "Mmusculus",
+                 "10116" = "Rnorvegicus",
+                 "10117" = "Rrattus")
 
   if (code %in% names(lookup))
       return(lookup[[code]])
@@ -212,3 +212,5 @@ ncbiTaxonimicCodeToLinnaean <- function(code)
 
 } # ncbiTaxonimicCodeToLinnaean
 #----------------------------------------------------------------------------------------------------
+if(!interactive())
+  run("..")
