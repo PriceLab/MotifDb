@@ -1,6 +1,6 @@
 library (MotifDb)
 library (RUnit)
-#library (MotIV)
+library (MotIV)
 library (seqLogo)
 #------------------------------------------------------------------------------------------------------------------------
 run.tests = function ()
@@ -33,8 +33,8 @@ run.tests = function ()
   test.export_memeFormatToFile ()
   test.export_memeFormatToFileDuplication ()
   test.export_memeFormatToFile_run_tomtom ()
-  #test.run_MotIV ()
-  #test.MotIV.toTable ()
+  test.MotIV.toTable ()
+  test.run_MotIV.motifMatch()
   test.flyFactorGeneSymbols()
 
 } # run.tests
@@ -574,10 +574,11 @@ test.export_memeFormatToFile_run_tomtom = function (max=50)
 
 } # test.export_memeFormatToFile_run_tomtom
 #------------------------------------------------------------------------------------------------------------------------
-test.run_MotIV = function ()
+# MotIV::motifMatch fails with MotIV_1.25.0.  will look into this in September, 2015, pshannon
+test.run_MotIV.motifMatch = function ()
 {
   library (MotIV)
-  print ('--- test.run_MotIV')
+  print ('--- test.run_MotIV.motifMatch')
   mdb = MotifDb # ()
 
   db.tmp = mdb@listData
@@ -587,15 +588,16 @@ test.run_MotIV = function ()
      # the long way to extract the matrix name.  see MotIV.toTable below for more convenient way
   checkEquals (motif.hits@bestMatch[[1]]@aligns[[1]]@TF@name, names (db.tmp)[1])
 
-     # jaspar, uniprobe and ScerTF contribute a total of 1035 matrices
-  checkTrue (length (mdb) >= 1035)
-
-  motif.hits =  motifMatch (db.tmp [1035], database=db.tmp)
+     # match the last motif against all
+  last <- length(db.tmp)
+  motif.hits =  motifMatch (db.tmp [last], database=db.tmp)
   tbl.hits = MotIV.toTable (motif.hits)
-  checkEquals (names (db.tmp)[1035], tbl.hits [1, 'name'])   # first hit should be the target itself
+    # the 5 hits return should include the one we tried to match, but the MotIV search strategy
+    # may not place it first
+  checkTrue(names(db.tmp[last]) %in% tbl.hits$name)
   invisible (tbl.hits)
   
-} # test.run_MotIV
+} # test.run_MotIV.motifMatch
 #------------------------------------------------------------------------------------------------------------------------
 MotIV.toTable = function (match)
 {
