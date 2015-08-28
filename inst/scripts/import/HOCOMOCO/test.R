@@ -7,11 +7,11 @@ source("import.R")
 run.tests = function (dataDir)
 {
   test.parsePwm()
-  matrices.raw <- test.readRawMatrices (dataDir="./")
+  matrices.raw <- test.readRawMatrices (dataDir)
   matrices <- test.extractMatrices(matrices.raw)
   
   #TODO: check for metadata file
-  tbl.md <- test.createMetadataTable(dataDir="./", matrices, "md-raw.tsv")
+  tbl.md <- test.createMetadataTable(dataDir, matrices, "md-raw.tsv")
   matrices <- test.normalizeMatrices(matrices)
   matrices.renamed <- test.renameMatrices(matrices, tbl.md)
   
@@ -93,16 +93,18 @@ test.createMetadataTable = function (dataDir, matrices, raw.metadata.filename)
   print ('--- test.createMetadataTable')
   
   # try it with just the first matrix
-  tbl.md = createMetadataTable (dataDir, matrices, raw.metadata.filename)
+  tbl.md = createMetadataTable (dataDir, matrices[1], raw.metadata.filename)
   
-  checkEquals (dim (tbl.md), c (length(matrices), 15))
+  checkEquals (dim (tbl.md), c (1, 15))
   checkEquals (colnames (tbl.md), c ("providerName", "providerId", "dataSource", "geneSymbol", "geneId", "geneIdType", 
                                      "proteinId", "proteinIdType", "organism", "sequenceCount", "bindingSequence",
                                      "bindingDomain", "tfFamily", "experimentType", "pubmedID"))
   
-  with(tbl.md[1,], checkEquals(providerName,   "MA0004.1 Arnt"),
-       checkEquals(providerId,     "MA0004.1 Arnt"),
-       checkEquals(dataSource,     "jaspar2014"),
+  browser();
+  x <- 99
+  with(tbl.md[1,], checkEquals(providerName,   "AHR_si",
+       checkEquals(providerId,     "AHR_si"),
+       checkEquals(dataSource,     ""),
        checkEquals(geneSymbol,     "Arnt"),
        checkEquals(proteinId,      "P53762"),
        checkEquals(proteinIdType,  "uniprot"),
