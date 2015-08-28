@@ -62,7 +62,7 @@ extractMatrices = function (pwm.list)
 #------------------------------------------------------------------------------------------------------------------------
 createAnnotationTable <- function(dataDir)
 {
-    file <- file.path(dataDir, "Matrix.txt")
+    file <- file.path(dataDir, "MATRIX.txt")
     tbl.matrix <-  read.table(file, sep='\t', header=FALSE, as.is=TRUE)
     colnames(tbl.matrix) <- c('id', 'category', 'mID', 'version', 'binder')
       
