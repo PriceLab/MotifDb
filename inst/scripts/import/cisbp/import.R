@@ -161,7 +161,7 @@ deduceProteinIdType <- function(id, organism)
      return("SGD")
 
   if(substr(id, 1, 2) == "EN")
-     return("ensembl")
+     return("ENSEMBL")
 
   return(NA)
   
