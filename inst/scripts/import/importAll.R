@@ -6,10 +6,9 @@ library(org.Sc.sgd.db)
 # biocLite(c("org.Ce.eg.db", "org.Dm.eg.db", "org.Hs.eg.db", "org.Mm.eg.db", "org.Sc.sgd.db"))
 
 directories <- c("flyFactorSurvey", "hPDI", "jaspar", "ScerTF", "stamlab",
-                 "uniprobe", "jaspar2014",
+                 "uniprobe", "jaspar2014", "jolma2013", "cisbp")
                  #"HOCOMOCO",
-                 "cisbp")
-#directories <- directories[2]
+
 starting.directory <- getwd()
 stopifnot(basename(starting.directory) == "import")
 
@@ -26,3 +25,4 @@ for(directory in directories){
     run(repoRoot)
     }
     
+setwd(starting.directory)
