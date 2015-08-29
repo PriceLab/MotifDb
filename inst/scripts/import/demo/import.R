@@ -12,7 +12,7 @@ run = function (dataDir)
                                  raw.metadata.filename="md-raw.tsv")
   matrices <- normalizeMatrices (matrices)
   matrices <- renameMatrices (matrices, tbl.md)
-
+  
   serializedFile <- file.path(dataDir, "demo.RData")
   printf("writing %s to %s", "demo.RData", dataDir)
 
@@ -35,7 +35,6 @@ readRawMatrices = function (dataDir)
   filename <- file.path(dataDir, "sample.pcm")
   printf("checking for readable matrix file:")
   printf("     %s", filename)
-  browser()
   stopifnot(file.exists(filename))
   
   all.lines = scan (filename, what=character(0), sep='\n', quiet=TRUE)
@@ -77,7 +76,7 @@ createMetadataTable = function (dataDir, matrices, raw.metadata.filename)
 
   tbl.raw <- read.table(filename, sep="\t", header=TRUE, as.is=TRUE)
   tbl.md = data.frame ()
-  matrix.ids = names (matrices)
+  matrix.ids = names(matrices)
   
   for (matrix.id in matrix.ids) {
     matrix <- matrices[[matrix.id]]
@@ -102,7 +101,7 @@ createMetadataTable = function (dataDir, matrices, raw.metadata.filename)
                     experimentType=md$type,
                     pubmedID="24194598")
     tbl.md = rbind (tbl.md, data.frame (new.row, stringsAsFactors=FALSE))
-    full.name = sprintf ('%s-%s-%s', organism, dataSource, matrix.id)
+    full.name = sprintf ('%s-%s-%s-%s', organism, dataSource, md$gene.symbol, short.matrix.name)
     rownames (tbl.md) [nrow (tbl.md)] = full.name
     } # for i
 
@@ -153,7 +152,6 @@ normalizeMatrices = function (matrices)
 parsePwm = function (text)
 {
    lines = strsplit (text, '\t')
-   #browser()
    stopifnot(length(lines)==5) # title line, one line for each base
    title = lines [[1]][1]
    line.count = length(lines)
