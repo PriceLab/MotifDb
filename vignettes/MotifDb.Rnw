@@ -1,0 +1,436 @@
+\documentclass{article}
+%% %\VignetteIndexEntry{MotifDb Overview}
+%% %\VignettePackage{MotifDb}
+\usepackage[noae]{Sweave}
+\usepackage[left=0.5in,top=0.5in,right=0.5in,bottom=0.75in,nohead,nofoot]{geometry} 
+\usepackage{hyperref}
+\usepackage[noae]{Sweave}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\definecolor{Blue}{rgb}{0,0,0.5}
+\definecolor{Green}{rgb}{0,0.5,0}
+
+\RecustomVerbatimEnvironment{Sinput}{Verbatim}{%
+  xleftmargin=1em,%
+  fontsize=\small,%
+  fontshape=sl,%
+  formatcom=\color{Blue}%
+  }
+\RecustomVerbatimEnvironment{Soutput}{Verbatim}{%
+  xleftmargin=0em,%
+  fontsize=\scriptsize,%
+  formatcom=\color{Blue}%
+  }
+\RecustomVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=2em}
+
+
+
+\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
+\fvset{listparameters={\setlength{\topsep}{6pt}}}
+% These determine the rules used to place floating objects like figures 
+% They are only guides, but read the manual to see the effect of each.
+\renewcommand{\topfraction}{.99}
+\renewcommand{\bottomfraction}{.99}
+\renewcommand{\textfraction}{0.0}
+
+\title{MotifDb} 
+\author{Paul Shannon}
+
+\begin{document} 
+
+\maketitle
+\begin{abstract}
+Many kinds of biological activity are regulated by the binding of proteins to their cognate
+substrates.  Of particular interest is the sequence-specific binding of transcription factors to DNA, often in
+regulatory regions just upstream of the transcription start site of a gene.  These binding events play a pivotal
+role in regulating gene expression.  Sequence specificity among closely related binding sites is nearly always incomplete: some variety
+in the DNA sequence is routinely observed.  For this reason, these inexact binding sequence patterns are commonly
+described as \emph{motifs} represented numerically as frequency matrices, and visualized as sequence logos.  Despite their importance
+in current research, there has been until now no single, annotated, comprehensive collection of publicly available motifs.
+The current package provides such a collection, offering more than two thousand annotated matrices from multiple organisms, within the
+context of the Bioconductor project.  The matrices can be filtered and selected on the basis of their metadata, used with other
+Bioconductor packages (MotIV for motif comparison, seqLogo for visualization) or easily exported for use with 
+standard software and websites such as those provided by the MEME Suite\footnote{http://meme.sdsc.edu/meme/doc/meme.html}.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction and Basic Operations}
+
+The first step is to load the necessary packages:
+
+<<libraries>>=
+library (MotifDb)
+library (MotIV)
+library (seqLogo)
+@ 
+
+<<hiddenCode results=hide, echo=FALSE>>=
+MotIV.toTable = function (match) {
+  if (length (match@bestMatch) == 0)
+    return (NA)
+  
+  alignments = match@bestMatch[[1]]@aligns
+
+  df = data.frame (stringsAsFactors=FALSE)
+  for (alignment in alignments) {
+    x = alignment
+    name = x@TF@name
+    eVal = x@evalue
+    sequence = x@sequence
+    match = x@match
+    strand = x@strand
+    df = rbind (df, data.frame (name=name, eVal=eVal, sequence=sequence, 
+                                match=match, strand=strand, stringsAsFactors=FALSE))
+    } # for alignment
+  return (df)
+  } # MotIV.toTable 
+@ 
+
+%% MotifDb provides two kinds of loosely linked data:  position frequency matrices, and metadata about each matrix.  The matrix
+%% names, and the rownames of the metadata table, are identical, so it is easy to map back and forth between
+%% the two.  Some measure of convenience is gained by extracting these two kinds of data into separate variables,
+%% as we shall see.  The cost in extra memory should not significant.
+%% 
+%% <<all.matrices>>=
+%% matrices.all = as.list (MotifDb)
+%% metadata <- values (MotifDb)
+%% @ 
+There are  more than two thousand  matrices, from five sources:
+<<sources>>=
+length (MotifDb)
+sort (table (values (MotifDb)$dataSource), decreasing=TRUE)
+@ 
+And 22 organisms (though the majority of the matrices come from just four):
+<<organisms>>=
+sort (table (values (MotifDb)$organism), decreasing=TRUE)
+@ 
+
+With these categories of metadata
+<<metadata>>=
+colnames (values (MotifDb))
+@ 
+\section{Selection}
+
+There are three ways to extract subsets of interest from the MotifDb collection.  All three operate upon the MotifDb metadata,
+matching values in one or more of those fifteen attributes (listed just above), and returning the subset of MotifDb  which 
+meet the specified criteria.  The three techniques:  \emph{query}, \emph{subset} and \emph{grep}
+
+\subsection{query}
+This is the simplest technique to use, and will suffice in many circumstances.  For example, if you want 
+all of the human matrices:
+<<queryHuman>>=
+query (MotifDb, 'hsapiens')
+@ 
+If you want all matrices associated with \textbf{\emph{Sox}} transcription factors, regardless of dataSource or organism:
+<<querySox>>=
+query (MotifDb, 'sox')
+@ 
+For all yeast transcription factors with a homeo domain
+<<queryYeastHomeo>>=
+query (query (MotifDb, 'cerevisiae'), 'homeo')
+@ 
+The last example may inspire more confidence in the precision of the result than is justified, and for a couple
+of reasons.  First, the assignment of  protein binding domains to specific categories is, as of 2012, an ad hoc 
+and incomplete process.  Second, the query commands matches the supplied character string to \emph{all} metadata
+columns.  In this case, 'homeo' appears both in the \emph{bindingDomain} column and the \emph{tfFamily} column,
+and the above \emph{query} will return matches from both.
+Searching and filtering should always be accompanined by close scrutiny of the data, such as these commands
+illustrate:
+
+<<homeoVariety>>=
+unique (grep ('homeo', values(MotifDb)$bindingDomain, ignore.case=T, v=T))
+unique (grep ('homeo', values(MotifDb)$tfFamily, ignore.case=T, v=T))
+@ 
+\subsection{grep}
+This selection method (and the next, \emph{subset}) require that you address metadata columns explicitly.  This is a little more
+work, but the requisite direct engagement with the metadata is worthwhile.  Repeating the 'query' examples from above,
+you can see how more knowedge of MotifDb metadata is required.
+<<grepHuman>>=
+mdb.human <- MotifDb [grep ('Hsapiens', values (MotifDb)$organism)]
+mdb.sox <- MotifDb [grep ('sox', values (MotifDb)$geneSymbol, ignore.case=TRUE)]
+yeast.indices = grepl ('scere', values (MotifDb)$organism, ignore.case=TRUE)
+homeo.indices.domain = grepl ('homeo', values (MotifDb)$bindingDomain, ignore.case=TRUE)
+homeo.indices.family = grepl ('homeo', values (MotifDb)$tfFamily, ignore.case=TRUE)
+yeast.homeo.indices = yeast.indices & (homeo.indices.domain | homeo.indices.family)
+yeast.homeoDb = MotifDb [yeast.homeo.indices]
+@ 
+
+An alternate and somewhat more compact approach:
+<<withHomeo>>=
+yeast.homeo.indices <- with(values(MotifDb),
+  grepl('scere', organism, ignore.case=TRUE) &
+    (grepl('homeo', bindingDomain, ignore.case=TRUE) |
+     grepl('homeo', tfFamily, ignore.case=TRUE)))
+
+@ 
+\subsection{subset}
+MotifDb::subset emulates the R base data.frame \emph{subset} command, which is not unlike an SQL select function.
+Unfortunately -- and just like the R base subset function -- this MotifDb method cannot be used reliably  within a script:
+\emph{It is only reliable when called interactively.}  Here, with mixed success (as you will see) , we use MotifDb::subset to
+reproduce the \emph{query} and \emph{grep} selections shown above.
+
+<<subsetHuman>>=
+if (interactive ())
+  subset (MotifDb, organism=='Hsapiens')
+@ 
+One can easily find all the 'sox' genes with the subset command, avoiding possible upper/lower case conflicts by passing
+the metadata's geneSymbol column through the function 'tolower':
+<<subsetSox>>=
+if (interactive ())
+  subset (MotifDb, tolower (geneSymbol) == 'sox4')
+@ 
+Similarly, subset has limited application for a permissive 'homeo' search.
+But for the retrieval by explicitly specified search terms, subset works very well:
+<<subsetYeastHomeo>>=
+if (interactive ())
+  subset (MotifDb, organism=='Scerevisiae' & bindingDomain=='Homeo')
+@ 
+
+\subsection{The Egr1 Case Study}
+
+We now do a simple geneSymbol search, followed by an examination of the sub-MotifDb the search returns.  We are looking for all matrices
+associated with the well-known and highly conserved zinc-finger transcription factor, Egr1.
+There are two of these in MotifDb, both from mouse, and each from a different data source.
+
+<<findEgr1>>=
+  # subset is convenient: 
+if (interactive ())
+  as.list (subset (MotifDb, tolower (geneSymbol) == 'egr1'))
+  # grep returns indices which allow for more flexibility
+indices = grep ('egr1', values (MotifDb)$geneSymbol, ignore.case=TRUE)  
+length (indices)
+@ 
+There are a variety of ways to examine and extract data from this object, a MotifList of length 2.  
+<<MotifDbViews>>=
+MotifDb [indices]
+@ 
+
+Now view the matrices as a named list:
+<<as.list>>=
+as.list (MotifDb [indices])
+@ 
+and finally, the metadata associated with these two matrices, transposed, for easy reading and comparison:
+<<as.metadata>>=
+noquote (t (as.data.frame (values (MotifDb [indices]))))
+@ 
+ 
+We used the \emph{grep} function above to find rows in the metadata table whose \emph{geneSymbol} column includes the string 'Egr1'.
+If you wish to identify matrices (and/or their attendant metadata) based upon a richer combination of criteria, for instance:
+
+\begin{enumerate}
+  \item organism  (\emph{Mmusculus})
+  \item gene symbol  (\emph{Egr1})
+  \item data source  (\emph{JASPAR\_CORE})
+\end{enumerate}
+
+the grep solution, while serviceable, becomes a little awkward:
+<<egr1-multi-grep>>=
+
+geneSymbol.rows = grep ('Egr1', values (MotifDb)$geneSymbol, ignore.case=TRUE)
+organism.rows = grep ('Mmusculus', values (MotifDb)$organism, ignore.case=TRUE)
+source.rows = grep ('JASPAR', values (MotifDb)$dataSource, ignore.case=TRUE)
+egr1.mouse.jaspar.rows = intersect (geneSymbol.rows, 
+                           intersect (organism.rows, source.rows))
+print (egr1.mouse.jaspar.rows)
+egr1.motif <- MotifDb [egr1.mouse.jaspar.rows]
+@ 
+<<MotifDbViews>>=
+@ 
+
+Far more concise, and fully reliable as an interactive command (though \emph{not} if used in a 
+script\footnote{See the help page of the base R command subset for detail), is the \emph{subset} command}):
+<<subsetSearchForEgr1>>=
+if (interactive ()) {
+  egr1.motif <- subset (MotifDb, organism=='Mmusculus' & 
+                        dataSource=='JASPAR_CORE' & 
+                        geneSymbol=='Egr1')
+  }
+@ 
+Whichever method you use, this next chunk of code displays the matrix, and then the metadata for mouse JASPAR Egr1, the latter
+textually-transformed for easy reading within the size constraints of this page.
+<<examine-egr1>>=
+egr1.motif
+as.list (egr1.motif)
+noquote (t (as.data.frame (values (egr1.motif))))
+@ 
+
+
+Next we use the bioconductor \emph{seqLogo} package to display this motif.
+
+<<egr1, fig=TRUE, include=FALSE>>=
+seqLogo (as.list (egr1.motif)[[1]])
+@ 
+
+\begin{figure}[htpb!]
+  \centering
+  \includegraphics[width=0.3\textwidth]{MotifDb-egr1}
+  \caption{Mmusculus-JASPAR\_CORE-Egr1-MA0162.1}
+\end{figure}
+  
+\section{Motif Matching}
+We will look for the ten position frequency matrices which are the best match to JASPAR's mouse EGR1, using
+the MotIV package.  We actually request the top eleven hits from the entire MotifDb, since the first hit 
+should be the target matrix itself, since that is of necessity found in the full MotifDb.
+
+<<motifmatch>>=
+egr1.hits <- motifMatch (as.list (egr1.motif) [1], as.list (MotifDb), top=11)
+# 'MotIV.toTable' -- defined above (and hidden) -- will become part of MotIV in the upcoming release
+tbl.hits <- MotIV.toTable (egr1.hits)
+print (tbl.hits)
+@ 
+
+The \emph{sequence} column in this table is the \emph{consensus sequence} -- with heterogeneity left out -- for the 
+matrix it describes.   
+
+\vspace{10 mm}
+
+\textbf{\emph{Puzzling: the strand of the match reported above is opposite of what I expected, and opposite of what seqLogo displays.
+  This is a question for the MotIV developers.}}
+
+\vspace{10 mm}
+
+The six logos appear below, beginning with the logo of the query matrix, \emph{Mmusculus-JASPAR\_CORE-Egr1-MA0162.1}, including
+two other mouse matrices, and two zinc-finger fly matrices.  Examining the three mouse matrices and their metadata reveals that
+all three (geneSymbol differences aside) describe the same protein:
+<<three.mice.metadata>>=
+if (interactive ())
+  noquote (t (as.data.frame (subset (values (MotifDb), geneId=='13653'))))
+@ 
+Zinc finger protein domains are classified into many \emph{fold groups}; their respective cognate DNA sequence may classify similarly.
+That two fly matrices significantly match three reports of the mouse Egr1 motif suggests impressive conservation of this 
+binding pattern, or convergent evolution.  
+
+Let us look at the metadata for the first fly match, whose geneId is \textbf{FBgn0003499}:
+<<fly.Sr.metadata>>=
+noquote (t (as.data.frame (values (MotifDb)[grep ('FBgn0003499', values (MotifDb)$geneId),])))
+@ Note that the SANGER motif, based on 18 sequences, had a high fidelity match to mouse Egr1 (see above, 10e-12), but
+that the SOLEXA motif, based upon 2316 sequences, did not (in work not shown, it appears 22nd in the an expanded
+motifMatch hit list, with a eval of 10e-5).  It is possible that the SOLEXA motif is more accurate, and that a close
+examination of this case, including sequence logos, position frequency matrices, and the search parameters of
+motifMatch, will be instructive.  Repeating the search with \emph{tomtom} might also be illuminating -- either as
+confirmation of MotIV and the default parameterization we used, or as a correction to it.  Here we see the facilities
+for exploratory data analysis MotifDb provides, and the opportunities for data analysis which result.
+
+
+<<logo1, fig=TRUE, include=FALSE, echo=FALSE>>=
+  seqLogo (MotifDb [[tbl.hits$name[1]]])
+@
+
+<<logo2, fig=TRUE, include=FALSE, echo=FALSE>>=
+  seqLogo (MotifDb [[tbl.hits$name[2]]])
+@
+
+<<logo3, fig=TRUE, include=FALSE, echo=FALSE>>=
+  seqLogo (MotifDb [[tbl.hits$name[3]]])
+@
+
+<<logo4, fig=TRUE, include=FALSE, echo=FALSE>>=
+  seqLogo (MotifDb [[tbl.hits$name[4]]])
+@
+
+<<logo5, fig=TRUE, include=FALSE, echo=FALSE>>=
+  seqLogo (MotifDb [[tbl.hits$name[5]]])
+@
+
+<<logo6, fig=TRUE, include=FALSE, echo=FALSE>>=
+  seqLogo (MotifDb [[tbl.hits$name[6]]])
+@
+
+\begin{figure}[htpb!]
+  \centering
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{MotifDb-logo1}
+    \caption{Mmusculus-JASPAR\_CORE-Egr1-MA0162.1}
+    \label{fig:Egr1-MA0162.1}
+    \end{subfigure}%
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{MotifDb-logo2}
+    \caption{Dme-FFS-sr\_SANGER\_5\_FBgn0003499\\(abbreviated)}
+    \label{fig:Egr1-logo2}
+    \end{subfigure}%
+\end{figure}
+
+\begin{figure}[htpb!]
+  \centering
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{MotifDb-logo3}
+    \caption{Mmusculus-UniPROBE-Zif268.UP00400}
+    \label{fig:Egr1-logo3}
+    \end{subfigure}%
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{MotifDb-logo4}
+    \caption{Dme-FFS-klu\_SANGER\_10\_FBgn0013469}
+    \label{fig:Egr1-logo4}
+    \end{subfigure}%
+\end{figure}
+
+
+\begin{figure}[htpb!]
+  \centering
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{MotifDb-logo5}
+    \caption{Mmusculus-UniPROBE-Egr1.UP00007}
+    \label{fig:Egr1-logo5}
+    \end{subfigure}%
+  \begin{subfigure}[b]{0.38\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{MotifDb-logo6}
+    \caption{Dme-FFS-klu\_SOLEXA\_5\_FBgn0013469}
+    \label{fig:Egr1-logo6}
+    \end{subfigure}%
+\end{figure}
+
+\newpage
+
+\section{Exporting to the MEME Suite}
+Some users of this package may wish to export the data -- both matrices and metadata -- so that they may be used in
+other programs.  The MEME suite, among others, is broadly useful, continuously improved and well-regarded throughout the
+bioinformatics community.  The code below exports all of the MotifDb matrices as a text file in the MEME format, and all
+of the metadata as a tab-delimited text file.
+
+<<export>>=
+matrix.output.file = tempfile ()   # substitute your preferred filename here
+meme.text = export (MotifDb, matrix.output.file, 'meme')
+
+metadata.output.file = tempfile () # substitute your preferred filename here
+write.table (as.data.frame (values (MotifDb)), file=metadata.output.file, sep='\t', 
+             row.names=TRUE, col.names=TRUE, quote=FALSE)
+@ 
+
+\section{Future Work}
+This first version of MotifDb collects into one R package all of the best-known public domain protein-DNA binding matrices, with
+as much metadata as could be gleaned from the five providers.  However, not all of these matrices are equally supported by data
+and by no means are all are accompanied by complete metadata.
+
+With the passage of time our knowledge of protein-DNA binding sequence motifs will improve.  They will be derived from more 
+binding events, with more precision and specificity, and accompanied by more (and better understood) contextual detail.  Cooperative binding, 
+mentioned only in a few times in the current (July 2012) version of this package, will be well-represented.  Metadata will improve.
+Better assignment of binding domains to consensus categories will be especially useful when it is available.  Three-dimensional 
+models of specific proteins binding to specific DNA may someday become commonplace.
+
+
+\section{References}
+
+\begin{itemize}
+
+\item Portales-Casamar E, Thongjuea S, Kwon AT, Arenillas D, Zhao X, Valen E, Yusuf D, Lenhard B, Wasserman WW, Sandelin A. JASPAR 2010: the greatly expanded open-access database of transcription factor binding profiles. Nucleic Acids Res. 2010 Jan;38(Database issue):D105-10. Epub 2009 Nov 11.
+
+\item Robasky K, Bulyk ML. UniPROBE, update 2011: expanded content and search tools in the online database of protein-binding microarray data on protein-DNA interactions. Nucleic Acids Res. 2011 Jan;39(Database issue):D124-8. Epub 2010 Oct 30.
+
+\item Spivak AT, Stormo GD. ScerTF: a comprehensive database of benchmarked position weight matrices for Saccharomyces species. Nucleic Acids Res. 2012 Jan;40(Database issue):D162-8. Epub 2011 Dec 2.
+
+\item Xie Z, Hu S, Blackshaw S, Zhu H, Qian J. hPDI: a database of experimental human protein-DNA interactions. Bioinformatics. 2010 Jan 15;26(2):287-9. Epub 2009 Nov 9.
+
+\item Zhu LJ, et al. 2011. FlyFactorSurvey: a database of Drosophila transcription factor binding specificities determined using the bacterial one-hybrid system. Nucleic Acids Res. 2011 Jan;39(Database issue):D111-7. Epub 2010 Nov 19.
+
+
+\end{itemize}
+
+
+\end{document}
+
+
