@@ -1,0 +1,16 @@
+Package: MotifDb
+Type: Package
+Title: An Annotated Collection of Protein-DNA Binding Sequence Motifs
+Version: 1.14.0
+Date: 2016-01-27
+Author: Paul Shannon
+Maintainer: Paul Shannon <pshannon@systemsbiology.org>
+Depends: R (>= 2.15.0), methods, BiocGenerics, S4Vectors, IRanges, Biostrings
+Suggests: RUnit, seqLogo, MotIV
+Imports: rtracklayer
+Description: More than 2000 annotated position frequency matrices from nine public sources, for multiple organisms.
+License: Artistic-2.0 | file LICENSE
+License_is_FOSS: no
+License_restricts_use: yes
+LazyLoad: yes
+biocViews: MotifAnnotation
