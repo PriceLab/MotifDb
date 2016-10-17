@@ -1,0 +1,18 @@
+exportClasses (MotifList)
+exportMethods (
+   subset,
+   export,
+   show,
+   query
+   )
+
+export(
+    MotifDb
+)
+
+import(BiocGenerics)
+import(S4Vectors)
+import(IRanges)
+importFrom(rtracklayer, export)
+import(Biostrings)
+import(methods)

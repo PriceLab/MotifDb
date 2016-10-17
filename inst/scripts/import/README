@@ -1,0 +1,10 @@
+The inst/scripts/import directory contains one subdirectory for each data source.
+
+flyFactorSurvey
+hPDI
+HOCOMOCO
+jaspar
+jolma2013
+ScerTF
+stamlab
+uniprobe

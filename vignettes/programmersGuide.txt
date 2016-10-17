@@ -1,0 +1,123 @@
+Importing Frequency Matrices and Metadata into MotifDb
+
+Paul Shannon
+pshannon@fredhutch.org
+28 August 2015
+
+MotifDb collects currently nine sources of protein-binding DNA sequences, with metadata, into
+one common format.   The heterogeneity of these sources is large, and sometimes daunting, but
+by transforming them into a standard form (a list of position weightm matrices and a standard
+fifteen-column metadata DataFrame) they may be easily used together.
+
+In the inst/scripts/import directories you will one subdirectory for each data source.
+Within each subdirectory you will find a data-source-specific "import.R" which knows
+the details of the raw data each source provides, and which transforms the raw data into 
+two data structures:  matrices, and tbl.md
+
+The best way to learn the ropes is to run, study, and thoroughly understand 
+
+   inst/scripts/import/demo/import.R
+
+In the demo directory you will also find the raw files, each describing four binding site motifs.
+This particular data is taken from the much larger extracted from the much larger
+jasper core data set.  It is presented here only as an example.
+
+The first of four matrices:
+
+    >MA0004.1 Arnt
+    4	19	0	0	0	0
+    16	0	20	0	0	0
+    0	1	0	20	0	20
+    0	0	0	0	20	0
+
+It's metadata:
+
+id	jaspar.class	ma.name	unknown	gene.symbol	uniprot	ncbi.tax.code	class	comment	family	medline	tax_group	type	pazar_tf_id	description	tfbs_shape_id	consensus	jaspar	mcs	transfac	end_relative_to_tss	start_relative_to_tss	included_models	source	centrality_logp	tfe_id	symbol	alias
+9232	CORE	MA0004	1	Arnt	P53762	10090	Zipper-Type	-	Helix-Loop-Helix	7592839	vertebrates	SELEX	TF0000003	aryl hydrocarbon receptor nuclear translocator	11	NA	NA	NA	NA	NA	NA	NA	NA	NA	580	ARNT	HIF-1beta,bHLHe2
+
+
+Once standardized:
+
+    $`Mmusculus-jaspar2014-Arnt-MA0004`
+        1    2 3 4 5 6
+    A 0.2 0.95 0 0 0 0
+    C 0.8 0.00 1 0 0 0
+    G 0.0 0.05 0 1 0 1
+    T 0.0 0.00 0 0 1 0
+
+Transpose the corresponding row of the metadata for easy reading:
+
+    t(tbl.md[1,])
+                    Mmusculus-jaspar2014-Arnt-MA0004
+    providerName    "MA0004.1 Arnt"                 
+    providerId      "MA0004.1 Arnt"                 
+    dataSource      "jaspar2014"                    
+    geneSymbol      "Arnt"                          
+    geneId          NA                              
+    geneIdType      NA                              
+    proteinId       "P53762"                        
+    proteinIdType   "UNIPROT"                       
+    organism        "Mmusculus"                     
+    sequenceCount   "20"                            
+    bindingSequence NA                              
+    bindingDomain   NA                              
+    tfFamily        "Helix-Loop-Helix"              
+    experimentType  "SELEX"                         
+    pubmedID        "24194598"                      
+
+
+Each import.R file has a "run" function which requires one argument: the path to the parent data directory 
+below which is found the raw data, one subdirectory per source.
+
+Since inst/scripts/import/demo/ seeks to be self-contained, and has its own small raw data files, you 
+can run it like this:
+
+cd inst/scripts/import/demo
+source("import.R")
+run("..")   # points to the immediage parent
+
+The result of "run" is to create tbl.md and the matrices list, then save them both together
+in a single serialized RData file, e.g., "demo.RData").
+
+If you wanted to include these 4 matrices into the next build of MotifDb, our convention is
+to simply copy demo.RData into MotifDb/inst/extdata.  When a user loads MotifDb, every
+serialized object in extdata is read and concatenated into one large tbl.md, and one large
+list of matrices.  (You will never want to leave demo.RData in extdata/ -- the matrices
+are duplicates of those found in jaspar2014.)
+
+In the parent directory of all the data-source-specific import directories (demo, uniprobe, ScerTF, ...)
+is a siple master script, importAll.R.  You will typically invoke this from the command line:
+
+   R -f importAll.R
+
+as watch as it runs all of the nested import.R scripts.
+
+Important point:  importAll.R must be told where to find all of the raw data.  And there is a LOT
+of it.  I keep a copy on my laptop during development, but it is only a duplicate of the permanent
+raw data repository at the Hutch:
+
+  rhino:/fh/fast/morgan_m/BioC/MotifDb-raw-data/
+
+Thus the standard way to assemble all the data for a MotifDb package build is
+
+ 1) login to one of the rhinos
+ 2) checkout the latest MotifDb
+ 3) cd MotifDb/inst/scripts/import
+ 4) make sure that the "dataDir" variable is assigned
+     "/fh/fast/morgan_m/BioC/MotifDb-raw-data/"
+ 5) R -f importAll.R
+
+When the script is complete:
+
+  6) cp */*Rdata ../../extedata/
+  7) build MotifDb
+  8) run the unit tests
+
+
+
+
+
+
+
+
+

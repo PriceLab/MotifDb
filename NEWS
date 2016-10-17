@@ -1,0 +1,17 @@
+CHANGES IN VERSION 1.5.9
+-------------------------
+
+NEW FEATURES
+
+    o JASPAR_2014 added, with 592 motifs
+
+CHANGES IN VERSION 1.1.3
+-------------------------
+
+NEW FEATURES
+
+    o 683 new motifs derived from DGF (digital genome footprinting) 
+      from the stamlab (http://www.stamlab.org/) added.  Each is
+      identified as either 'knownMotif' or 'novelMotif'
+
+
