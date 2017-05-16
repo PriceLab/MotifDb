@@ -5,7 +5,7 @@ printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
 run = function (dataDir)
 {
-  dataDir <- file.path(dataDir, "matt_test")
+  dataDir <- file.path(dataDir, "jaspar2016")
   rawMatrixList <- readRawMatrices (dataDir)
   matrices <- extractMatrices (rawMatrixList)
   tbl.md <- createMetadataTable (dataDir, matrices,
@@ -13,8 +13,8 @@ run = function (dataDir)
   matrices <- normalizeMatrices (matrices)
   matrices <- renameMatrices (matrices, tbl.md)
   
-  serializedFile <- file.path(dataDir, "matt_test.RData")
-  printf("writing %s to %s", "matt_test.RData", dataDir)
+  serializedFile <- file.path(dataDir, "jaspar2016.RData")
+  printf("writing %s to %s", "jaspar2016.RData", dataDir)
 
   save (matrices, tbl.md, file=serializedFile)
   printf("saved %d matrices to %s", length(matrices), serializedFile)
