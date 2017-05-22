@@ -96,7 +96,7 @@ createMetadataTable = function (dataDir, matrices, raw.metadata.filename)
     md <- as.list(subset(tbl.raw,
                          ma.name==id.pieces[[1]][1] & unknown == id.pieces[[1]][2]))
     print(matrix.id)
-    # browser()
+    #browser()
     stopifnot(length(md$id) == 1)
     dataSource <- "jaspar2016"
     organism <- ncbiTaxonimicCodeToBiocLinnaean(md$ncbi.tax.code)
@@ -116,7 +116,11 @@ createMetadataTable = function (dataDir, matrices, raw.metadata.filename)
                     experimentType=md$type,
                     pubmedID="24194598")
     tbl.md = rbind (tbl.md, data.frame (new.row, stringsAsFactors=FALSE))
-    full.name = sprintf ('%s-%s-%s-%s', organism, dataSource, md$gene.symbol, short.matrix.name)
+    full.name = sprintf ('%s-%s-%s-%s',
+                         organism,
+                         dataSource,
+                         md$gene.symbol,
+                         matrix.id)
     rownames (tbl.md) [nrow (tbl.md)] = full.name
     } # for i
 
@@ -135,10 +139,11 @@ renameMatrices = function (matrices, tbl.md)
 # an empirical and not altogether trustworthy solution to identifying identifier types.
 guessProteinIdentifierType = function (moleculeName)
 {
+      if (is.na (moleculeName))
+          return (NA_character_)      
   if (nchar (moleculeName) == 0)
     return (NA_character_)
-  if (is.na (moleculeName))
-    return (NA_character_) 
+
 
   first.char = substr (moleculeName, 1, 1)
 
