@@ -9,10 +9,9 @@ run = function (dataDir)
   dataDir <- file.path(dataDir, "homer")
   rawMatrixList <- readRawMatrices (dataDir)
   matrices <- extractMatrices (rawMatrixList)
- browser() 
+ 
   tbl.md <- createMetadataTable(matrices) #(dataDir, matrices,
-  #raw.metadata.filename="md-raw.tsv")
-#  browser()
+
   matrices <- normalizeMatrices (matrices)
   matrices <- renameMatrices (matrices, tbl.md)
   
@@ -52,7 +51,12 @@ readRawMatrices = function (dataDir)
     pwms = c (pwms, list (new.pwm))
   } # for i
     
-  #browser()
+    #Add the final matrix
+    start.line <- title.lines[title.line.count]
+    end.line <- length(all.lines)
+    new.pwm = parsePwm (all.lines [start.line:end.line])
+    pwms = c (pwms, list (new.pwm))
+    
   invisible (pwms)
   
 } # readRawMatrices
@@ -127,7 +131,7 @@ createMetadataTable = function (matrices)
     full.name = sprintf ('%s-%s-%s', organism, dataSource, matrix.id)
     rownames (tbl.md) [nrow (tbl.md)] = full.name
   } # for matrix.id
-  browser()
+ 
   invisible (tbl.md)
   
 } # createMetadataTable

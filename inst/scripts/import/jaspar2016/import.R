@@ -40,14 +40,13 @@ readRawMatrices = function (dataDir)
   all.lines = scan (filename, what=character(0), sep='\n', quiet=TRUE)
   title.lines = grep ('^>', all.lines)
   title.line.count <<- length (title.lines)
-    max = title.line.count - 1
+    max = title.line.count -1
 
     # browser()
     # Matt's additions to fix brackets and delimiters
     all.lines <- gsub("[A,C,G,T]\\s+\\[\\s*","",all.lines)
     all.lines <- gsub("\\s*\\]","",all.lines)    
-    all.lines <- gsub("\\s+","\t",all.lines)
-    
+    all.lines <- gsub("\\s+","\t",all.lines)    
 
   pwms = list ()
   
@@ -59,6 +58,12 @@ readRawMatrices = function (dataDir)
     pwms = c (pwms, list (new.pwm))
     } # for i
 
+    # Add the last motif, which got missed
+    start.line <- title.lines[title.line.count]
+    end.line <- start.line + 4
+    new.pwm = parsePwm (all.lines [start.line:end.line])
+    pwms = c (pwms, list (new.pwm))
+    
   
   invisible (pwms)
 

@@ -12,7 +12,6 @@ run = function (dataDir)
   
   tbl.md <- createMetadataTable(matrices) #(dataDir, matrices,
   #raw.metadata.filename="md-raw.tsv")
-  browser()
   matrices <- normalizeMatrices (matrices)
   matrices <- renameMatrices (matrices, tbl.md)
   
@@ -52,6 +51,11 @@ readRawMatrices = function (dataDir)
     pwms = c (pwms, list (new.pwm))
   } # for i
 
+    start.line <- title.lines[title.line.count]
+    end.line <- length(all.lines)
+    new.pwm = parsePwm (all.lines [start.line:end.line])
+    pwms = c (pwms, list (new.pwm))
+
     # Do the same for the mouse file
     filename <- file.path(dataDir, "HOCOMOCOv10_MOUSE_mono_jaspar_format.txt") #old filename: "hoco.pcm"
     printf("checking for readable mouse matrix file:")    
@@ -70,8 +74,12 @@ readRawMatrices = function (dataDir)
     new.pwm = parsePwm (all.lines [start.line:end.line])
     pwms = c (pwms, list (new.pwm))
   } # for i
+
+    start.line <- title.lines[title.line.count]
+    end.line <- length(all.lines)
+    new.pwm = parsePwm (all.lines [start.line:end.line])
+    pwms = c (pwms, list (new.pwm))
     
-  #browser()
   invisible (pwms)
   
 } # readRawMatrices
@@ -96,7 +104,6 @@ createMetadataTable = function (matrices)
  # stopifnot(file.exists(filename)) 
 #  tbl.raw <- read.table(filename, sep="\t", header=TRUE, as.is=TRUE)
 
-  #  browser()
     tbl.md = data.frame ()
     matrix.ids = names(matrices)
   geturlname <- function(name){
@@ -155,7 +162,7 @@ createMetadataTable = function (matrices)
     full.name = sprintf ('%s-%s-%s', organism, dataSource, matrix.id)
     rownames (tbl.md) [nrow (tbl.md)] = full.name
   } # for matrix.id
-  browser()
+
   invisible (tbl.md)
   
 } # createMetadataTable
