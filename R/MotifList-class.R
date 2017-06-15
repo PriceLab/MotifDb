@@ -164,7 +164,7 @@ setMethod ('export',  signature=c(object='MotifList', con='connection',
 
   function (object, con, format, ...) {
 
-    fmt = match.arg (tolower (format), c ('meme', 'transfac'))
+    fmt = match.arg (tolower (format), c ('meme', 'transfac','jaspar'))
     ## match.arg fails if !fmt %in% c('meme', 'transfac'), so no need
     ## for test
     ## let the user manage opened cons
@@ -172,10 +172,14 @@ setMethod ('export',  signature=c(object='MotifList', con='connection',
         open(con)
         on.exit(close(con))
     }
-    if (fmt == 'meme') 
-      text = matrixToMemeText (object)
+    if (fmt == 'meme') {
+        text = matrixToMemeText (object)
+    } else if (fmt == 'jaspar') {
+        text = matrixToJasparText (object)
+    }
     cat (text, sep='\n', file=con)
-    })
+  })
+
 
 #-------------------------------------------------------------------------------
 # write to connection, using default format,  ??? for matrix list, tsv for
@@ -185,13 +189,18 @@ setMethod ('export',  signature=c(object='MotifList',  con='missing',
 
   function (object, con, format,  ...) {
 
-    fmt = match.arg (tolower (format), c ('meme')) # , 'transfac'
+    fmt = match.arg (tolower (format), c ('meme','jaspar')) # , 'transfac'
     if (fmt == 'meme') {
-      text = paste (matrixToMemeText (object), collapse='\n')
+        text = paste (matrixToMemeText (object), collapse='\n')
       cat (text)
       invisible (text)
-      }
-    })
+    } else if (fmt == 'jaspar') {
+        text = paste (matrixToJasparText (object), collapse='\n')
+      cat (text)
+      invisible (text)
+    }
+      
+  })
 
 #-------------------------------------------------------------------------------
 setMethod('show', 'MotifList',
@@ -261,4 +270,62 @@ setMethod ('query', 'MotifList',
                              ignore.case=ignore.case)))))
         object [indices]
       })
+#-------------------------------------------------------------------------------
+# Addition on 2017/06/15 from Matt Richards
+
+# This will not exactly match JASPAR because units are PFM and JASPAR uses PCM
+# General JASPAR Format:
+
+# > "Motif Name"\t"Transcription Factor"
+# A [ PCMS ]
+# C [ PCMS ]
+# G [ PCMS ]
+# T [ PCMS ]
+#
+# ...
+
+# Note: the PCMs are space-delimited
+
+matrixToJasparText <- function (matrices)
+{
+  matrix.count <- length (matrices)
+
+  # Incoming matrices have nucleotide rows, position columns.
+  # This is the correct orientation for JASPAR; however, we need to also
+  # add brackets and letters to them
+
+  # Calculate the number of lines of text by counting matrices and assuming
+  # 6 lines per matrix
+  
+  predicted.line.count <- 6*matrix.count
+
+  #s = vector ('character', predicted.line.count)
+  s <- character (predicted.line.count)
+
+  index <- 1
+  
+  for (name in names (matrices)) {
+
+      # Print the name with an arrow, follwed by the motif
+      s[index] <- sprintf('>%s',name)
+      index <- index + 1
+
+      # For each line of the matrix, print the correct letter and the
+      # matrix row surrounded by brackets
+      motif.matrix <- matrices[name][[1]]
+      for (r in 1:nrow(motif.matrix)) {
+          s[index] <- sprintf("%s [ %s ]",
+                              rownames(motif.matrix)[r],
+                              paste(motif.matrix[r,],collapse=" "))
+          index <- index + 1
+      }
+
+      s[index] <- ""
+      index <- index + 1
+          
+    } # for name
+
+  invisible (s)
+
+} # matrixToJasparText
 #-------------------------------------------------------------------------------

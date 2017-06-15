@@ -36,6 +36,8 @@ run.tests = function ()
   test.MotIV.toTable ()
   test.run_MotIV.motifMatch()
   test.flyFactorGeneSymbols()
+  test.export_jasparFormatStdOut ()
+  test.export_jasparFormatToFile ()
 
 } # run.tests
 #------------------------------------------------------------------------------------------------------------------------
@@ -697,4 +699,33 @@ test.flyFactorGeneSymbols <- function()
 
 } # test.flyFactorGeneSymbols
 #-------------------------------------------------------------------------------
+test.export_jasparFormatStdOut = function ()
+{
+  print ('--- test.export_jasparFormatStdOut')
+  mdb = MotifDb # ()
+  mdb.chicken = subset (mdb, organism=='Gallus')
+  checkEquals (length (mdb.chicken), 3)
+    # text is cat-ed to stdout, so not avaialable here to check.
+    # but just like print, export also returns the text invisibly.
+    # so that CAN be checked.
+  
+  jaspar.text = export (mdb.chicken, format='jaspar')
+  checkEquals (length (jaspar.text), 1)   # just one long string
+  checkTrue (is.character (jaspar.text))
+  checkTrue (nchar (jaspar.text) > 800)   # 1002 as of (10 aug 2012)
+  return (TRUE)
 
+} # test.exportjasparFormatToStdOut
+#------------------------------------------------------------------------------------------------------------------------
+test.export_jasparFormatToFile = function ()
+{
+  print ('--- test.export_jasparFormatToFile')
+  mdb = MotifDb # ()
+  mdb.chicken = subset (mdb, organism=='Gallus')
+  checkEquals (length (mdb.chicken), 3)
+  output.file = tempfile ()
+  jaspar.text = export (mdb.chicken, output.file, 'jaspar')
+  retrieved = scan (output.file, what=character (0), sep='\n', quiet=TRUE)
+  invisible (retrieved)
+
+} # test.exportjasparFormatToFile
