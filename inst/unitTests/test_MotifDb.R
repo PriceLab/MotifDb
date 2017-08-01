@@ -110,6 +110,8 @@ test.MotifDb.emptyMode = function ()
 # NA-JASPAR_CORE-HNF4A-MA0114.1: JASPAR gives <NA> for speciesID
 # NA-JASPAR_CORE-CEBPA-MA0102.2: JASPAR gives '-' for speciesID, website says 'vertebrates'
 
+# Many more NA's exist...need to fix these
+
 test.noNAorganisms = function ()
 
 {
@@ -243,7 +245,9 @@ test.organisms = function ()
 
      # jaspar_core has 3 NA speciesId: TBP, HNF4A and CEBPA (MA0108.2, MA0114.1, MA0102.2)
      # their website shows these as vertebrates, which I map to 'Vertebrata'.  An organismID of '-'
-     # gets the same treatment, matching website also.
+  # gets the same treatment, matching website also.
+
+  # As in case of noNA, need to add organisms for these
   checkEquals (which (is.na (mcols(MotifDb)$organism)), integer (0))
 
   empty.count = length (which (mcols(mdb)$organism==""))
@@ -271,7 +275,7 @@ test.flyBindingDomains = function ()
   checkEquals (tmp$Homeobox, 212)
   checkEquals (tmp[['zf-C2H2']], 160)
   checkEquals (tmp[["Helix-Turn-Helix"]], 182)
-  checkEquals (length (which (is.na (subset (x, organism=='Dmelanogaster')$bindingDomain))), 162) # lots of cisbp
+  checkEquals (length (which (is.na (subset (x, organism=='Dmelanogaster')$bindingDomain))), 301) # lots of cisbp
 
 } # test.flyBindingDomains
 #------------------------------------------------------------------------------------------------------------------------
@@ -537,7 +541,7 @@ test.export_memeFormatToFileDuplication = function ()
   print ('--- test.export_memeFormatToFileDuplication')
   mdb = MotifDb # ()
   mdb.mouse = subset (mdb, organism=='Mmusculus')
-  checkEquals (length (mdb.mouse), 660)
+  checkEquals (length (mdb.mouse), 1251)
   output.file = 'mouse.txt' # tempfile ()
   max = 3
   meme.text = export (mdb.mouse [1:max], output.file, 'meme')
