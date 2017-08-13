@@ -1,9 +1,14 @@
 setGeneric('query', signature='object', function(object, queryString, ignore.case=TRUE)
-            standardGeneric ('query'))
-#-------------------------------------------------------------------------------
+              standardGeneric ('query'))
+setGeneric('mapMotifToTranscriptionFactorGeneSymbol', signature='object', function(object, motifs, mode)
+              standardGeneric('mapMotifToTranscriptionFactorGeneSymbol'))
+setGeneric('mapTranscriptionFactorGeneSymbolToMotif', signature='object', function(object, geneSymbols, mode)
+              standardGeneric('mapTranscriptionFactorGeneSymbolToMotif'))
+#------------------------------------------------------------------------------------------------------------------------
 setClass ('MotifList',
           contains='SimpleList',
-          representation (elementMetadata='DataFrame'),
+          representation (elementMetadata='DataFrame',
+                          manuallyCuratedGeneMotifAssociationTable="data.frame"),
           prototype(elementType='matrix')
           )
 
@@ -35,28 +40,33 @@ setValidity('MotifList', function(object) {
 })
 #-------------------------------------------------------------------------------
 MotifList = function (matrices=list(), tbl.metadata=data.frame ())
-{  
+{
   if (nrow (tbl.metadata) == 0)
     df = DataFrame ()
   else
     df = DataFrame (tbl.metadata, row.names = rownames (tbl.metadata))
-  
-  object = new ('MotifList', listData=matrices, elementMetadata = df)
+
+  tbl.tfClass.filename <- system.file(package="MotifDb", "extdata", "tfClass.tsv")
+  stopifnot(file.exists(tbl.tfClass.filename))
+  tbl.tfClass <- read.table(tbl.tfClass.filename, header=TRUE, as.is=TRUE, sep="\t")
+
+  object = new ('MotifList', listData=matrices, elementMetadata = df,
+                manuallyCuratedGeneMotifAssociationTable=tbl.tfClass)
 
   if (length (matrices) == 0)
     names (object) = character ()
-  else 
+  else
     names (object) = rownames (tbl.metadata)
 
   object
-  
+
 } # ctor
 #-------------------------------------------------------------------------------
 setMethod ('subset', signature = 'MotifList',
 
   function (x, subset, select, drop = FALSE, ...) {
 
-    if (missing (subset)) 
+    if (missing (subset))
       i = TRUE
     else {
       i = eval(substitute (subset), elementMetadata (x), parent.frame ())
@@ -109,7 +119,7 @@ matrixToMemeText = function (matrices)
   s [6] = ''
   s [7] = 'Background letter frequencies'
   s [8] = 'A 0.250 C 0.250 G 0.250 T 0.250 '
-  s [9] = '' 
+  s [9] = ''
 
   index = 10
   for (name in names (matrices)) {
@@ -199,7 +209,7 @@ setMethod ('export',  signature=c(object='MotifList',  con='missing',
       cat (text)
       invisible (text)
     }
-      
+
   })
 
 #-------------------------------------------------------------------------------
@@ -210,7 +220,7 @@ setMethod('show', 'MotifList',
       cat (msg, '\n', sep='')
       if (length (object) == 0)
         return ()
-      
+
       cat ('| Created from downloaded public sources: 2013-Aug-30', '\n', sep='')
 
       tbl.dataSource = as.data.frame (table (mcols (object)$dataSource))
@@ -223,7 +233,7 @@ setMethod('show', 'MotifList',
       source.singular.or.plural = 'sources'
       if (dataSourceCount == 1)
         source.singular.or.plural = 'source'
-      
+
       msg = sprintf ('| %d position frequency matrices from %d %s:',
                      totalMatrixCount, dataSourceCount, source.singular.or.plural)
       cat (msg, '\n', sep='')
@@ -264,9 +274,9 @@ setMethod('show', 'MotifList',
 setMethod ('query', 'MotifList',
 
    function (object, queryString, ignore.case=TRUE) {
-       indices = unique (as.integer (unlist (sapply (colnames (mcols (object)), 
-                    function (colname) 
-                       grep (queryString, mcols (object)[, colname], 
+       indices = unique (as.integer (unlist (sapply (colnames (mcols (object)),
+                    function (colname)
+                       grep (queryString, mcols (object)[, colname],
                              ignore.case=ignore.case)))))
         object [indices]
       })
@@ -296,14 +306,14 @@ matrixToJasparText <- function (matrices)
 
   # Calculate the number of lines of text by counting matrices and assuming
   # 6 lines per matrix
-  
+
   predicted.line.count <- 6*matrix.count
 
   #s = vector ('character', predicted.line.count)
   s <- character (predicted.line.count)
 
   index <- 1
-  
+
   for (name in names (matrices)) {
 
       # Print the name with an arrow, follwed by the motif
@@ -322,10 +332,43 @@ matrixToJasparText <- function (matrices)
 
       s[index] <- ""
       index <- index + 1
-          
+
     } # for name
 
   invisible (s)
 
 } # matrixToJasparText
+#-------------------------------------------------------------------------------
+# returns a data.frame with motif, geneSymbol, source, pubmedID columns
+setMethod ('mapMotifToTranscriptionFactorGeneSymbol', 'MotifList',
+
+   function (object, motifs, mode) {
+     stopifnot(mode %in% c("direct", "indirect", "both"))
+     if(mode %in% c("direct", "both")){
+        # result <- rbind(result, newRows
+        }
+     if(mode %in% c("indirect", "both")){
+        # draw on object@manuallyCuratedGeneMotifAssociationTable
+        # result <- rbind(result, newRows
+        }
+     result
+     })
+
+#-------------------------------------------------------------------------------
+# returns a data.frame with motif, geneSymbol, source, pubmedID columns
+setMethod ('mapTranscriptionFactorGeneSymbolToMotif', 'MotifList',
+
+   function (object, geneSymbols, mode) {
+     stopifnot(mode %in% c("direct", "indirect"))
+     result <- data.frame()
+     if(mode %in% c("direct", "both")){
+        # result <- rbind(result, newRows
+        }
+     if(mode %in% c("indirect", "both")){
+        # draw on object@manuallyCuratedGeneMotifAssociationTable
+        # result <- rbind(result, newRows
+        }
+     result
+     })
+
 #-------------------------------------------------------------------------------
