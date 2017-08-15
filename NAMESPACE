@@ -3,7 +3,9 @@ exportMethods (
    subset,
    export,
    show,
-   query
+   query,
+   mapMotifToTranscriptionFactorGeneSymbol,
+   mapTranscriptionFactorGeneSymbolToMotif
    )
 
 export(

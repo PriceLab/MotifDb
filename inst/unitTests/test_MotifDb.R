@@ -45,7 +45,7 @@ test.emptyCtor = function ()
 {
   print ('--- test.emptyCtor')
   motif.list = MotifDb:::MotifList ()
-  checkEquals (length (motif.list), 0)  
+  checkEquals (length (motif.list), 0)
 
 } # test.emptyCtor
 #------------------------------------------------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ test.nonEmptyCtor = function ()
 {
   print ('--- test.nonEmptyCtor')
   mtx = matrix (runif (20), nrow=4, ncol=5, byrow=T, dimnames=list(c ('A', 'C', 'G', 'T'), as.character (1:5)))
-  mtx.normalized = apply (mtx, 2, function (colvector) colvector / sum (colvector))   
+  mtx.normalized = apply (mtx, 2, function (colvector) colvector / sum (colvector))
   matrixList = list (mtx.normalized)
 
   tbl.md = data.frame (providerName='',
@@ -70,12 +70,12 @@ test.nonEmptyCtor = function ()
                        bindingDomain='',
                        tfFamily='',
                        experimentType='',
-                       pubmedID='', 
+                       pubmedID='',
                        stringsAsFactors=FALSE)
   names (matrixList) = 'test'
   rownames (tbl.md) = 'test'
   motif.list = MotifDb:::MotifList (matrixList, tbl.md)
-  checkEquals (length (motif.list), 1)  
+  checkEquals (length (motif.list), 1)
 
 } # test.nonEmptyCtor
 #------------------------------------------------------------------------------------------------------------------------
@@ -95,13 +95,13 @@ test.MotifDb.normalMode = function ()
 
 } # test.MotifDb.normalMode
 #------------------------------------------------------------------------------------------------------------------------
-# this mode is not intended for users, but may see use in the future.  
+# this mode is not intended for users, but may see use in the future.
 test.MotifDb.emptyMode = function ()
 {
   print ('--- test.MotifDb.emptyMode')
 
   mdb = MotifDb:::.MotifDb (loadAllSources=FALSE, quiet=TRUE)
-  checkTrue (length (mdb) == 0) 
+  checkTrue (length (mdb) == 0)
 
 } # test.MotifDb.emptyMode
 #------------------------------------------------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ test.allMatricesAreNormalized = function ()
     # a lenient test required by "Cparvum-UniPROBE-Cgd2_3490.UP00395" and  "Hsapiens-UniPROBE-Sox4.UP00401"
     # for reasons not yet explored.  10e-8 should be be possible
   checkTrue(all(sapply(matrices, function (m) all (abs (colSums (m) - 1.0) < 0.02))))
-             
+
 } # test.allMatricesAreNormalized
 #------------------------------------------------------------------------------------------------------------------------
 test.providerNames = function ()
@@ -165,7 +165,7 @@ test.geneIdsAndTypes = function ()
   checkTrue(typeCounts$FLYBASE >= 45)
   checkTrue(typeCounts$SGD >= 600)
   checkTrue(nrow(subset(tbl, is.na(geneIdType))) > 2000)
-  
+
   empty.count = length (which (geneIds == ''))
   checkEquals (empty.count, 0)
 
@@ -184,10 +184,10 @@ test.proteinIds = function ()
   checkEquals(NA.string.count, 2514)
   # FIX THIS; Currently 2514 don't have protein IDs
   #checkEquals (NA.string.count, 0)
-  
+
   empty.count = length (which (mcols(mdb)$proteinId==""))
   if (empty.count > 0)
-    browser ('test.proteinIds')     
+    browser ('test.proteinIds')
 
   checkEquals (empty.count, 0)
 
@@ -198,7 +198,7 @@ test.proteinIds = function ()
   ### FIX THIS TOO! Currently have 913 entries with a proteinIdType and no proteinId
   x = mcols(mdb)
   # checkEquals (nrow (subset (x, !is.na (proteinIdType) & is.na (proteinId))), 0)
-  
+
 
 } # test.proteinIds
 #------------------------------------------------------------------------------------------------------------------------
@@ -224,10 +224,10 @@ test.sequenceCount = function ()
 test.longNames = function ()
 {
   print ('--- test.longNames')
-  mdb = MotifDb 
+  mdb = MotifDb
   longNames = strsplit (names (mdb), '-')
   organisms = unique (sapply (longNames, '[', 1))
-  
+
   dataSources = unique (lapply (longNames, '[', 2))
 
   recognized.dataSources = unique (mcols(mdb)$dataSource)
@@ -332,7 +332,7 @@ test.pubmedIDs = function ()
 #          UniPROBE-Scerevisiae-Asg1-UP00350
 #          ScerTF-Scerevisiae-ABF2-badis
 #          JASPAR_CORE-Rrattus-Ar-MA0007.1
-# 
+#
 test.allFullNames = function ()
 {
   print ('--- test.allFullNames')
@@ -342,7 +342,7 @@ test.allFullNames = function ()
 
   all.dataSources = unique (mcols(mdb)$dataSource)
   checkTrue (length (all.dataSources) >= 4)
-  
+
   for (source in all.dataSources) {
      this.dataSource <<- source
      matrices.by.source = subset (mdb, dataSource==this.dataSource)
@@ -367,22 +367,22 @@ test.subset = function ()
     checkTrue ('geneSymbol' %in% colnames (elementMetadata (mdb)))
     mdb.sub = subset (mdb, geneSymbol=='ABCF2')
     checkEquals (length (mdb.sub), 1)
-    } # if interactive  
-  
+    } # if interactive
+
 } # test.subset
 #------------------------------------------------------------------------------------------------------------------------
 test.subsetWithVariables = function ()
 {
   if (interactive ()) {
     print ('--- test.subsetWithVariables')
-  
+
     mdb = MotifDb # ()
     checkTrue ('geneSymbol' %in% colnames (elementMetadata (mdb)))
     target.gene <<- 'ABCF2'
     mdb.sub = subset (mdb, geneSymbol==target.gene)
     checkEquals (length (mdb.sub), 1)
-    } # if interactive  
-  
+    } # if interactive
+
 } # test.subsetWithVariables
 #------------------------------------------------------------------------------------------------------------------------
 test.query = function ()
@@ -420,7 +420,7 @@ test.query = function ()
    checkEquals (unique (mcols(uniprobe.sox.matrices)$dataSource), 'UniPROBE')
    checkEquals (unique (mcols(sox.uniprobe.matrices)$dataSource), 'UniPROBE')
    gene.symbols = sort (unique (mcols(uniprobe.sox.matrices)$geneSymbol))
-  
+
 } # test.query
 #------------------------------------------------------------------------------------------------------------------------
 test.transformMatrixToMemeRepresentation = function ()
@@ -449,7 +449,7 @@ test.matrixToMemeText = function ()
      # check these with t (sox4 [[1]])
   line1.sox4  = " 0.2457457130  0.1950426500  0.2287887620  0.3304228750"
   line14.sox4 = " 0.2821643030  0.2286132160  0.1585395830  0.3306828990"
-  
+
   checkEquals (length (text.sox4), 29)
   checkEquals (text.sox4 [1], "MEME version 4")
   checkEquals (text.sox4 [10], "MOTIF Hsapiens-UniPROBE-Sox4.UP00401")
@@ -523,7 +523,7 @@ test.export_memeFormatStdOut = function ()
     # text is cat-ed to stdout, so not avaialable here to check.
     # but just like print, export also returns the text invisibly.
     # so that CAN be checked.
-  
+
   meme.text = export (mdb.chicken, format='meme')
   checkEquals (length (meme.text), 1)   # just one long string
   checkTrue (is.character (meme.text))
@@ -612,7 +612,7 @@ test.run_MotIV.motifMatch = function ()
     # may not place it first
   checkTrue(names(db.tmp[last]) %in% tbl.hits$name)
   invisible (tbl.hits)
-  
+
 } # test.run_MotIV.motifMatch
 #------------------------------------------------------------------------------------------------------------------------
 MotIV.toTable = function (match)
@@ -633,7 +633,7 @@ MotIV.toTable = function (match)
 
   return (df)
 
-} # MotIV.toTable 
+} # MotIV.toTable
 #------------------------------------------------------------------------------------------------------------------------
 test.MotIV.toTable = function ()
 {
@@ -644,7 +644,7 @@ test.MotIV.toTable = function ()
   checkEquals (dim (tbl.hits), c (5, 5))
   checkEquals (colnames (tbl.hits), c ("name", "eVal", "sequence", "match", "strand"))
 
-} # test.MotIV.toTable 
+} # test.MotIV.toTable
 #------------------------------------------------------------------------------------------------------------------------
 pwmMatch.toTable = function (motifMatch) {
    if (length (motifMatch@bestMatch) == 0)
@@ -690,7 +690,7 @@ pwmMatch.toTable = function (motifMatch) {
 #  Flybase annotation database to set the correct gene symbols for
 #  Drosophila, please find attached the result of my re-annotation.
 #
-#  looking at his correctedMotifDbDmel.csv 
+#  looking at his correctedMotifDbDmel.csv
 #
 #    head(read.table("correctedMotifDbDmel.csv", sep=",", header=TRUE, stringsAsFactors=FALSE))
 #                  providerName oldGeneSymbol newGeneSymbol
@@ -721,7 +721,7 @@ test.export_jasparFormatStdOut = function ()
     # text is cat-ed to stdout, so not avaialable here to check.
     # but just like print, export also returns the text invisibly.
     # so that CAN be checked.
-  
+
   jaspar.text = export (mdb.chicken, format='jaspar')
   checkEquals (length (jaspar.text), 1)   # just one long string
   checkTrue (is.character (jaspar.text))
@@ -742,3 +742,27 @@ test.export_jasparFormatToFile = function ()
   invisible (retrieved)
 
 } # test.exportjasparFormatToFile
+#------------------------------------------------------------------------------------------------------------------------
+test.motifTfGeneMapping <- function()
+{
+   printf("--- test.motifTfGeneMapping")
+   mdb <- MotifDb
+
+   set.seed(17)
+   random.10 <- sample(seq_len(nrow(mcols(mdb))), 10)
+   random.10.b <- sample(seq_len(nrow(mcols(mdb))), 10)
+
+   motifs <- mcols(mdb)[random.10, "providerId"]
+   genes  <- mcols(mdb)[random.10, "geneSymbol"]
+
+   tbl.m2tf <- mapMotifToTranscriptionFactorGeneSymbol(mdb, motifs, mode="direct")
+   tbl.m2tf <- mapMotifToTranscriptionFactorGeneSymbol(mdb, motifs, mode="indirect")
+
+   tbl.tf2m <- mapTranscriptionFactorGeneSymbolToMotif(mdb, genes, mode="direct")
+   tbl.tf2m <- mapTranscriptionFactorGeneSymbolToMotif(mdb, genes, mode="indirect")
+
+      # check these 4 tables for agreement
+
+
+} # test.motifTfGeneMapping
+#------------------------------------------------------------------------------------------------------------------------
