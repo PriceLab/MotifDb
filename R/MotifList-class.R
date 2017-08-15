@@ -312,7 +312,11 @@ matrixToJasparText <- function (matrices)
 
       # For each line of the matrix, print the correct letter and the
       # matrix row surrounded by brackets
-      motif.matrix <- matrices[name][[1]]
+      #      motif.matrix <- matrices[name][[1]]
+
+      # Alter it to make artificial counts
+      motif.matrix <- round(1000*matrices[name][[1]])
+      
       for (r in 1:nrow(motif.matrix)) {
           s[index] <- sprintf("%s [ %s ]",
                               rownames(motif.matrix)[r],
