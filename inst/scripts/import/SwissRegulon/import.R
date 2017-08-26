@@ -96,8 +96,9 @@ createMetadataTable = function (matrices)
       id.pieces <- unlist(strsplit(matrix.id, "\\."))
       # Piece 1 has TF; Piece 2 has Origin; Piece 3 has program/tool/resource
       tf <- id.pieces[1]
-     
-      organism <- NA
+
+      # These are all human
+      organism <- "Hsapiens"
     
       dataSource <- "SwissRegulon"
       
