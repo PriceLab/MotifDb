@@ -3,7 +3,7 @@ library (RUnit)
 library (MotIV)
 library (seqLogo)
 #------------------------------------------------------------------------------------------------------------------------
-run.tests = function ()
+runTests = function ()
 {
   test.emptyCtor ()
   test.nonEmptyCtor ()
@@ -36,10 +36,14 @@ run.tests = function ()
   test.MotIV.toTable ()
   test.run_MotIV.motifMatch()
   test.flyFactorGeneSymbols()
-  test.export_jasparFormatStdOut ()
-  test.export_jasparFormatToFile ()
+  test.export_jasparFormatStdOut()
+  test.export_jasparFormatToFile()
 
-} # run.tests
+  test.geneToMotif()
+  test.motifToGene()
+  test.associateTranscriptionFactors()
+
+} # runTests
 #------------------------------------------------------------------------------------------------------------------------
 test.emptyCtor = function ()
 {
@@ -743,26 +747,144 @@ test.export_jasparFormatToFile = function ()
 
 } # test.exportjasparFormatToFile
 #------------------------------------------------------------------------------------------------------------------------
-test.motifTfGeneMapping <- function()
+test.geneToMotif <- function()
 {
-   printf("--- test.motifTfGeneMapping")
+   printf("--- test.geneToMotif")
    mdb <- MotifDb
 
-   set.seed(17)
-   random.10 <- sample(seq_len(nrow(mcols(mdb))), 10)
-   random.10.b <- sample(seq_len(nrow(mcols(mdb))), 10)
+   genes <- c("FOS", "ATF5", "bogus")
 
-   motifs <- mcols(mdb)[random.10, "providerId"]
-   genes  <- mcols(mdb)[random.10, "geneSymbol"]
+      # use  TFClass family classifcation
+   tbl.i <- geneToMotif(mdb, genes, source="TFClass")
+   checkEquals(tbl.i$gene,  c("ATF5", "FOS", "FOS"))
+   checkEquals(tbl.i$motif,  c("MA0833.1", "MA0099.2", "MA0476.1"))
+   checkEquals(tbl.i$from, rep("TFClass", 3))
 
-   tbl.m2tf <- mapMotifToTranscriptionFactorGeneSymbol(mdb, motifs, mode="direct")
-   tbl.m2tf <- mapMotifToTranscriptionFactorGeneSymbol(mdb, motifs, mode="indirect")
+      # MotifDb mode uses the MotifDb metadata, pulled from many sources
+   tbl.d <- geneToMotif(mdb, genes, source="MotifDb")
+   checkEquals(dim(tbl.d), c(12, 6))
+   checkEquals(subset(tbl.d, dataSource=="jaspar2016" & geneSymbol== "FOS")$motif, "MA0476.1")
+      # no recognizable (i.e., jaspar standard) motif name returned by MotifDb metadata
+      # MotifDb for ATF5
+      # todo: compare the MA0110596_1.02 matrix of cisp_1.02 to japar MA0833.1
 
-   tbl.tf2m <- mapTranscriptionFactorGeneSymbolToMotif(mdb, genes, mode="direct")
-   tbl.tf2m <- mapTranscriptionFactorGeneSymbolToMotif(mdb, genes, mode="indirect")
+    # now try motifs to genes
 
-      # check these 4 tables for agreement
+} # test.geneToMotif
+#------------------------------------------------------------------------------------------------------------------------
+test.motifToGene <- function()
+{
+   printf("--- test.motifToGene")
+   mdb <- MotifDb
+
+   motifs <- c("MA0592.2", "UP00022", "ELF1.SwissRegulon")
+
+      # TFClass mode uses  TF family classifcation
+   tbl.d <- motifToGene(mdb, motifs, source="MotifDb")
+   checkEquals(dim(tbl.d), c(3, 6))
+   checkEquals(tbl.d$motif, c("MA0592.2", "ELF1.SwissRegulon", "UP00022"))
+   checkEquals(tbl.d$geneSymbol, c("Esrra", "ELF1", "Zfp740"))
+   checkEquals(tbl.d$dataSource, c("jaspar2016", "SwissRegulon", "UniPROBE"))
+   checkEquals(tbl.d$organism,   c("Mmusculus", "Hsapiens", "Mmusculus"))
+   checkEquals(tbl.d$from,       rep("MotifDb", 3))
+
+      # MotifDb mode uses the MotifDb metadata, pulled from many sources
+   tbl.i <- motifToGene(mdb, motifs, source="TFClass")
+   checkEquals(dim(tbl.i), c(9,4))
+   checkEquals(tbl.i$motif, rep("MA0592.2", 9))
+   checkEquals(sort(tbl.i$gene), c("AR", "ESR1", "ESR2", "ESRRA", "ESRRB", "ESRRG", "NR3C1", "NR3C2", "PGR"))
+   checkEquals(tbl.i$from,       rep("TFClass", 9))
+
+} # test.geneToMotif
+#------------------------------------------------------------------------------------------------------------------------
+test.associateTranscriptionFactors <- function()
+{
+   printf("--- test.associateTranscriptionFactors")
+
+   mdb <- MotifDb
+   pfms <- query(query(mdb, "jaspar2016"), "sapiens")
+
+      # first check motifs with MotifDb-style long names, using MotifDb lookup, in the
+      # metadata of MotifDb:
+      #      "Hsapiens-jaspar2016-RUNX1-MA0002.1"  "Hsapiens-jaspar2016-TFAP2A-MA0003.1"
+
+   motif.names <- names(pfms[1:5])
+   tbl <- data.frame(motifLongName=motif.names, score=runif(5), stringsAsFactors=FALSE)
+   tbl.anno <- associateTranscriptionFactors(mdb, tbl, "motifLongName", source="MotifDb", expand.rows=FALSE)
+   checkEquals(dim(tbl.anno), c(nrow(tbl), ncol(tbl) + 2))
+   checkTrue(all(c("geneSymbol", "pubmedID") %in% colnames(tbl.anno)))
+
+      # now add in a bogus motif name, one for which there cannot possibly be a TF
+
+   motif.names[3] <- "bogus"
+   tbl <- data.frame(motifLongName=motif.names, score=runif(5), stringsAsFactors=FALSE)
+   tbl.anno <- associateTranscriptionFactors(mdb, tbl, "motifLongName", source="MotifDb", expand.rows=FALSE)
+   checkTrue(is.na(tbl.anno$geneSymbol[3]))
+   checkTrue(is.na(tbl.anno$pubmedID[3]))
+
+      # now check motifs with short, traditional names, in "TFClass" mode, which uses
+      # the tfFamily
+      #      "MA0002.1" "MA0003.1" "MA0003.2" "MA0003.3" "MA0007.2"
+
+   short.motif.names <- unlist(lapply(strsplit(motif.names, "-"), function(tokens) return(tokens[length(tokens)])))
+   tbl <- data.frame(motif=short.motif.names, score=runif(5), stringsAsFactors=FALSE)
+
+   tbl.anno <- associateTranscriptionFactors(mdb, tbl, "motif", source="TFClass", expand.rows=FALSE)
+   checkEquals(dim(tbl.anno), c(nrow(tbl), ncol(tbl) + 2))
+
+      # now add in a bogus motif name, one for which there cannot possibly be a TF
+
+   motif.names <- names(pfms[1:5])
+   short.motif.names <- unlist(lapply(strsplit(motif.names, "-"), function(tokens) return(tokens[length(tokens)])))
+   short.motif.names[3] <- "bogus"
+   tbl <- data.frame(motif=short.motif.names, score=runif(5), stringsAsFactors=FALSE)
+
+   tbl.anno <- associateTranscriptionFactors(mdb, tbl, "motif", source="TFClass", expand.rows=FALSE)
+   checkEquals(dim(tbl.anno), c(nrow(tbl), ncol(tbl) + 2))
+
+} # test.associateTranscriptionFactors
+#------------------------------------------------------------------------------------------------------------------------
+#  MA0003.3 is mapped by TFClass to TFAP2A;TFAP2B;TFAP2C;TFAP2D;TFAP2E   (pumbedID 23180794)
+#  use it as a first test of the "exapand.rows" argument to associateTranscriptionFactors method
+#  MA0017.1  is unmapped by TFClass
+#  MA0017.2  is mapped to NR2F1
+test.associateTranscriptionFactors_expandRows <- function()
+{
+   printf("--- test.assoicateTranscriptionFactors")
+
+   mdb <- MotifDb
+   motifs <- c("MA0003.3", "MA0017.1", "MA0017.2")
+   tbl <- data.frame(motif=motifs, stringsAsFactors=FALSE)
+   tbl.anno <- associateTranscriptionFactors(mdb, tbl, motif.column.name="motif", source="TFClass", expand.rows=FALSE)
+   checkEquals(dim(tbl.anno), c(3,3))
+   checkEquals(tbl.anno$geneSymbol[c(1,3)], c("TFAP2A;TFAP2B;TFAP2C;TFAP2D;TFAP2E", "NR2F1"))
+   checkTrue(is.na(tbl.anno$geneSymbol[2]))
+
+   tbl.annoX <- associateTranscriptionFactors(mdb, tbl, motif.column.name="motif", source="TFClass", expand.rows=TRUE)
+   checkEquals(dim(tbl.annoX), c(7,3))
+   checkEquals(tbl.annoX$motif, c(rep("MA0003.3", 5), "MA0017.2", "MA0017.1"))
+   checkEquals(tbl.annoX$geneSymbol[1:6], c("TFAP2A", "TFAP2B", "TFAP2C", "TFAP2D", "TFAP2E", "NR2F1"))
+   checkTrue(is.na(tbl.annoX$geneSymbol[7]))
+
+      # now a large scale test
+   set.seed(37)
+   mdb.human <- query(mdb, "sapiens")   # > 4000 human matrices
+   indices <- sample(1:length(mdb.human), size=250)
+   motif.long.names <- names(mdb.human)[indices]
+   motif.short.names <- mcols(mdb.human)[indices, "providerId"]
+   tbl <- data.frame(motif.short=motif.short.names, motif.long=motif.long.names, stringsAsFactors=FALSE)
+
+   tbl.anno.mdb <- associateTranscriptionFactors(mdb, tbl, motif.column.name="motif.long", source="MotifDb", expand.rows=FALSE)
+   tbl.anno.mdbX <- associateTranscriptionFactors(mdb, tbl, motif.column.name="motif.long", source="MotifDb", expand.rows=TRUE)
+
+   tbl.anno.tfc  <- associateTranscriptionFactors(mdb, tbl, motif.column.name="motif.short", source="TFClass", expand.rows=FALSE)
+   checkEquals(nrow(tbl.anno.tfc), length(motif.short.names))
+   checkTrue(length(grep(";", tbl.anno.tfc$geneSymbol)) > 20)
+
+   tbl.anno.tfcX <- associateTranscriptionFactors(mdb, tbl, motif.column.name="motif.short", source="TFClass", expand.rows=TRUE)
+   checkTrue(nrow(tbl.anno.tfcX) > nrow(tbl.anno.tfc))   # 250 vs 779
+   checkEquals(length(grep(";", tbl.anno.tfcX$geneSymbol)), 0)
 
 
-} # test.motifTfGeneMapping
+} # test.associateTranscriptionFactors_expandRows
 #------------------------------------------------------------------------------------------------------------------------

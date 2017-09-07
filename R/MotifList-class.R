@@ -1,9 +1,10 @@
 setGeneric('query', signature='object', function(object, queryString, ignore.case=TRUE)
               standardGeneric ('query'))
-setGeneric('mapMotifToTranscriptionFactorGeneSymbol', signature='object', function(object, motifs, mode)
-              standardGeneric('mapMotifToTranscriptionFactorGeneSymbol'))
-setGeneric('mapTranscriptionFactorGeneSymbolToMotif', signature='object', function(object, geneSymbols, mode)
-              standardGeneric('mapTranscriptionFactorGeneSymbolToMotif'))
+setGeneric('motifToGene', signature='object', function(object, motifs, source) standardGeneric('motifToGene'))
+setGeneric('geneToMotif', signature='object', function(object, geneSymbols, source) standardGeneric('geneToMotif'))
+setGeneric('associateTranscriptionFactors', signature='object',
+           function(object, tbl.withMotifs, motif.column.name, source, expand.rows)
+              standardGeneric('associateTranscriptionFactors'))
 #------------------------------------------------------------------------------------------------------------------------
 setClass ('MotifList',
           contains='SimpleList',
@@ -323,7 +324,7 @@ matrixToJasparText <- function (matrices)
       # For each line of the matrix, print the correct letter and the
       # matrix row surrounded by brackets
       motif.matrix <- matrices[name][[1]]
-	    
+
 
       for (r in 1:nrow(motif.matrix)) {
           s[index] <- sprintf("%s [ %s ]",
@@ -342,35 +343,105 @@ matrixToJasparText <- function (matrices)
 } # matrixToJasparText
 #-------------------------------------------------------------------------------
 # returns a data.frame with motif, geneSymbol, source, pubmedID columns
-setMethod ('mapMotifToTranscriptionFactorGeneSymbol', 'MotifList',
+setMethod ('motifToGene', 'MotifList',
 
-   function (object, motifs, mode) {
-     stopifnot(mode %in% c("direct", "indirect", "both"))
-     if(mode %in% c("direct", "both")){
-        # result <- rbind(result, newRows
+   function (object, motifs, source) {
+     stopifnot(source %in% c("MotifDb", "TFClass"))
+     tbl <- data.frame()
+     if(source %in% c("MotifDb")){
+        tbl <- as.data.frame(subset(mcols(object), providerId %in% motifs))
+        tbl <- unique(tbl [, c("geneSymbol", "providerId", "dataSource", "organism", "pubmedID")])
+        colnames(tbl) <- c("geneSymbol", "motif", "dataSource", "organism", "pubmedID")
+        tbl
+        tbl <- tbl[, c("motif", "geneSymbol", "dataSource", "organism", "pubmedID")]
+        tbl$from <- "MotifDb"
         }
-     if(mode %in% c("indirect", "both")){
-        # draw on object@manuallyCuratedGeneMotifAssociationTable
-        # result <- rbind(result, newRows
+     if(source %in% c("TFClass")){
+        tbl <- subset(object@manuallyCuratedGeneMotifAssociationTable, motif %in% motifs)
+        tbl <- unique(tbl[, c("motif", "tf.gene", "pubmedID")])
+        tbl <- tbl[order(tbl$motif),]
+        rownames(tbl) <- NULL
+        colnames(tbl) <- c("motif", "gene", "pubmedID")
+        tbl$from <- "TFClass"
+        }
+     tbl
+     })
+
+#-------------------------------------------------------------------------------
+# returns a data.frame with motif, geneSymbol, source, pubmedID columns
+setMethod ('geneToMotif', 'MotifList',
+
+   function (object, geneSymbols, source) {
+     stopifnot(source %in% c("MotifDb", "TFClass"))
+     #browser()
+     extract.mdb <- function(gene){
+        tbl <- as.data.frame(subset(mcols(object), geneSymbol == gene))
+        tbl <- unique(tbl [, c("geneSymbol", "providerId", "dataSource", "organism", "pubmedID")])
+        colnames(tbl) <- c("geneSymbol", "motif", "dataSource", "organism", "pubmedID")
+        tbl
+        }
+     if(source %in% c("MotifDb")){
+        tbls <- lapply(geneSymbols, extract.mdb)
+        result <- do.call(rbind, tbls)
+        result$from <- "MotifDb"
+        }
+     if(source %in% c("TFClass")){
+        tbl <- subset(object@manuallyCuratedGeneMotifAssociationTable, tf.gene %in% geneSymbols)
+        tbl <- unique(tbl[, c("motif", "tf.gene", "pubmedID")])
+        tbl <- tbl[order(tbl$tf.gene),]
+        rownames(tbl) <- NULL
+        colnames(tbl) <- c("motif", "gene", "pubmedID")
+        result <- tbl[, c("gene", "motif", "pubmedID")]
+        result$from <- "TFClass"
         }
      result
      })
 
 #-------------------------------------------------------------------------------
-# returns a data.frame with motif, geneSymbol, source, pubmedID columns
-setMethod ('mapTranscriptionFactorGeneSymbolToMotif', 'MotifList',
+setMethod('associateTranscriptionFactors', 'MotifList',
 
-   function (object, geneSymbols, mode) {
-     stopifnot(mode %in% c("direct", "indirect"))
-     result <- data.frame()
-     if(mode %in% c("direct", "both")){
-        # result <- rbind(result, newRows
-        }
-     if(mode %in% c("indirect", "both")){
-        # draw on object@manuallyCuratedGeneMotifAssociationTable
-        # result <- rbind(result, newRows
-        }
-     result
+   function(object, tbl.withMotifs, motif.column.name, source, expand.rows){
+     stopifnot(source %in% c("MotifDb", "TFClass"))
+     tbl.out <- data.frame()
+     if(source %in% c("MotifDb")){
+        # "direct" means:  lookup up in the object metadata, expect one TF geneSymbol per matrix name
+        pfm.ids <- tbl.withMotifs[, motif.column.name]
+        matched.rows <- match(pfm.ids, names(as.list(object)))
+        #if(length(matched.rows) == nrow(tbl.withMotifs)) {
+        tbl.new <- mcols(object)[matched.rows, c("geneSymbol", "pubmedID")]
+        tbl.new$geneSymbol[nchar(tbl.new$geneSymbol)==0] <- NA
+        tbl.new$pubmedID[nchar(tbl.new$pubmedID)==0] <- NA
+        tbl.out <- as.data.frame(cbind(tbl.withMotifs, tbl.new))
+         #}
+        } # direct
+     if(source %in% c("TFClass")){
+        tbl.tfClass <- read.table(system.file(package="MotifDb", "extdata", "tfClass.tsv"), sep="\t", as.is=TRUE, header=TRUE)
+        motif.ids <- tbl.withMotifs[, motif.column.name]
+        geneSymbols <- lapply(motif.ids, function(id) paste(tbl.tfClass$tf.gene[grep(id, tbl.tfClass$motif)], collapse=";"))
+        geneSymbols <- unlist(geneSymbols)
+        pubmedIds   <- lapply(motif.ids, function(id) unique(tbl.tfClass$pubmedID[grep(id, tbl.tfClass$motif)]))
+        pubmedIds   <- as.character(pubmedIds)
+        pubmedIds   <- gsub("integer(0)", "", pubmedIds, fixed=TRUE)
+        tbl.new     <- data.frame(geneSymbol=geneSymbols, pubmedID=pubmedIds, stringsAsFactors=FALSE)
+        tbl.new$geneSymbol[nchar(tbl.new$geneSymbol)==0] <- NA
+        tbl.new$pubmedID[nchar(tbl.new$pubmedID)==0] <- NA
+        tbl.out <- as.data.frame(cbind(tbl.withMotifs, tbl.new))
+
+        if(expand.rows){
+           rows.with.na <- which(is.na(tbl.out$geneSymbol))
+           rows.with.geneSymbol <- setdiff(1:nrow(tbl.out), rows.with.na)
+           tbl.asIs <- tbl.out[rows.with.na,]
+           tbl.toExpand <- tbl.out[rows.with.geneSymbol,]
+           geneSymbols.split <- strsplit(tbl.toExpand$geneSymbol, ";")
+           counts <- unlist(lapply(geneSymbols.split, length))
+           geneSymbols.split.vec <- unlist(geneSymbols.split)
+           tbl.expanded <- splitstackshape::expandRows(tbl.toExpand, counts, count.is.col=FALSE, drop=FALSE)
+           stopifnot(length(geneSymbols.split.vec) == nrow(tbl.expanded))
+           tbl.expanded$geneSymbol <- geneSymbols.split.vec
+           tbl.out <- rbind(tbl.expanded, tbl.asIs)
+           }
+        } # indirect
+     tbl.out
      })
 
 #-------------------------------------------------------------------------------

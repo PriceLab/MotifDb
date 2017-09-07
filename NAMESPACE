@@ -4,8 +4,9 @@ exportMethods (
    export,
    show,
    query,
-   mapMotifToTranscriptionFactorGeneSymbol,
-   mapTranscriptionFactorGeneSymbolToMotif
+   motifToGene,
+   geneToMotif,
+   associateTranscriptionFactors
    )
 
 export(
@@ -18,3 +19,4 @@ import(IRanges)
 importFrom(rtracklayer, export)
 import(Biostrings)
 import(methods)
+importFrom(splitstackshape, expandRows)
