@@ -3,8 +3,7 @@ setGeneric('query', signature='object', function(object, queryString, ignore.cas
 setGeneric('motifToGene', signature='object', function(object, motifs, source) standardGeneric('motifToGene'))
 setGeneric('geneToMotif', signature='object', function(object, geneSymbols, source) standardGeneric('geneToMotif'))
 setGeneric('associateTranscriptionFactors', signature='object',
-           function(object, tbl.withMotifs, motif.column.name, source, expand.rows)
-              standardGeneric('associateTranscriptionFactors'))
+           function(object, tbl.withMotifs,  source, expand.rows) standardGeneric('associateTranscriptionFactors'))
 #------------------------------------------------------------------------------------------------------------------------
 setClass ('MotifList',
           contains='SimpleList',
@@ -400,23 +399,25 @@ setMethod ('geneToMotif', 'MotifList',
 #-------------------------------------------------------------------------------
 setMethod('associateTranscriptionFactors', 'MotifList',
 
-   function(object, tbl.withMotifs, motif.column.name, source, expand.rows){
+   function(object, tbl.withMotifs, source, expand.rows){
      stopifnot(source %in% c("MotifDb", "TFClass"))
      tbl.out <- data.frame()
      if(source %in% c("MotifDb")){
-        # "direct" means:  lookup up in the object metadata, expect one TF geneSymbol per matrix name
-        pfm.ids <- tbl.withMotifs[, motif.column.name]
+           # lookup up in the object metadata, expect one TF geneSymbol per matrix name
+        pfm.ids <- tbl.withMotifs[, "motifName"]
         matched.rows <- match(pfm.ids, names(as.list(object)))
         #if(length(matched.rows) == nrow(tbl.withMotifs)) {
         tbl.new <- mcols(object)[matched.rows, c("geneSymbol", "pubmedID")]
         tbl.new$geneSymbol[nchar(tbl.new$geneSymbol)==0] <- NA
         tbl.new$pubmedID[nchar(tbl.new$pubmedID)==0] <- NA
         tbl.out <- as.data.frame(cbind(tbl.withMotifs, tbl.new))
-         #}
         } # direct
      if(source %in% c("TFClass")){
+        if(! "shortMotif" %in% colnames(tbl.withMotifs)){
+           stop("MotifDb::assoicateTranscriptionFactors needs a 'shortMotif' column with the TFClass source")
+           }
         tbl.tfClass <- read.table(system.file(package="MotifDb", "extdata", "tfClass.tsv"), sep="\t", as.is=TRUE, header=TRUE)
-        motif.ids <- tbl.withMotifs[, motif.column.name]
+        motif.ids <- tbl.withMotifs[, "shortMotif"]
         geneSymbols <- lapply(motif.ids, function(id) paste(tbl.tfClass$tf.gene[grep(id, tbl.tfClass$motif)], collapse=";"))
         geneSymbols <- unlist(geneSymbols)
         pubmedIds   <- lapply(motif.ids, function(id) unique(tbl.tfClass$pubmedID[grep(id, tbl.tfClass$motif)]))
