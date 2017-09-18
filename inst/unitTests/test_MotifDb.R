@@ -2,7 +2,9 @@ library (MotifDb)
 library (RUnit)
 library (MotIV)
 library (seqLogo)
-#------------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
+printf <- function(...) print(noquote(sprintf(...)))
+#----------------------------------------------------------------------------------------------------
 runTests = function ()
 {
   test.emptyCtor ()
@@ -121,7 +123,9 @@ test.noNAorganisms = function ()
 {
   print ('--- test.noNAorganisms')
   #checkEquals (which (is.na (mcols(MotifDb)$organism)), integer (0))
-  checkEquals(sum(is.na (mcols(MotifDb)$organism)), 1050)
+
+  # There's a fair number of NA organisms, mostly due to including the homer DB
+  checkEquals(sum(is.na (mcols(MotifDb)$organism)), 366)
 
 } # test.noNAorganisms
 #------------------------------------------------------------------------------------------------------------------------

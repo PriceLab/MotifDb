@@ -335,7 +335,10 @@ matrixToJasparText <- function (matrices)
       s[index] <- ""
       index <- index + 1
 
-    } # for name
+  } # for name
+
+  # Remove the last blank line
+  s <- s[-length(s)]
 
   invisible (s)
 
