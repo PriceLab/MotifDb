@@ -348,9 +348,10 @@ matrixToJasparText <- function (matrices)
 setMethod ('motifToGene', 'MotifList',
 
    function (object, motifs, source) {
-     stopifnot(source %in% c("MotifDb", "TFClass"))
+     source <- tolower(source)
+     stopifnot(source %in% c("motifdb", "tfclass"))
      tbl <- data.frame()
-     if(source %in% c("MotifDb")){
+     if(source %in% c("motifdb")){
         tbl <- as.data.frame(subset(mcols(object), providerId %in% motifs))
         tbl <- unique(tbl [, c("geneSymbol", "providerId", "dataSource", "organism", "pubmedID")])
         colnames(tbl) <- c("geneSymbol", "motif", "dataSource", "organism", "pubmedID")
@@ -358,7 +359,7 @@ setMethod ('motifToGene', 'MotifList',
         tbl <- tbl[, c("motif", "geneSymbol", "dataSource", "organism", "pubmedID")]
         tbl$from <- "MotifDb"
         }
-     if(source %in% c("TFClass")){
+     if(source %in% c("tfclass")){
         tbl <- subset(object@manuallyCuratedGeneMotifAssociationTable, motif %in% motifs)
         tbl <- unique(tbl[, c("motif", "tf.gene", "pubmedID")])
         tbl <- tbl[order(tbl$motif),]
@@ -374,7 +375,8 @@ setMethod ('motifToGene', 'MotifList',
 setMethod ('geneToMotif', 'MotifList',
 
    function (object, geneSymbols, source) {
-     stopifnot(source %in% c("MotifDb", "TFClass"))
+     source <- tolower(source)
+     stopifnot(source %in% c("motifdb", "tfclass"))
      #browser()
      extract.mdb <- function(gene){
         tbl <- as.data.frame(subset(mcols(object), geneSymbol == gene))
@@ -382,12 +384,12 @@ setMethod ('geneToMotif', 'MotifList',
         colnames(tbl) <- c("geneSymbol", "motif", "dataSource", "organism", "pubmedID")
         tbl
         }
-     if(source %in% c("MotifDb")){
+     if(source %in% c("motifdb")){
         tbls <- lapply(geneSymbols, extract.mdb)
         result <- do.call(rbind, tbls)
         result$from <- "MotifDb"
         }
-     if(source %in% c("TFClass")){
+     if(source %in% c("tfclass")){
         tbl <- subset(object@manuallyCuratedGeneMotifAssociationTable, tf.gene %in% geneSymbols)
         tbl <- unique(tbl[, c("motif", "tf.gene", "pubmedID")])
         tbl <- tbl[order(tbl$tf.gene),]
@@ -403,9 +405,10 @@ setMethod ('geneToMotif', 'MotifList',
 setMethod('associateTranscriptionFactors', 'MotifList',
 
    function(object, tbl.withMotifs, source, expand.rows){
-     stopifnot(source %in% c("MotifDb", "TFClass"))
+     source <- tolower(source)
+     stopifnot(source %in% c("motifdb", "tfclass"))
      tbl.out <- data.frame()
-     if(source %in% c("MotifDb")){
+     if(source %in% c("motifdb")){
            # lookup up in the object metadata, expect one TF geneSymbol per matrix name
         pfm.ids <- tbl.withMotifs[, "motifName"]
         matched.rows <- match(pfm.ids, names(as.list(object)))
@@ -415,7 +418,7 @@ setMethod('associateTranscriptionFactors', 'MotifList',
         tbl.new$pubmedID[nchar(tbl.new$pubmedID)==0] <- NA
         tbl.out <- as.data.frame(cbind(tbl.withMotifs, tbl.new))
         } # direct
-     if(source %in% c("TFClass")){
+     if(source %in% c("tfclass")){
         if(! "shortMotif" %in% colnames(tbl.withMotifs)){
            stop("MotifDb::assoicateTranscriptionFactors needs a 'shortMotif' column with the TFClass source")
            }

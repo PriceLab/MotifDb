@@ -759,13 +759,13 @@ test.geneToMotif <- function()
    genes <- c("FOS", "ATF5", "bogus")
 
       # use  TFClass family classifcation
-   tbl.i <- geneToMotif(mdb, genes, source="TFClass")
+   tbl.i <- geneToMotif(mdb, genes, source="TfClaSS")   # intentional mis-capitalization
    checkEquals(tbl.i$gene,  c("ATF5", "FOS", "FOS"))
    checkEquals(tbl.i$motif,  c("MA0833.1", "MA0099.2", "MA0476.1"))
    checkEquals(tbl.i$from, rep("TFClass", 3))
 
       # MotifDb mode uses the MotifDb metadata, pulled from many sources
-   tbl.d <- geneToMotif(mdb, genes, source="MotifDb")
+   tbl.d <- geneToMotif(mdb, genes, source="mOtifdb")     # intentional mis-capitalization
    checkEquals(dim(tbl.d), c(12, 6))
    checkEquals(subset(tbl.d, dataSource=="jaspar2016" & geneSymbol== "FOS")$motif, "MA0476.1")
       # no recognizable (i.e., jaspar standard) motif name returned by MotifDb metadata
