@@ -353,14 +353,17 @@ setMethod ('motifToGene', 'MotifList',
      tbl <- data.frame()
      if(source %in% c("motifdb")){
         tbl <- as.data.frame(subset(mcols(object), providerId %in% motifs))
+        if(nrow(tbl) == 0)
+           return(data.frame())
         tbl <- unique(tbl [, c("geneSymbol", "providerId", "dataSource", "organism", "pubmedID")])
         colnames(tbl) <- c("geneSymbol", "motif", "dataSource", "organism", "pubmedID")
-        tbl
         tbl <- tbl[, c("motif", "geneSymbol", "dataSource", "organism", "pubmedID")]
         tbl$from <- "MotifDb"
         }
      if(source %in% c("tfclass")){
         tbl <- subset(object@manuallyCuratedGeneMotifAssociationTable, motif %in% motifs)
+        if(nrow(tbl) == 0)
+           return(data.frame())
         tbl <- unique(tbl[, c("motif", "tf.gene", "pubmedID")])
         tbl <- tbl[order(tbl$motif),]
         rownames(tbl) <- NULL
@@ -424,9 +427,11 @@ setMethod('associateTranscriptionFactors', 'MotifList',
            }
         tbl.tfClass <- read.table(system.file(package="MotifDb", "extdata", "tfClass.tsv"), sep="\t", as.is=TRUE, header=TRUE)
         motif.ids <- tbl.withMotifs[, "shortMotif"]
-        geneSymbols <- lapply(motif.ids, function(id) paste(tbl.tfClass$tf.gene[grep(id, tbl.tfClass$motif)], collapse=";"))
+        geneSymbols <- lapply(motif.ids, function(id)
+                                 paste(tbl.tfClass$tf.gene[grep(id, tbl.tfClass$motif, fixed=TRUE)], collapse=";"))
         geneSymbols <- unlist(geneSymbols)
-        pubmedIds   <- lapply(motif.ids, function(id) unique(tbl.tfClass$pubmedID[grep(id, tbl.tfClass$motif)]))
+        pubmedIds   <- lapply(motif.ids, function(id)
+                                 unique(tbl.tfClass$pubmedID[grep(id, tbl.tfClass$motif, fixed=TRUE)]))
         pubmedIds   <- as.character(pubmedIds)
         pubmedIds   <- gsub("integer(0)", "", pubmedIds, fixed=TRUE)
         tbl.new     <- data.frame(geneSymbol=geneSymbols, pubmedID=pubmedIds, stringsAsFactors=FALSE)

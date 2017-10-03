@@ -772,19 +772,19 @@ test.geneToMotif <- function()
       # MotifDb for ATF5
       # todo: compare the MA0110596_1.02 matrix of cisp_1.02 to japar MA0833.1
 
-    # now try motifs to genes
-
 } # test.geneToMotif
 #------------------------------------------------------------------------------------------------------------------------
 test.motifToGene <- function()
 {
    printf("--- test.motifToGene")
-   mdb <- MotifDb
 
    motifs <- c("MA0592.2", "UP00022", "ELF1.SwissRegulon")
 
-      # TFClass mode uses  TF family classifcation
-   tbl.d <- motifToGene(mdb, motifs, source="MotifDb")
+   set.seed(31);
+   motifs.long <- names(MotifDb)[sample(1:length(MotifDb), 10)]
+
+      # MotifDb mode uses the MotifDb metadata, pulled from many sources
+   tbl.d <- motifToGene(MotifDb, motifs, source="MotifDb")
    checkEquals(dim(tbl.d), c(3, 6))
    checkEquals(tbl.d$motif, c("MA0592.2", "ELF1.SwissRegulon", "UP00022"))
    checkEquals(tbl.d$geneSymbol, c("Esrra", "ELF1", "Zfp740"))
@@ -792,14 +792,26 @@ test.motifToGene <- function()
    checkEquals(tbl.d$organism,   c("Mmusculus", "Hsapiens", "Mmusculus"))
    checkEquals(tbl.d$from,       rep("MotifDb", 3))
 
-      # MotifDb mode uses the MotifDb metadata, pulled from many sources
-   tbl.i <- motifToGene(mdb, motifs, source="TFClass")
+
+      # TFClass mode uses  TF family classifcation
+   tbl.i <- motifToGene(MotifDb, motifs, source="TFClass")
    checkEquals(dim(tbl.i), c(9,4))
    checkEquals(tbl.i$motif, rep("MA0592.2", 9))
    checkEquals(sort(tbl.i$gene), c("AR", "ESR1", "ESR2", "ESRRA", "ESRRB", "ESRRG", "NR3C1", "NR3C2", "PGR"))
    checkEquals(tbl.i$from,       rep("TFClass", 9))
 
-} # test.geneToMotif
+     # test motifs with regex characters in them, or other characters neither letter nor number
+   motifs <- sort(c("DMAP1_NCOR{1,2}_SMARC.p2", "ELK1,4_GABP{A,B1}.p3", "SNAI1..3.p2", "EWSR1-FLI1.p2", "ETS1,2.p2"))
+   tbl <- motifToGene(MotifDb, motifs, source="MotifDb")
+   checkEquals(nrow(tbl), 0)
+
+   tbl <- motifToGene(MotifDb, motifs, source="tfclass")
+   checkEquals(ncol(tbl), 4)
+   checkTrue(nrow(tbl) > 80)
+   checkTrue(nrow(tbl) < 100)
+   checkTrue(all(motifs %in% tbl$motif))
+
+} # test.motifToGene
 #------------------------------------------------------------------------------------------------------------------------
 test.associateTranscriptionFactors <- function()
 {
