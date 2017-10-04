@@ -777,6 +777,7 @@ test.geneToMotif <- function()
 test.motifToGene <- function()
 {
    printf("--- test.motifToGene")
+   printf("Sys.getlocale: %s", Sys.getlocale())
 
    motifs <- c("MA0592.2", "UP00022", "ELF1.SwissRegulon")
 
