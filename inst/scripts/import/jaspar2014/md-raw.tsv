@@ -1,5 +1,0 @@
-id	jaspar.class	ma.name	unknown	gene.symbol	uniprot	ncbi.tax.code	class	comment	family	medline	tax_group	type	pazar_tf_id	description	tfbs_shape_id	consensus	jaspar	mcs	transfac	end_relative_to_tss	start_relative_to_tss	included_models	source	centrality_logp	tfe_id	symbol	alias
-9232	CORE	MA0004	1	Arnt	P53762	10090	Zipper-Type	-	Helix-Loop-Helix	7592839	vertebrates	SELEX	TF0000003	aryl hydrocarbon receptor nuclear translocator	11	NA	NA	NA	NA	NA	NA	NA	NA	NA	580	ARNT	HIF-1beta,bHLHe2
-9234	CORE	MA0006	1	Arnt::Ahr	P30561, P53762	10090	Zipper-Type	dimer	Helix-Loop-Helix	7592839	vertebrates	SELEX	TF0000004	-	13	NA	NA	NA	NA	NA	NA	NA	NA	NA	580, 577	-	-
-9236	CORE	MA0008	1	HAT5	Q02283	3702	Helix-Turn-Helix	homodimer	Homeo	8253077	plants	SELEX	NA	NA	15	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA
-9237	CORE	MA0009	1	T	P20293	10090	Beta-Hairpin-Ribbon	-	T	8344258	vertebrates	SELEX	TF0000006	T,brachyury homolog (mouse)	16	NA	NA	NA	NA	NA	NA	NA	NA	NA	855	T	-
