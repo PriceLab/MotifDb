@@ -352,23 +352,25 @@ setMethod ('motifToGene', 'MotifList',
      stopifnot(source %in% c("motifdb", "tfclass"))
      tbl <- data.frame()
      if(source %in% c("motifdb")){
+        providerId <- NULL   # avoid R CMD check note
         tbl <- as.data.frame(subset(mcols(object), providerId %in% motifs))
         if(nrow(tbl) == 0)
            return(data.frame())
         tbl <- unique(tbl [, c("geneSymbol", "providerId", "dataSource", "organism", "pubmedID")])
         colnames(tbl) <- c("geneSymbol", "motif", "dataSource", "organism", "pubmedID")
         tbl <- tbl[, c("motif", "geneSymbol", "dataSource", "organism", "pubmedID")]
-        tbl$from <- "MotifDb"
+        tbl$source <- "MotifDb"
         }
      if(source %in% c("tfclass")){
+        motif <- NULL
         tbl <- subset(object@manuallyCuratedGeneMotifAssociationTable, motif %in% motifs)
         if(nrow(tbl) == 0)
            return(data.frame())
         tbl <- unique(tbl[, c("motif", "tf.gene", "pubmedID")])
         tbl <- tbl[order(tbl$motif),]
         rownames(tbl) <- NULL
-        colnames(tbl) <- c("motif", "gene", "pubmedID")
-        tbl$from <- "TFClass"
+        colnames(tbl) <- c("motif", "geneSymbol", "pubmedID")
+        tbl$source <- "TFClass"
         }
      tbl
      })
@@ -380,8 +382,8 @@ setMethod ('geneToMotif', 'MotifList',
    function (object, geneSymbols, source) {
      source <- tolower(source)
      stopifnot(source %in% c("motifdb", "tfclass"))
-     #browser()
      extract.mdb <- function(gene){
+        geneSymbol <- NULL # workaround the R CMD check "no visible binding for global variable"
         tbl <- as.data.frame(subset(mcols(object), geneSymbol == gene))
         tbl <- unique(tbl [, c("geneSymbol", "providerId", "dataSource", "organism", "pubmedID")])
         colnames(tbl) <- c("geneSymbol", "motif", "dataSource", "organism", "pubmedID")
@@ -390,16 +392,17 @@ setMethod ('geneToMotif', 'MotifList',
      if(source %in% c("motifdb")){
         tbls <- lapply(geneSymbols, extract.mdb)
         result <- do.call(rbind, tbls)
-        result$from <- "MotifDb"
+        result$source <- "MotifDb"
         }
      if(source %in% c("tfclass")){
         tbl <- subset(object@manuallyCuratedGeneMotifAssociationTable, tf.gene %in% geneSymbols)
+        tf.gene <- NULL; motif <- NULL  # workaround R CMD CHECK "no visible binding ..." bogus error
         tbl <- unique(tbl[, c("motif", "tf.gene", "pubmedID")])
         tbl <- tbl[order(tbl$tf.gene),]
         rownames(tbl) <- NULL
-        colnames(tbl) <- c("motif", "gene", "pubmedID")
-        result <- tbl[, c("gene", "motif", "pubmedID")]
-        result$from <- "TFClass"
+        colnames(tbl) <- c("motif", "geneSymbol", "pubmedID")
+        result <- tbl[, c("geneSymbol", "motif", "pubmedID")]
+        result$source <- "TFClass"
         }
      result
      })

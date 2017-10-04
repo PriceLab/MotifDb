@@ -4,7 +4,7 @@
 \title{query}
 \description{
 A very general search tool, returning all matrices whose metadata, in ANY
-column, is matched by the query string.  
+column, is matched by the query string.
 }
 \usage{
 \S4method{query}{MotifList}(object, queryString, ignore.case=TRUE)
@@ -13,7 +13,7 @@ column, is matched by the query string.
   \item{object}{a \code{MotifList} object.}
   \item{queryString}{a \code{character} string}
   \item{ignore.case}{a \code{logical} value, default TRUE}
-  
+
 }
 
 \value{
@@ -23,9 +23,9 @@ A list of the matrices
 
 \examples{
   mdb <- MotifDb
-  matrices.human = query (mdb, 'hsapiens')
-  matrices.sox4 = query (mdb, 'sox4')
-  uniprobe.sox.matrices = query (query (mdb, 'uniprobe'), '^sox')
+  matrices.human <- query(mdb, 'hsapiens')
+  matrices.sox4 <- query(mdb, 'sox4')
+  uniprobe.sox.matrices <- query(query(mdb, 'uniprobe'), '^sox')
 }
 \seealso{
   MotifDb,

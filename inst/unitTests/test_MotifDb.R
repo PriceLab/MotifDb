@@ -759,15 +759,15 @@ test.geneToMotif <- function()
    genes <- c("FOS", "ATF5", "bogus")
 
       # use  TFClass family classifcation
-   tbl.i <- geneToMotif(mdb, genes, source="TfClaSS")   # intentional mis-capitalization
-   checkEquals(tbl.i$gene,  c("ATF5", "FOS", "FOS"))
-   checkEquals(tbl.i$motif,  c("MA0833.1", "MA0099.2", "MA0476.1"))
-   checkEquals(tbl.i$from, rep("TFClass", 3))
+   tbl.tfClass <- geneToMotif(mdb, genes, source="TfClaSS")   # intentional mis-capitalization
+   checkEquals(tbl.tfClass$gene,  c("ATF5", "FOS", "FOS"))
+   checkEquals(tbl.tfClass$motif,  c("MA0833.1", "MA0099.2", "MA0476.1"))
+   checkEquals(tbl.tfClass$source, rep("TFClass", 3))
 
       # MotifDb mode uses the MotifDb metadata, pulled from many sources
-   tbl.d <- geneToMotif(mdb, genes, source="mOtifdb")     # intentional mis-capitalization
-   checkEquals(dim(tbl.d), c(12, 6))
-   checkEquals(subset(tbl.d, dataSource=="jaspar2016" & geneSymbol== "FOS")$motif, "MA0476.1")
+   tbl.mdb <- geneToMotif(mdb, genes, source="mOtifdb")     # intentional mis-capitalization
+   checkEquals(dim(tbl.mdb), c(12, 6))
+   checkEquals(subset(tbl.mdb, dataSource=="jaspar2016" & geneSymbol== "FOS")$motif, "MA0476.1")
       # no recognizable (i.e., jaspar standard) motif name returned by MotifDb metadata
       # MotifDb for ATF5
       # todo: compare the MA0110596_1.02 matrix of cisp_1.02 to japar MA0833.1
@@ -782,20 +782,19 @@ test.motifToGene <- function()
 
       # MotifDb mode uses the MotifDb metadata "providerId",
    tbl.mdb <- motifToGene(MotifDb, motifs, source="MotifDb")
-   checkEquals(dim(tbl.d), c(3, 6))
-   checkEquals(tbl.d$motif, c("MA0592.2", "ELF1.SwissRegulon", "UP00022"))
-   checkEquals(tbl.d$geneSymbol, c("Esrra", "ELF1", "Zfp740"))
-   checkEquals(tbl.d$dataSource, c("jaspar2016", "SwissRegulon", "UniPROBE"))
-   checkEquals(tbl.d$organism,   c("Mmusculus", "Hsapiens", "Mmusculus"))
-   checkEquals(tbl.d$from,       rep("MotifDb", 3))
-
+   checkEquals(dim(tbl.mdb), c(3, 6))
+   checkEquals(tbl.mdb$motif, c("MA0592.2", "ELF1.SwissRegulon", "UP00022"))
+   checkEquals(tbl.mdb$geneSymbol, c("Esrra", "ELF1", "Zfp740"))
+   checkEquals(tbl.mdb$dataSource, c("jaspar2016", "SwissRegulon", "UniPROBE"))
+   checkEquals(tbl.mdb$organism,   c("Mmusculus", "Hsapiens", "Mmusculus"))
+   checkEquals(tbl.mdb$source,     rep("MotifDb", 3))
 
       # TFClass mode uses  TF family classifcation
    tbl.tfClass <- motifToGene(MotifDb, motifs, source="TFClass")
-   checkEquals(dim(tbl.i), c(9,4))
-   checkEquals(tbl.i$motif, rep("MA0592.2", 9))
-   checkEquals(sort(tbl.i$gene), c("AR", "ESR1", "ESR2", "ESRRA", "ESRRB", "ESRRG", "NR3C1", "NR3C2", "PGR"))
-   checkEquals(tbl.i$from,       rep("TFClass", 9))
+   checkEquals(dim(tbl.tfClass), c(9,4))
+   checkEquals(tbl.tfClass$motif, rep("MA0592.2", 9))
+   checkEquals(sort(tbl.tfClass$gene), c("AR", "ESR1", "ESR2", "ESRRA", "ESRRB", "ESRRG", "NR3C1", "NR3C2", "PGR"))
+   checkEquals(tbl.tfClass$source,       rep("TFClass", 9))
 
      # test motifs with regex characters in them, or other characters neither letter nor number
    motifs <- sort(c("DMAP1_NCOR{1,2}_SMARC.p2", "ELK1,4_GABP{A,B1}.p3", "SNAI1..3.p2", "EWSR1-FLI1.p2", "ETS1,2.p2"))
