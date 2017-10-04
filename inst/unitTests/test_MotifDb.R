@@ -780,11 +780,8 @@ test.motifToGene <- function()
 
    motifs <- c("MA0592.2", "UP00022", "ELF1.SwissRegulon")
 
-   set.seed(31);
-   motifs.long <- names(MotifDb)[sample(1:length(MotifDb), 10)]
-
-      # MotifDb mode uses the MotifDb metadata, pulled from many sources
-   tbl.d <- motifToGene(MotifDb, motifs, source="MotifDb")
+      # MotifDb mode uses the MotifDb metadata "providerId",
+   tbl.mdb <- motifToGene(MotifDb, motifs, source="MotifDb")
    checkEquals(dim(tbl.d), c(3, 6))
    checkEquals(tbl.d$motif, c("MA0592.2", "ELF1.SwissRegulon", "UP00022"))
    checkEquals(tbl.d$geneSymbol, c("Esrra", "ELF1", "Zfp740"))
@@ -794,7 +791,7 @@ test.motifToGene <- function()
 
 
       # TFClass mode uses  TF family classifcation
-   tbl.i <- motifToGene(MotifDb, motifs, source="TFClass")
+   tbl.tfClass <- motifToGene(MotifDb, motifs, source="TFClass")
    checkEquals(dim(tbl.i), c(9,4))
    checkEquals(tbl.i$motif, rep("MA0592.2", 9))
    checkEquals(sort(tbl.i$gene), c("AR", "ESR1", "ESR2", "ESRRA", "ESRRB", "ESRRG", "NR3C1", "NR3C2", "PGR"))
