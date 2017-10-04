@@ -784,7 +784,18 @@ test.motifToGene <- function()
       # MotifDb mode uses the MotifDb metadata "providerId",
    tbl.mdb <- motifToGene(MotifDb, motifs, source="MotifDb")
    checkEquals(dim(tbl.mdb), c(3, 6))
-   checkEquals(tbl.mdb$motif, c("MA0592.2", "ELF1.SwissRegulon", "UP00022"))
+   expected <- sort(c("MA0592.2", "ELF1.SwissRegulon", "UP00022"))
+   actual <- sort(tbl.mdb$motif)
+
+   print("--- expected")
+   print(expected)
+   print(lapply(expected, charToRaw))
+
+   print("--- actual")
+   print(actual)
+   print(lapply(actual, charToRaw))
+
+   checkEquals(actual, expected)
    checkEquals(tbl.mdb$geneSymbol, c("Esrra", "ELF1", "Zfp740"))
    checkEquals(tbl.mdb$dataSource, c("jaspar2016", "SwissRegulon", "UniPROBE"))
    checkEquals(tbl.mdb$organism,   c("Mmusculus", "Hsapiens", "Mmusculus"))
