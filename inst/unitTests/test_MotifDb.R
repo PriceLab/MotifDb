@@ -650,7 +650,7 @@ test.MotIV.toTable = function ()
   test.hits = motifMatch (mdb[1]@listData, database=jaspar)
   tbl.hits =  MotIV.toTable (test.hits)
   checkEquals (dim (tbl.hits), c (5, 5))
-  checkEquals (colnames (tbl.hits), c ("name", "eVal", "sequence", "match", "strand"))
+  checkEquals (sort(colnames (tbl.hits)), sort(c("name", "eVal", "sequence", "match", "strand")))
 
 } # test.MotIV.toTable
 #------------------------------------------------------------------------------------------------------------------------
@@ -713,8 +713,8 @@ test.flyFactorGeneSymbols <- function()
 {
     print ("--- test.flyFactorGeneSymbols")
     mdb = MotifDb
-    checkEquals(mcols(query(mdb, "FBgn0259750"))$geneSymbol,
-                c("FBgn0259750", "FBgn0259750"))
+    checkEquals(sort(mcols(query(mdb, "FBgn0259750"))$geneSymbol),
+                sort(c("FBgn0259750", "FBgn0259750")))
     checkEquals(mcols(query(mdb, "FBgn0000014"))$geneSymbol, rep("abd-A", 3))
     checkEquals(mcols(query(mdb, "FBgn0000015"))$geneSymbol, rep("Abd-B", 3))
 
@@ -760,8 +760,8 @@ test.geneToMotif <- function()
 
       # use  TFClass family classifcation
    tbl.tfClass <- geneToMotif(mdb, genes, source="TfClaSS")   # intentional mis-capitalization
-   checkEquals(tbl.tfClass$gene,  c("ATF5", "FOS", "FOS"))
-   checkEquals(tbl.tfClass$motif,  c("MA0833.1", "MA0099.2", "MA0476.1"))
+   checkEquals(sort(tbl.tfClass$gene),  sort(c("ATF5", "FOS", "FOS")))
+   checkEquals(sort(tbl.tfClass$motif),  sort(c("MA0833.1", "MA0099.2", "MA0476.1")))
    checkEquals(tbl.tfClass$source, rep("TFClass", 3))
 
       # MotifDb mode uses the MotifDb metadata, pulled from many sources
@@ -786,26 +786,17 @@ test.motifToGene <- function()
    checkEquals(dim(tbl.mdb), c(3, 6))
    expected <- sort(c("MA0592.2", "ELF1.SwissRegulon", "UP00022"))
    actual <- sort(tbl.mdb$motif)
-
-   print("--- expected")
-   print(expected)
-   print(lapply(expected, charToRaw))
-
-   print("--- actual")
-   print(actual)
-   print(lapply(actual, charToRaw))
-
    checkEquals(actual, expected)
-   checkEquals(tbl.mdb$geneSymbol, c("Esrra", "ELF1", "Zfp740"))
-   checkEquals(tbl.mdb$dataSource, c("jaspar2016", "SwissRegulon", "UniPROBE"))
-   checkEquals(tbl.mdb$organism,   c("Mmusculus", "Hsapiens", "Mmusculus"))
-   checkEquals(tbl.mdb$source,     rep("MotifDb", 3))
+   checkEquals(sort(tbl.mdb$geneSymbol), sort(c("Esrra", "ELF1", "Zfp740")))
+   checkEquals(sort(tbl.mdb$dataSource), sort(c("jaspar2016", "SwissRegulon", "UniPROBE")))
+   checkEquals(sort(tbl.mdb$organism),   sort(c("Mmusculus", "Hsapiens", "Mmusculus")))
+   checkEquals(sort(tbl.mdb$source),     rep("MotifDb", 3))
 
       # TFClass mode uses  TF family classifcation
    tbl.tfClass <- motifToGene(MotifDb, motifs, source="TFClass")
    checkEquals(dim(tbl.tfClass), c(9,4))
    checkEquals(tbl.tfClass$motif, rep("MA0592.2", 9))
-   checkEquals(sort(tbl.tfClass$gene), c("AR", "ESR1", "ESR2", "ESRRA", "ESRRB", "ESRRG", "NR3C1", "NR3C2", "PGR"))
+   checkEquals(sort(tbl.tfClass$gene), sort(c("AR", "ESR1", "ESR2", "ESRRA", "ESRRB", "ESRRG", "NR3C1", "NR3C2", "PGR")))
    checkEquals(tbl.tfClass$source,       rep("TFClass", 9))
 
      # test motifs with regex characters in them, or other characters neither letter nor number
@@ -837,7 +828,7 @@ test.associateTranscriptionFactors <- function()
    tbl.anno <- associateTranscriptionFactors(mdb, tbl, source="MotifDb", expand.rows=FALSE)
    checkEquals(dim(tbl.anno), c(nrow(tbl), ncol(tbl) + 2))
    checkTrue(all(c("geneSymbol", "pubmedID") %in% colnames(tbl.anno)))
-   checkEquals(tbl.anno$geneSymbol, c("RUNX1", "TFAP2A", "TFAP2A", "TFAP2A", "AR"))
+   checkEquals(sort(tbl.anno$geneSymbol), sort(c("RUNX1", "TFAP2A", "TFAP2A", "TFAP2A", "AR")))
 
       # now add in a bogus motif name, one for which there cannot possibly be a TF
 
