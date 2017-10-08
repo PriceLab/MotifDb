@@ -429,6 +429,11 @@ test.query = function ()
    checkEquals (unique (mcols(sox.uniprobe.matrices)$dataSource), 'UniPROBE')
    gene.symbols = sort (unique (mcols(uniprobe.sox.matrices)$geneSymbol))
 
+    # query on a string (in this case, an oddly named motif) which contains
+    # regular expression characters.  no solution to this yet.
+    # query uses base R's grep, in which
+    #  x <- query(mdb, "ELK1,4_GABP{A,B1}.p3")
+
 } # test.query
 #------------------------------------------------------------------------------------------------------------------------
 test.transformMatrixToMemeRepresentation = function ()
