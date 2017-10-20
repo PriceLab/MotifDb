@@ -1,4 +1,4 @@
-# MotifDb/inst/scripes/import/cispb/import.R
+# MotifDb/inst/scripes/import/cisbp/import.R
 #------------------------------------------------------------------------------------------------------------------------
 options (stringsAsFactors=FALSE)
 printf <- function(...) print(noquote(sprintf(...)))
@@ -82,7 +82,6 @@ readRawMatrices = function (dataDir)
     # for this example importer, that directory will be <dataDir>/test
     # within which we will look for one small file "sample.pcm"
     
-
   filename <- file.path(dataDir, "cisbp", "sample.pcm")
   printf("checking for readable matrix file:")
   printf("     %s", filename)
@@ -137,7 +136,7 @@ translateMetadataToMotifDbStandardForm <- function(x)
   
   std <- list(providerName=x$motif_id,
               providerId=x$ma_id,
-              dataSource="cispb_1.02",
+              dataSource="cisbp_1.02",
               geneSymbol=x$TF_Name,
               geneId=NA,
               geneIdType=NA,
@@ -173,7 +172,7 @@ standardizeOrganism <- function(x)
    tokens <- strsplit(x, "_")[[1]]
 
    if(length(tokens) != 2){
-      warning(sprintf("cispb import could not standardize species name: '%s'", x))
+      warning(sprintf("cisbp import could not standardize species name: '%s'", x))
       return(x)
       }
 
@@ -236,13 +235,13 @@ createMotifDbArchiveFile <- function(dataDir, RDataFileName, count=NA)
      md.fixed <- translateMetadataToMotifDbStandardForm(md)
      tbl.md[tbl.md.row,] <- as.data.frame(md.fixed)
      } # for title
-          
+
    empties <- which(nchar(tbl.md$providerName) == 0)
    if(length(empties) > 0){
       tbl.md <- tbl.md[-empties,]
       }
    rownames(tbl.md) <- paste(tbl.md$organism, tbl.md$dataSource, tbl.md$providerName, sep="-")
-   matrices <- matrices[1:nrow(tbl.md)]
+   matrices <- matrices[-empties]
    names(matrices) <- rownames(tbl.md)
 
    printf("saving %d matrices with metadata to %s", nrow(tbl.md), file.path(getwd(), RDataFileName))
@@ -256,7 +255,7 @@ createMotifDbArchiveFile <- function(dataDir, RDataFileName, count=NA)
 #------------------------------------------------------------------------------------------------------------------------
 ## # files are named by Motif_ID, which also provides the database key used to create the metadata entries
 ## # for each motif's matrix, "M1093_1.02.txt" and "M1093_1.02"
-## # cispb at version 1.02 has 6559 matrices.  each of these is annotated to different organisms
+## # cisbp at version 1.02 has 6559 matrices.  each of these is annotated to different organisms
 ## # producing maybe 70k metadata table entries
 ## # M1093
 ## createMetadataTable = function (dataDir, motifIDs)
@@ -371,7 +370,7 @@ parsePwm = function (title, text)
    col.count <- 4
 
      # our standard form is 4 rows (one per nucelotide) and n columns
-     # cispb matrices come in transposed: read them as-is, then transpose
+     # cisbp matrices come in transposed: read them as-is, then transpose
      # to our format
 
   result <- matrix(nrow=row.count, ncol=col.count,
