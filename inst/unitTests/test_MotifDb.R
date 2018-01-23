@@ -779,6 +779,40 @@ test.geneToMotif <- function()
 
 } # test.geneToMotif
 #------------------------------------------------------------------------------------------------------------------------
+# sad to say I do not recall what problem/fix is tested here (pshannon, 23 jan 2018).
+# however, it demonstrates the variety of results which can be returned by non-jaspar datasets
+# when using the MotifDb mapping source, and the relative paucity which is sometimes
+# seen with the TFclass mapper
+test.geneToMotif.ignore.jasparSuffixes <- function()
+{
+   printf("--- test.geneToMotif.ignore.jasparSuffixes")
+   mdb <- MotifDb
+
+   genes <- c("FOS", "ATF5", "bogus")
+
+      # use  TFClass family classifcation
+   tbl.tfClass <- geneToMotif(mdb, genes, source="TfClaSS")   # intentional mis-capitalization
+   checkEquals(sort(tbl.tfClass$gene),  sort(c("ATF5", "FOS", "FOS")))
+   checkEquals(sort(tbl.tfClass$motif),  sort(c("MA0833.1", "MA0099.2", "MA0476.1")))
+   checkEquals(tbl.tfClass$source, rep("TFClass", 3))
+
+      # MotifDb mode uses the MotifDb metadata, pulled from many sources
+   tbl.mdb <- geneToMotif(mdb, genes, source="mOtifdb")     # intentional mis-capitalization
+   checkEquals(dim(tbl.mdb), c(13, 6))
+   checkEquals(subset(tbl.mdb, dataSource=="jaspar2016" & geneSymbol== "FOS")$motif, "MA0476.1")
+      # no recognizable (i.e., jaspar standard) motif name returned by MotifDb metadata
+      # MotifDb for ATF5
+
+      # compare the MA0110599_1.02 matrix of cisp_1.02 to japar MA0476.1: the identical matrix!
+      # 1         FOS    MA0110599_1.02   cisbp_1.02  Hsapiens 24194598 MotifDb
+      # 10        FOS          MA0476.1   jaspar2018  Hsapiens 17916232 MotifDb
+      # this establishes the need for careful scrutiny as one winnows a geneToMotif result into
+      # useful non-reduplicative sequence analysis
+
+   checkEquals(as.list(query(mdb, "MA0110599")), as.list(query(query(mdb, "MA0476.1"), "jaspar2018")))
+
+} # test.geneToMotif
+#------------------------------------------------------------------------------------------------------------------------
 test.motifToGene <- function()
 {
    printf("--- test.motifToGene")
