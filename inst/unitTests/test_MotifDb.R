@@ -42,9 +42,10 @@ runTests = function ()
   test.export_jasparFormatToFile()
 
   test.geneToMotif()
+  test.geneToMotif.ignore.jasparSuffixes()
   test.motifToGene()
-  test.associateTranscriptionFactors()
 
+  test.associateTranscriptionFactors()
 } # runTests
 #------------------------------------------------------------------------------------------------------------------------
 test.emptyCtor = function ()
@@ -288,10 +289,10 @@ test.flyBindingDomains = function ()
 
     # these counts will likely change with a fresh load of data from FlyFactorSurvey.
 
-  checkEquals (tmp$Homeobox, 212)
-  checkEquals (tmp[['zf-C2H2']], 160)
-  checkEquals (tmp[["Helix-Turn-Helix"]], 182)
-  checkEquals (length (which (is.na (subset (x, organism=='Dmelanogaster')$bindingDomain))), 301) # lots of cisbp
+  checkEquals(tmp$Homeobox, 212)
+  checkEquals(tmp[['zf-C2H2']], 160)
+  checkEquals(tmp[["Helix-Turn-Helix"]], 182)
+  checkTrue(length(which(is.na(subset(x, organism=='Dmelanogaster')$bindingDomain))) > 300) # lots of cisbp
 
 } # test.flyBindingDomains
 #------------------------------------------------------------------------------------------------------------------------
@@ -563,7 +564,7 @@ test.export_memeFormatToFileDuplication = function ()
   print ('--- test.export_memeFormatToFileDuplication')
   mdb = MotifDb # ()
   mdb.mouse = subset (mdb, organism=='Mmusculus')
-  checkEquals (length (mdb.mouse), 1251)
+  checkTrue(length(mdb.mouse) > 1300)
   output.file = 'mouse.txt' # tempfile ()
   max = 3
   meme.text = export (mdb.mouse [1:max], output.file, 'meme')
@@ -771,7 +772,7 @@ test.geneToMotif <- function()
 
       # MotifDb mode uses the MotifDb metadata, pulled from many sources
    tbl.mdb <- geneToMotif(mdb, genes, source="mOtifdb")     # intentional mis-capitalization
-   checkEquals(dim(tbl.mdb), c(12, 6))
+   checkEquals(dim(tbl.mdb), c(13, 6))
    checkEquals(subset(tbl.mdb, dataSource=="jaspar2016" & geneSymbol== "FOS")$motif, "MA0476.1")
       # no recognizable (i.e., jaspar standard) motif name returned by MotifDb metadata
       # MotifDb for ATF5
@@ -809,9 +810,11 @@ test.geneToMotif.ignore.jasparSuffixes <- function()
       # this establishes the need for careful scrutiny as one winnows a geneToMotif result into
       # useful non-reduplicative sequence analysis
 
-   checkEquals(as.list(query(mdb, "MA0110599")), as.list(query(query(mdb, "MA0476.1"), "jaspar2018")))
+   pfm.ma0110599 <- as.list(query(mdb, "MA0110599"))[[1]]
+   pfm.ma0476.1  <- as.list(query(query(mdb, "MA0476.1"), "jaspar2018"))[[1]]
+   checkEquals(pfm.ma0110599, pfm.ma0476.1)
 
-} # test.geneToMotif
+} # test.geneToMotif.ignore.jasparSuffixes
 #------------------------------------------------------------------------------------------------------------------------
 test.motifToGene <- function()
 {
@@ -822,14 +825,15 @@ test.motifToGene <- function()
 
       # MotifDb mode uses the MotifDb metadata "providerId",
    tbl.mdb <- motifToGene(MotifDb, motifs, source="MotifDb")
-   checkEquals(dim(tbl.mdb), c(3, 6))
-   expected <- sort(c("MA0592.2", "ELF1.SwissRegulon", "UP00022"))
+   checkEquals(dim(tbl.mdb), c(4, 6))
+   expected <- sort(c("MA0592.2", "MA0592.2", "ELF1.SwissRegulon", "UP00022"))
    actual <- sort(tbl.mdb$motif)
    checkEquals(actual, expected)
-   checkEquals(sort(tbl.mdb$geneSymbol), sort(c("Esrra", "ELF1", "Zfp740")))
-   checkEquals(sort(tbl.mdb$dataSource), sort(c("jaspar2016", "SwissRegulon", "UniPROBE")))
-   checkEquals(sort(tbl.mdb$organism),   sort(c("Mmusculus", "Hsapiens", "Mmusculus")))
-   checkEquals(sort(tbl.mdb$source),     rep("MotifDb", 3))
+   checkEquals(sort(tbl.mdb$geneSymbol), sort(c("ELF1", "Esrra", "Esrra", "Zfp740")))
+   checkEquals(sort(tbl.mdb$dataSource), sort(c("jaspar2016", "jaspar2018", "SwissRegulon", "UniPROBE")))
+
+   checkEquals(sort(tbl.mdb$organism),   sort(c("Hsapiens", "Mmusculus", "Mmusculus", "Mmusculus")))
+   checkEquals(tbl.mdb$source,     rep("MotifDb", 4))
 
       # TFClass mode uses  TF family classifcation
    tbl.tfClass <- motifToGene(MotifDb, motifs, source="TFClass")
