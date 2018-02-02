@@ -1,7 +1,7 @@
 setGeneric('query', signature='object', function(object, queryString, ignore.case=TRUE)
               standardGeneric ('query'))
 setGeneric('motifToGene', signature='object', function(object, motifs, source) standardGeneric('motifToGene'))
-setGeneric('geneToMotif', signature='object', function(object, geneSymbols, source) standardGeneric('geneToMotif'))
+setGeneric('geneToMotif', signature='object', function(object, geneSymbols, source, ignore.case=FALSE) standardGeneric('geneToMotif'))
 setGeneric('associateTranscriptionFactors', signature='object',
            function(object, tbl.withMotifs,  source, expand.rows) standardGeneric('associateTranscriptionFactors'))
 #------------------------------------------------------------------------------------------------------------------------
@@ -359,7 +359,8 @@ setMethod ('motifToGene', 'MotifList',
         tbl <- unique(tbl [, c("geneSymbol", "providerId", "dataSource", "organism", "pubmedID")])
         colnames(tbl) <- c("geneSymbol", "motif", "dataSource", "organism", "pubmedID")
         tbl <- tbl[, c("motif", "geneSymbol", "dataSource", "organism", "pubmedID")]
-        tbl$source <- "MotifDb"
+        if(nrow(tbl) > 0)
+           tbl$source <- "MotifDb"
         }
      if(source %in% c("tfclass")){
         motif <- NULL
@@ -370,7 +371,8 @@ setMethod ('motifToGene', 'MotifList',
         tbl <- tbl[order(tbl$motif),]
         rownames(tbl) <- NULL
         colnames(tbl) <- c("motif", "geneSymbol", "pubmedID")
-        tbl$source <- "TFClass"
+        if(nrow(tbl) > 0)
+           tbl$source <- "TFClass"
         }
      tbl
      })
@@ -379,12 +381,16 @@ setMethod ('motifToGene', 'MotifList',
 # returns a data.frame with motif, geneSymbol, source, pubmedID columns
 setMethod ('geneToMotif', 'MotifList',
 
-   function (object, geneSymbols, source) {
+   function (object, geneSymbols, source, ignore.case=FALSE) {
      source <- tolower(source)
      stopifnot(source %in% c("motifdb", "tfclass"))
      extract.mdb <- function(gene){
         geneSymbol <- NULL # workaround the R CMD check "no visible binding for global variable"
-        tbl <- as.data.frame(subset(mcols(object), geneSymbol == gene))
+        if(ignore.case)
+           tbl <- as.data.frame(subset(mcols(object), tolower(geneSymbol) == tolower(gene)))
+        else
+           tbl <- as.data.frame(subset(mcols(object), geneSymbol == gene))
+
         tbl <- unique(tbl [, c("geneSymbol", "providerId", "dataSource", "organism", "pubmedID")])
         colnames(tbl) <- c("geneSymbol", "motif", "dataSource", "organism", "pubmedID")
         tbl
@@ -392,17 +398,22 @@ setMethod ('geneToMotif', 'MotifList',
      if(source %in% c("motifdb")){
         tbls <- lapply(geneSymbols, extract.mdb)
         result <- do.call(rbind, tbls)
-        result$source <- "MotifDb"
+        if(nrow(result) > 0)
+           result$source <- "MotifDb"
         }
      if(source %in% c("tfclass")){
-        tbl <- subset(object@manuallyCuratedGeneMotifAssociationTable, tf.gene %in% geneSymbols)
+        if(ignore.case)
+           tbl <- subset(object@manuallyCuratedGeneMotifAssociationTable, tolower(tf.gene) %in% tolower(geneSymbols))
+        else
+           tbl <- subset(object@manuallyCuratedGeneMotifAssociationTable, tf.gene %in% geneSymbols)
         tf.gene <- NULL; motif <- NULL  # workaround R CMD CHECK "no visible binding ..." bogus error
         tbl <- unique(tbl[, c("motif", "tf.gene", "pubmedID")])
         tbl <- tbl[order(tbl$tf.gene),]
         rownames(tbl) <- NULL
         colnames(tbl) <- c("motif", "geneSymbol", "pubmedID")
         result <- tbl[, c("geneSymbol", "motif", "pubmedID")]
-        result$source <- "TFClass"
+        if(nrow(result) > 0)
+           result$source <- "TFClass"
         }
      result
      })

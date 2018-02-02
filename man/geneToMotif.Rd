@@ -14,12 +14,13 @@ The MotifDb source is in fact the usually 1:1 gene/motif mapping
 provided by each of the data sources upon which MotifDb is built.
 }
 \usage{
-\S4method{geneToMotif}{MotifList}(object, geneSymbols, source)
+\S4method{geneToMotif}{MotifList}(object, geneSymbols, source, ignore.case)
 }
 \arguments{
   \item{object}{a \code{MotifList} object.}
   \item{geneSymbols}{a \code{character} string}
-  \item{source}{a \code{character} string, either 'MotifDb' or "TFclass' (case insensitive)}
+  \item{source}{a \code{character} string, either 'MotifDb' or 'TFclass' (case insensitive)}
+  \item{ignore.case}{a \code{logical} variable, default FALSE, guiding gene name matching}
 }
 
 \value{

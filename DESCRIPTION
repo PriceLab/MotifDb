@@ -1,8 +1,8 @@
 Package: MotifDb
 Type: Package
 Title: An Annotated Collection of Protein-DNA Binding Sequence Motifs
-Version: 1.19.22
-Date: 2018-01-23
+Version: 1.21.2
+Date: 2018-01-31
 Author: Paul Shannon, Matt Richards
 Maintainer: Paul Shannon <pshannon@systemsbiology.org>
 Depends: R (>= 2.15.0), methods, BiocGenerics, S4Vectors, IRanges, Biostrings

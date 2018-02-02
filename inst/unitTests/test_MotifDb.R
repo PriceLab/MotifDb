@@ -43,6 +43,7 @@ runTests = function ()
 
   test.geneToMotif()
   test.geneToMotif.ignore.jasparSuffixes()
+  test.geneToMotif.oneGene.noMotifs
   test.motifToGene()
 
   test.associateTranscriptionFactors()
@@ -762,13 +763,15 @@ test.geneToMotif <- function()
    printf("--- test.geneToMotif")
    mdb <- MotifDb
 
-   genes <- c("FOS", "ATF5", "bogus")
-
+   genes <- c("FOS", "ATF5", "bogus", "SATB2")
+   good.genes <- genes[-which(genes=="bogus")]
       # use  TFClass family classifcation
    tbl.tfClass <- geneToMotif(mdb, genes, source="TfClaSS")   # intentional mis-capitalization
-   checkEquals(sort(tbl.tfClass$gene),  sort(c("ATF5", "FOS", "FOS")))
-   checkEquals(sort(tbl.tfClass$motif),  sort(c("MA0833.1", "MA0099.2", "MA0476.1")))
-   checkEquals(tbl.tfClass$source, rep("TFClass", 3))
+   checkTrue(all(good.genes %in% tbl.tfClass$gene))
+
+   expected.motifs <- c("MA0833.1", "MA0099.2", "MA0476.1", "MA0679.1", "MA0754.1", "MA0755.1", "MA0756.1", "MA0757.1")
+   checkTrue(all(expected.motifs %in% tbl.tfClass$motif))
+   checkEquals(unique(tbl.tfClass$source), "TFClass")
 
       # MotifDb mode uses the MotifDb metadata, pulled from many sources
    tbl.mdb <- geneToMotif(mdb, genes, source="mOtifdb")     # intentional mis-capitalization
@@ -778,7 +781,29 @@ test.geneToMotif <- function()
       # MotifDb for ATF5
       # todo: compare the MA0110596_1.02 matrix of cisp_1.02 to japar MA0833.1
 
+     # check use of ignore.case
+   tbl.caseSensitive <-  geneToMotif(MotifDb, "STAT4", source="MotifDb")
+   checkEquals(length(grep("jaspar", tbl.caseSensitive$dataSource, ignore.case=TRUE)), 0)
+   tbl.caseInsensitive <-  geneToMotif(MotifDb, "STAT4", source="MotifDb", ignore.case=TRUE)
+   checkTrue(length(grep("jaspar", tbl.caseInsensitive$dataSource, ignore.case=TRUE)) >= 3)
+
+   tbl.caseSensitive <-  geneToMotif(MotifDb, "stat4", source="TFclass")
+   checkEquals(nrow(tbl.caseSensitive), 0)
+   tbl.caseInsensitive <-  geneToMotif(MotifDb, "stat4", source="TFclass", ignore.case=TRUE)
+   checkTrue(nrow(tbl.caseInsensitive) >= 5)
+
 } # test.geneToMotif
+#------------------------------------------------------------------------------------------------------------------------
+# this case discovered (31 jan 2018). when called on a gene/source combination for which there are
+# no motifs, i attempted to add the mapping source (either "MotifDb", "TFClass") as a column
+# to an empty data.frame.  check for that and its fix here
+test.geneToMotif.oneGene.noMotifs <- function()
+{
+   checkEquals(nrow(geneToMotif(MotifDb, "SATB2", "MotifDb")), 0)
+   checkEquals(nrow(geneToMotif(MotifDb, "bogus-arandum", "MotifDb")), 0)
+   checkEquals(nrow(geneToMotif(MotifDb, "bogus-arandum", "TFclass")), 0)
+
+} # test.geneToMotif.oneGene.noMotifs
 #------------------------------------------------------------------------------------------------------------------------
 # sad to say I do not recall what problem/fix is tested here (pshannon, 23 jan 2018).
 # however, it demonstrates the variety of results which can be returned by non-jaspar datasets
