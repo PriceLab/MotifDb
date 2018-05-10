@@ -29,6 +29,7 @@ runTests = function ()
   test.subset ()
   test.subsetWithVariables ()
   test.query ()
+  test.query2()
   test.transformMatrixToMemeRepresentation ()
   test.matrixToMemeText ()
   test.export_memeFormatStdOut ()
@@ -437,6 +438,42 @@ test.query = function ()
     #  x <- query(mdb, "ELK1,4_GABP{A,B1}.p3")
 
 } # test.query
+#------------------------------------------------------------------------------------------------------------------------
+test.query2 <- function()
+{
+  print ('--- test.query2')
+  mdb = MotifDb
+
+  ors <- c("MA0511.1", "MA0057.1")
+  ands <- c("jaspar2018", "sapiens")
+  nots <- "cisbp"
+  x <- query2(mdb, andStrings=ands, orStrings=ors)
+  checkEquals(length(x), 2)
+  checkEquals(sort(names(x)),
+             c("Hsapiens-jaspar2018-MZF1(var.2)-MA0057.1", "Hsapiens-jaspar2018-RUNX2-MA0511.1"))
+
+  x <- query2(mdb, andStrings="MA0057.1")
+  checkEquals(length(x), 15)
+
+  x <- query2(mdb, andStrings=c("MA0057.1", "cisbp"))
+  checkEquals(length(x), 11)
+
+  x <- query2(mdb, andStrings=c("MA0057.1"), notStrings="cisbp")
+  checkEquals(length(x), 4)
+
+  x <- query2(mdb, andStrings=c("MA0057.1"), notStrings=c("cisbp", "JASPAR_2014"))
+  checkEquals(length(x), 3)
+
+  x <- query2(mdb, orStrings=c("mus", "sapiens"), andStrings="MA0057.1")
+  #checkEquals(sort(names(x)),
+
+    # do queries on dataSource counts match those from a contingency table?
+  sources.list = as.list (table (mcols(mdb)$dataSource))
+  checkEquals (length (query2 (mdb, 'flyfactorsurvey')), sources.list$FlyFactorSurvey)
+  checkEquals (length (query2 (mdb, 'uniprobe')), sources.list$UniPROBE)
+  checkEquals (length (query2 (mdb, 'UniPROBE')), sources.list$UniPROBE)
+
+} # test.query2
 #------------------------------------------------------------------------------------------------------------------------
 test.transformMatrixToMemeRepresentation = function ()
 {

@@ -1,5 +1,5 @@
-setGeneric('query', signature='object', function(object, queryString, ignore.case=TRUE)
-              standardGeneric ('query'))
+setGeneric('query', signature='object', function(object, queryString, ignore.case=TRUE) standardGeneric ('query'))
+setGeneric('query2', signature='object', function(object, andStrings, orStrings=c(), notStrings=c(), ignore.case=TRUE) standardGeneric ('query2'))
 setGeneric('motifToGene', signature='object', function(object, motifs, source) standardGeneric('motifToGene'))
 setGeneric('geneToMotif', signature='object', function(object, geneSymbols, source, ignore.case=FALSE) standardGeneric('geneToMotif'))
 setGeneric('associateTranscriptionFactors', signature='object',
@@ -280,6 +280,45 @@ setMethod ('query', 'MotifList',
                              ignore.case=ignore.case)))))
         object [indices]
       })
+#-------------------------------------------------------------------------------
+setMethod ('query2', 'MotifList',
+
+   function (object, andStrings, orStrings=c(), notStrings=c(), ignore.case=TRUE) {
+      find.indices <- function(queryString)
+         {unique(as.integer(unlist(sapply(colnames(mcols(object)),
+                 function(colname) grep(queryString, mcols(object)[,colname],ignore.case=ignore.case)))))
+             }
+          # setup defaults
+       and.indices <- list(seq_len(length(object)))
+       or.indices <- list(seq_len(length(object)))
+       not.indices <- list(c())
+
+       if(length(andStrings) > 0)
+          and.indices <- lapply(andStrings, find.indices)
+
+       if(length(orStrings) > 0)
+          or.indices <- lapply(orStrings, find.indices)
+
+       if(length(notStrings) > 0)
+          not.indices <- lapply(notStrings, find.indices)
+
+          # start with the indices of all elements
+       final.indices <- seq_len(length(object))
+
+         # get the cumulative intersection of all the "and" terms
+         # this steadily dimishes the set of indices
+       for(indices in and.indices)
+         final.indices <- intersect(final.indices, indices)
+
+         # lump all of the "or" terms together: they all get included
+       final.indices <- intersect(unlist(or.indices), final.indices)
+
+         # finally reduce the set to exclude all indices of all "not" terms
+       for(indices in not.indices)
+         final.indices <- setdiff(final.indices, indices)
+
+       object [final.indices]
+       })
 #-------------------------------------------------------------------------------
 # Addition on 2017/06/15 from Matt Richards
 
