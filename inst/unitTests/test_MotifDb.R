@@ -896,12 +896,12 @@ test.motifToGene <- function()
 
       # MotifDb mode uses the MotifDb metadata "providerId",
    tbl.mdb <- motifToGene(MotifDb, motifs, source="MotifDb")
-   checkEquals(dim(tbl.mdb), c(4, 5))
-   expected <- sort(c("MA0592.2", "MA0592.2", "ELF1.SwissRegulon", "UP00022"))
+   checkEquals(dim(tbl.mdb), c(3, 5))
+   expected <- sort(c("MA0592.2", "ELF1.SwissRegulon", "UP00022"))
    actual <- sort(tbl.mdb$motif)
    checkEquals(actual, expected)
-   checkEquals(sort(tbl.mdb$geneSymbol), sort(c("ELF1", "Esrra", "Esrra", "Zfp740")))
-   checkEquals(tbl.mdb$source,     rep("MotifDb", 4))
+   checkEquals(sort(tbl.mdb$geneSymbol), sort(c("ELF1", "Esrra", "Zfp740")))
+   checkEquals(tbl.mdb$source,     rep("MotifDb", 3))
 
       # TFClass mode uses  TF family classifcation
    tbl.tfClass <- motifToGene(MotifDb, motifs, source="TFClass")
@@ -948,7 +948,10 @@ test.motifToGene <- function()
    checkEquals(sort(unique(tbl$motif)), c("Hsapiens-jaspar2016-TFAP2A-MA0003.3", "MA0872.1"))
    checkEquals(sort(unique(tbl$geneSymbol)), c("TFAP2A", "TFAP2B", "TFAP2C", "TFAP2D", "TFAP2E"))
 
-   tbl <- motifToGene(MotifDb, motifs, source="TFClass")
+   tbl <- motifToGene(MotifDb, motifs, source=c("MotifDb", "TFClass"))
+   checkTrue(all(motifs %in% tbl$motif))
+   checkEquals(sort(unique(tbl$geneSymbol)),
+                    c("AR", "RUNX1", "TFAP2A", "TFAP2A(var.3)", "TFAP2B", "TFAP2C", "TFAP2D", "TFAP2E"))
 
    } # test.motifToGene
 #------------------------------------------------------------------------------------------------------------------------
@@ -958,66 +961,80 @@ test.associateTranscriptionFactors <- function()
 
    mdb <- MotifDb
    pfms <- query(mdb, andStrings=c("sapiens", "jaspar2016"))
-      # query(mdb, "jaspar2016", "sapiens")
 
+      # query(mdb, "jaspar2016", "sapiens")
       # first check motifs with MotifDb-style long names, using MotifDb lookup, in the
       # metadata of MotifDb:
       #      "Hsapiens-jaspar2016-RUNX1-MA0002.1"  "Hsapiens-jaspar2016-TFAP2A-MA0003.1"
 
-   motif.names <- names(pfms[1:5])
-   tbl <- data.frame(motifName=motif.names, score=runif(5), stringsAsFactors=FALSE)
-   tbl.anno <- associateTranscriptionFactors(mdb, tbl, source="MotifDb", expand.rows=FALSE)
-   checkEquals(dim(tbl.anno), c(nrow(tbl), ncol(tbl) + 2))
-   checkTrue(all(c("geneSymbol", "pubmedID") %in% colnames(tbl.anno)))
-   checkEquals(sort(tbl.anno$geneSymbol), sort(c("RUNX1", "TFAP2A", "TFAP2A", "TFAP2A", "AR")))
+   motif.names <- c(names(pfms[1:5]), "MA0872.1", "hocus.pocus")
+   tbl <- data.frame(motifName=motif.names, score=runif(7), stringsAsFactors=FALSE)
 
-      # now add in a bogus motif name, one for which there cannot possibly be a TF
+   tbl.anno.mdb <- associateTranscriptionFactors(mdb, tbl, source="MotifDb", expand.rows=TRUE)
+   checkEquals(nrow(tbl), nrow(tbl.anno.mdb))
+   checkTrue(is.na(tbl.anno.mdb$geneSymbol[grep("hocus.pocus", tbl.anno.mdb$motifName)]))
+   checkTrue(all(c("AR", "RUNX1", "TFAP2A", "TFAP2A", "TFAP2A", "TFAP2A(var.3)") %in% tbl.anno.mdb$geneSymbol))
 
-   motif.names[3] <- "bogus"
-   tbl <- data.frame(motifName=motif.names, score=runif(5), stringsAsFactors=FALSE)
-   tbl.anno <- associateTranscriptionFactors(mdb, tbl, source="MotifDb", expand.rows=FALSE)
-   checkTrue(is.na(tbl.anno$geneSymbol[3]))
-   checkTrue(is.na(tbl.anno$pubmedID[3]))
+   tbl.anno.tfc <- associateTranscriptionFactors(mdb, tbl, source="TFClass", expand.rows=TRUE)
+   checkTrue(nrow(tbl) < nrow(tbl.anno.tfc))
+   checkEquals(sort(unique(tbl.anno.tfc$geneSymbol)), c("TFAP2A", "TFAP2B", "TFAP2C", "TFAP2D", "TFAP2E"))
 
-      # now check motifs with short, traditional names, in "TFClass" mode, which uses
-      # the tfFamily
-      #      "MA0002.1" "MA0003.1" "MA0003.2" "MA0003.3" "MA0007.2"
+   tbl.anno.both <- associateTranscriptionFactors(mdb, tbl, source=c("MotifDb", "TFClass"), expand.rows=TRUE)
+   checkEquals(length(grep("MotifDb", tbl.anno.both$source)), 6)
+   checkEquals(length(grep("TFClass", tbl.anno.both$source)), 10)
 
-   motif.names <- names(pfms[1:5])
-   short.motif.names <- unlist(lapply(strsplit(motif.names, "-"), function(tokens) return(tokens[length(tokens)])))
-   tbl <- data.frame(motifName=motif.names, shortMotif=short.motif.names, score=runif(5), stringsAsFactors=FALSE)
-
-   tbl.anno <- associateTranscriptionFactors(mdb, tbl, source="TFClass", expand.rows=FALSE)
-   checkEquals(dim(tbl.anno), c(nrow(tbl), ncol(tbl) + 2))
-
-      # TFClass only annotates MA0003.3, none of the others
-   checkTrue(all(is.na(tbl.anno$geneSymbol[-4])))
-   checkTrue(all(is.na(tbl.anno$pubmedID[-4])))
-   checkEquals(tbl.anno$geneSymbol[4], "TFAP2A;TFAP2B;TFAP2C;TFAP2D;TFAP2E")
-   checkEquals(tbl.anno$pubmedID[4],   "23180794")
-
-      # now ask for expandsion of the semicolon separated list
-   tbl.anno <- associateTranscriptionFactors(mdb, tbl, source="TFClass", expand.rows=TRUE)
-   checkEquals(dim(tbl.anno), c(nrow(tbl) + 4, ncol(tbl) + 2))
-   checkTrue(all(c("TFAP2A", "TFAP2B", "TFAP2C", "TFAP2D", "TFAP2E") %in% tbl.anno$geneSymbol))
-
-      # now add in a bogus motif name, one for which there cannot possibly be a TF
-
-   motif.names <- names(pfms[1:5])
-   short.motif.names <- unlist(lapply(strsplit(motif.names, "-"), function(tokens) return(tokens[length(tokens)])))
-   short.motif.names[4] <- "bogus"
-   tbl <- data.frame(shortMotif=short.motif.names, score=runif(5), stringsAsFactors=FALSE)
-
-   tbl.anno <- associateTranscriptionFactors(mdb, tbl, source="TFClass", expand.rows=FALSE)
-   checkEquals(dim(tbl.anno), c(nrow(tbl), ncol(tbl) + 2))
-      # after adding bogus to the only mapped motif name, all geneSymbol and pubmedID values should be NA
-   checkTrue(all(is.na(tbl.anno$geneSymbol)))
-   checkTrue(all(is.na(tbl.anno$pubmedID)))
-
-      # now make sure that the absence of the  TFClass-specific "shortMotif" field is detected
-   motif.names <- names(pfms[1:5])
-   tbl <- data.frame(motifName=motif.names, score=runif(5), stringsAsFactors=FALSE)
-   checkException(tbl.anno <- associateTranscriptionFactors(mdb, tbl, source="TFClass", expand.rows=FALSE), silent=TRUE)
+   #   checkEquals(dim(tbl.anno.mdb), c(nrow(tbl), ncol(tbl) + 4))
+   #   checkTrue(all(c("geneSymbol", "pubmedID") %in% colnames(tbl.anno.mdb)))
+   #   checkEquals(sort(tbl.anno.mdb$geneSymbol),
+   #               sort(c("AR", "RUNX1", "TFAP2A", "TFAP2A", "TFAP2A", "TFAP2A(var.3)")))
+   #
+   #      # now add in a bogus motif name, one for which there cannot possibly be a TF
+   #
+   #   motif.names[3] <- "bogus"
+   #   tbl <- data.frame(motifName=motif.names, score=runif(5), stringsAsFactors=FALSE)
+   #   tbl.anno <- associateTranscriptionFactors(mdb, tbl, source="MotifDb", expand.rows=FALSE)
+   #   checkTrue(is.na(tbl.anno$geneSymbol[3]))
+   #   checkTrue(is.na(tbl.anno$pubmedID[3]))
+   #
+   #      # now check motifs with short, traditional names, in "TFClass" mode, which uses
+   #      # the tfFamily
+   #      #      "MA0002.1" "MA0003.1" "MA0003.2" "MA0003.3" "MA0007.2"
+   #
+   #   motif.names <- names(pfms[1:5])
+   #   short.motif.names <- unlist(lapply(strsplit(motif.names, "-"), function(tokens) return(tokens[length(tokens)])))
+   #   tbl <- data.frame(motifName=motif.names, shortMotif=short.motif.names, score=runif(5), stringsAsFactors=FALSE)
+   #
+   #   tbl.anno <- associateTranscriptionFactors(mdb, tbl, source="TFClass", expand.rows=FALSE)
+   #   checkEquals(dim(tbl.anno), c(nrow(tbl), ncol(tbl) + 2))
+   #
+   #      # TFClass only annotates MA0003.3, none of the others
+   #   checkTrue(all(is.na(tbl.anno$geneSymbol[-4])))
+   #   checkTrue(all(is.na(tbl.anno$pubmedID[-4])))
+   #   checkEquals(tbl.anno$geneSymbol[4], "TFAP2A;TFAP2B;TFAP2C;TFAP2D;TFAP2E")
+   #   checkEquals(tbl.anno$pubmedID[4],   "23180794")
+   #
+   #      # now ask for expandsion of the semicolon separated list
+   #   tbl.anno <- associateTranscriptionFactors(mdb, tbl, source="TFClass", expand.rows=TRUE)
+   #   checkEquals(dim(tbl.anno), c(nrow(tbl) + 4, ncol(tbl) + 2))
+   #   checkTrue(all(c("TFAP2A", "TFAP2B", "TFAP2C", "TFAP2D", "TFAP2E") %in% tbl.anno$geneSymbol))
+   #
+   #      # now add in a bogus motif name, one for which there cannot possibly be a TF
+   #
+   #   motif.names <- names(pfms[1:5])
+   #   short.motif.names <- unlist(lapply(strsplit(motif.names, "-"), function(tokens) return(tokens[length(tokens)])))
+   #   short.motif.names[4] <- "bogus"
+   #   tbl <- data.frame(shortMotif=short.motif.names, score=runif(5), stringsAsFactors=FALSE)
+   #
+   #   tbl.anno <- associateTranscriptionFactors(mdb, tbl, source="TFClass", expand.rows=FALSE)
+   #   checkEquals(dim(tbl.anno), c(nrow(tbl), ncol(tbl) + 2))
+   #      # after adding bogus to the only mapped motif name, all geneSymbol and pubmedID values should be NA
+   #   checkTrue(all(is.na(tbl.anno$geneSymbol)))
+   #   checkTrue(all(is.na(tbl.anno$pubmedID)))
+   #
+   #      # now make sure that the absence of the  TFClass-specific "shortMotif" field is detected
+   #   motif.names <- names(pfms[1:5])
+   #   tbl <- data.frame(motifName=motif.names, score=runif(5), stringsAsFactors=FALSE)
+   #   checkException(tbl.anno <- associateTranscriptionFactors(mdb, tbl, source="TFClass", expand.rows=FALSE), silent=TRUE)
 
       # now some motif names
 } # test.associateTranscriptionFactors
