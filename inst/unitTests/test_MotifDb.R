@@ -28,8 +28,8 @@ runTests = function ()
   test.allFullNames ()
   test.subset ()
   test.subsetWithVariables ()
-  test.query ()
-  test.query2()
+  test.queryOldStyle ()
+  test.query()
   test.transformMatrixToMemeRepresentation ()
   test.matrixToMemeText ()
   test.export_memeFormatStdOut ()
@@ -48,6 +48,7 @@ runTests = function ()
   test.motifToGene()
 
   test.associateTranscriptionFactors()
+
 } # runTests
 #------------------------------------------------------------------------------------------------------------------------
 test.emptyCtor = function ()
@@ -396,9 +397,10 @@ test.subsetWithVariables = function ()
 
 } # test.subsetWithVariables
 #------------------------------------------------------------------------------------------------------------------------
-test.query = function ()
+# "old style": just one query term allowed
+test.queryOldStyle = function ()
 {
-  print ('--- test.query')
+  print ('--- test.queryOldStyle')
   mdb = MotifDb
 
     # do queries on dataSource counts match those from a contingency table?
@@ -437,43 +439,43 @@ test.query = function ()
     # query uses base R's grep, in which
     #  x <- query(mdb, "ELK1,4_GABP{A,B1}.p3")
 
-} # test.query
+} # test.queryOldStyle
 #------------------------------------------------------------------------------------------------------------------------
-test.query2 <- function()
+test.query <- function()
 {
-  print ('--- test.query2')
+  print ('--- test.query')
   mdb = MotifDb
 
   ors <- c("MA0511.1", "MA0057.1")
   ands <- c("jaspar2018", "sapiens")
   nots <- "cisbp"
-  x <- query2(mdb, andStrings=ands, orStrings=ors)
+  x <- query(mdb, andStrings=ands, orStrings=ors)
   checkEquals(length(x), 2)
   checkEquals(sort(names(x)),
              c("Hsapiens-jaspar2018-MZF1(var.2)-MA0057.1", "Hsapiens-jaspar2018-RUNX2-MA0511.1"))
 
-  x <- query2(mdb, andStrings="MA0057.1")
+  x <- query(mdb, andStrings="MA0057.1")
   checkEquals(length(x), 15)
 
-  x <- query2(mdb, andStrings=c("MA0057.1", "cisbp"))
+  x <- query(mdb, andStrings=c("MA0057.1", "cisbp"))
   checkEquals(length(x), 11)
 
-  x <- query2(mdb, andStrings=c("MA0057.1"), notStrings="cisbp")
+  x <- query(mdb, andStrings=c("MA0057.1"), notStrings="cisbp")
   checkEquals(length(x), 4)
 
-  x <- query2(mdb, andStrings=c("MA0057.1"), notStrings=c("cisbp", "JASPAR_2014"))
+  x <- query(mdb, andStrings=c("MA0057.1"), notStrings=c("cisbp", "JASPAR_2014"))
   checkEquals(length(x), 3)
 
-  x <- query2(mdb, orStrings=c("mus", "sapiens"), andStrings="MA0057.1")
+  x <- query(mdb, orStrings=c("mus", "sapiens"), andStrings="MA0057.1")
   #checkEquals(sort(names(x)),
 
     # do queries on dataSource counts match those from a contingency table?
   sources.list = as.list (table (mcols(mdb)$dataSource))
-  checkEquals (length (query2 (mdb, 'flyfactorsurvey')), sources.list$FlyFactorSurvey)
-  checkEquals (length (query2 (mdb, 'uniprobe')), sources.list$UniPROBE)
-  checkEquals (length (query2 (mdb, 'UniPROBE')), sources.list$UniPROBE)
+  checkEquals (length (query (mdb, 'flyfactorsurvey')), sources.list$FlyFactorSurvey)
+  checkEquals (length (query (mdb, 'uniprobe')), sources.list$UniPROBE)
+  checkEquals (length (query (mdb, 'UniPROBE')), sources.list$UniPROBE)
 
-} # test.query2
+} # test.query
 #------------------------------------------------------------------------------------------------------------------------
 test.transformMatrixToMemeRepresentation = function ()
 {
@@ -881,25 +883,29 @@ test.geneToMotif.ignore.jasparSuffixes <- function()
 test.motifToGene <- function()
 {
    printf("--- test.motifToGene")
-   printf("Sys.getlocale: %s", Sys.getlocale())
+   #printf("Sys.getlocale: %s", Sys.getlocale())
+
+     # good test case of querying both sources,
+   motif <- "MA0099.2"
+   tbl <- motifToGene(MotifDb, motif, c("MotifDb", "TFclass"))
+      # [1]   mdb.genes: AP1, JUN::FOS, FOS::JUN, FOS::JUN
+      # [1]   tfc.genes: FOS, JUN
+   checkEquals(sort(unique(tbl$geneSymbol)), c("AP1", "FOS", "FOS::JUN", "JUN", "JUN::FOS"))
 
    motifs <- c("MA0592.2", "UP00022", "ELF1.SwissRegulon")
 
       # MotifDb mode uses the MotifDb metadata "providerId",
    tbl.mdb <- motifToGene(MotifDb, motifs, source="MotifDb")
-   checkEquals(dim(tbl.mdb), c(4, 6))
+   checkEquals(dim(tbl.mdb), c(4, 5))
    expected <- sort(c("MA0592.2", "MA0592.2", "ELF1.SwissRegulon", "UP00022"))
    actual <- sort(tbl.mdb$motif)
    checkEquals(actual, expected)
    checkEquals(sort(tbl.mdb$geneSymbol), sort(c("ELF1", "Esrra", "Esrra", "Zfp740")))
-   checkEquals(sort(tbl.mdb$dataSource), sort(c("jaspar2016", "jaspar2018", "SwissRegulon", "UniPROBE")))
-
-   checkEquals(sort(tbl.mdb$organism),   sort(c("Hsapiens", "Mmusculus", "Mmusculus", "Mmusculus")))
    checkEquals(tbl.mdb$source,     rep("MotifDb", 4))
 
       # TFClass mode uses  TF family classifcation
    tbl.tfClass <- motifToGene(MotifDb, motifs, source="TFClass")
-   checkEquals(dim(tbl.tfClass), c(9,4))
+   checkEquals(dim(tbl.tfClass), c(9,5))
    checkEquals(tbl.tfClass$motif, rep("MA0592.2", 9))
    checkEquals(sort(tbl.tfClass$gene), sort(c("AR", "ESR1", "ESR2", "ESRRA", "ESRRB", "ESRRG", "NR3C1", "NR3C2", "PGR")))
    checkEquals(tbl.tfClass$source,       rep("TFClass", 9))
@@ -910,19 +916,49 @@ test.motifToGene <- function()
    checkEquals(nrow(tbl), 0)
 
    tbl <- motifToGene(MotifDb, motifs, source="tfclass")
-   checkEquals(ncol(tbl), 4)
+   checkEquals(ncol(tbl), 5)
    checkTrue(nrow(tbl) > 80)
    checkTrue(nrow(tbl) < 100)
    checkTrue(all(motifs %in% tbl$motif))
 
-} # test.motifToGene
+   motifs <- c("Hsapiens-HOCOMOCOv10-IKZF1_HUMAN.H10MO.C",
+               "MA0099.2",
+               "Hsapiens-SwissRegulon-ARID3A.SwissRegulon",
+               "MA0592.2",
+               "MA0036913_1.02")
+
+   tbl <- motifToGene(MotifDb, motifs, source=c("MotifDb", "TFClass"))
+   checkTrue(all(motifs %in% tbl$motif))
+
+   motif <- "Mmusculus;Rnorvegicus;Hsapiens-jaspar2018-FOS::JUN-MA0099.2"
+   tbl <- motifToGene(MotifDb, motif, source="TFClass")
+   checkEquals(tbl$geneSymbol, c("FOS", "JUN"))
+
+   motifs <- c("Hsapiens-jaspar2016-RUNX1-MA0002.1",
+               "Hsapiens-jaspar2016-TFAP2A-MA0003.1",
+               "Hsapiens-jaspar2016-TFAP2A-MA0003.2",
+               "Hsapiens-jaspar2016-TFAP2A-MA0003.3",
+               "Hsapiens-jaspar2016-AR-MA0007.2",
+               "MA0872.1")
+   tbl <- motifToGene(MotifDb, motifs, source="Motifdb")
+   checkTrue(all(motifs %in% tbl$motif))
+   checkEquals(sort(unique(tbl$geneSymbol)), c("AR", "RUNX1", "TFAP2A", "TFAP2A(var.3)"))
+
+   tbl <- motifToGene(MotifDb, motifs, source="TFClass")
+   checkEquals(sort(unique(tbl$motif)), c("Hsapiens-jaspar2016-TFAP2A-MA0003.3", "MA0872.1"))
+   checkEquals(sort(unique(tbl$geneSymbol)), c("TFAP2A", "TFAP2B", "TFAP2C", "TFAP2D", "TFAP2E"))
+
+   tbl <- motifToGene(MotifDb, motifs, source="TFClass")
+
+   } # test.motifToGene
 #------------------------------------------------------------------------------------------------------------------------
 test.associateTranscriptionFactors <- function()
 {
    printf("--- test.associateTranscriptionFactors")
 
    mdb <- MotifDb
-   pfms <- query(query(mdb, "jaspar2016"), "sapiens")
+   pfms <- query(mdb, andStrings=c("sapiens", "jaspar2016"))
+      # query(mdb, "jaspar2016", "sapiens")
 
       # first check motifs with MotifDb-style long names, using MotifDb lookup, in the
       # metadata of MotifDb:
@@ -983,6 +1019,29 @@ test.associateTranscriptionFactors <- function()
    tbl <- data.frame(motifName=motif.names, score=runif(5), stringsAsFactors=FALSE)
    checkException(tbl.anno <- associateTranscriptionFactors(mdb, tbl, source="TFClass", expand.rows=FALSE), silent=TRUE)
 
-
+      # now some motif names
 } # test.associateTranscriptionFactors
+#------------------------------------------------------------------------------------------------------------------------
+findMotifsWithMutuallyExclusiveMappings <- function()
+{
+   xtab <- as.data.frame(table(MotifDb@manuallyCuratedGeneMotifAssociationTable$motif))
+   xtab <- xtab[order(xtab$Freq, decreasing=TRUE),]
+   for(motif in xtab$Var1){
+      mdb.genes <- toupper(motifToGene(MotifDb, motif, "motifdb")$geneSymbol)
+      tfc.genes <- toupper(motifToGene(MotifDb, motif, "tfclass")$geneSymbol)
+      if(length(mdb.genes) == 0) next
+      if(length(tfc.genes) == 0) next
+      if(length(intersect(mdb.genes, tfc.genes)) == 0){
+         printf("------ %s", motif)
+         printf("  mdb.genes: %s", paste(mdb.genes, collapse=", "))
+         printf("  tfc.genes: %s", paste(tfc.genes, collapse=", "))
+        } # if no intersection
+      } # for motif
+
+   #  [1] ------ MA0099.2
+   #  [1]   mdb.genes: AP1, JUN::FOS, FOS::JUN, FOS::JUN
+   #  [1]   tfc.genes: FOS, JUN
+
+
+} # findMotifsWithMutuallyExclusiveMappings
 #------------------------------------------------------------------------------------------------------------------------

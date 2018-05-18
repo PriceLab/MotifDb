@@ -4,7 +4,6 @@ exportMethods (
    export,
    show,
    query,
-   query2,
    motifToGene,
    geneToMotif,
    associateTranscriptionFactors

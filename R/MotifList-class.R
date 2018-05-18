@@ -1,5 +1,4 @@
-setGeneric('query', signature='object', function(object, queryString, ignore.case=TRUE) standardGeneric ('query'))
-setGeneric('query2', signature='object', function(object, andStrings, orStrings=c(), notStrings=c(), ignore.case=TRUE) standardGeneric ('query2'))
+setGeneric('query', signature='object', function(object, andStrings, orStrings=c(), notStrings=c(), ignore.case=TRUE) standardGeneric ('query'))
 setGeneric('motifToGene', signature='object', function(object, motifs, source) standardGeneric('motifToGene'))
 setGeneric('geneToMotif', signature='object', function(object, geneSymbols, source, ignore.case=FALSE) standardGeneric('geneToMotif'))
 setGeneric('associateTranscriptionFactors', signature='object',
@@ -271,17 +270,17 @@ setMethod('show', 'MotifList',
       }
     })
 #-------------------------------------------------------------------------------
-setMethod ('query', 'MotifList',
-
-   function (object, queryString, ignore.case=TRUE) {
-       indices = unique (as.integer (unlist (sapply (colnames (mcols (object)),
-                    function (colname)
-                       grep (queryString, mcols (object)[, colname],
-                             ignore.case=ignore.case)))))
-        object [indices]
-      })
+#setMethod ('query', 'MotifList',
+#
+#   function (object, queryString, ignore.case=TRUE) {
+#       indices = unique (as.integer (unlist (sapply (colnames (mcols (object)),
+#                    function (colname)
+#                       grep (queryString, mcols (object)[, colname],
+#                             ignore.case=ignore.case)))))
+#        object [indices]
+#      })
 #-------------------------------------------------------------------------------
-setMethod ('query2', 'MotifList',
+setMethod ('query', 'MotifList',
 
    function (object, andStrings, orStrings=c(), notStrings=c(), ignore.case=TRUE) {
       find.indices <- function(queryString)
@@ -384,37 +383,103 @@ matrixToJasparText <- function (matrices)
 } # matrixToJasparText
 #-------------------------------------------------------------------------------
 # returns a data.frame with motif, geneSymbol, source, pubmedID columns
+# setMethod ('oldMotifToGene', 'MotifList',
+#
+#    function (object, motifs, source) {
+#      source <- tolower(source)
+#      stopifnot(source %in% c("motifdb", "tfclass"))
+#      tbl <- data.frame()
+#      if(source %in% c("motifdb")){
+#         providerId <- NULL   # avoid R CMD check note
+#         tbl <- as.data.frame(subset(mcols(object), providerId %in% motifs))
+#         if(nrow(tbl) == 0)
+#            return(data.frame())
+#         tbl <- unique(tbl [, c("geneSymbol", "providerId", "dataSource", "organism", "pubmedID")])
+#         colnames(tbl) <- c("geneSymbol", "motif", "dataSource", "organism", "pubmedID")
+#         tbl <- tbl[, c("motif", "geneSymbol", "dataSource", "organism", "pubmedID")]
+#         if(nrow(tbl) > 0)
+#            tbl$source <- "MotifDb"
+#         }
+#      if(source %in% c("tfclass")){
+#         motif <- NULL
+#         tbl <- subset(object@manuallyCuratedGeneMotifAssociationTable, motif %in% motifs)
+#         if(nrow(tbl) == 0)
+#            return(data.frame())
+#         tbl <- unique(tbl[, c("motif", "tf.gene", "pubmedID")])
+#         tbl <- tbl[order(tbl$motif),]
+#         rownames(tbl) <- NULL
+#         colnames(tbl) <- c("motif", "geneSymbol", "pubmedID")
+#         if(nrow(tbl) > 0)
+#            tbl$source <- "TFClass"
+#         }
+#      tbl
+#      }) # oldMotifToGene
+#
+#-------------------------------------------------------------------------------
+# returns a data.frame with motif, geneSymbol, source, pubmedID columns
 setMethod ('motifToGene', 'MotifList',
 
    function (object, motifs, source) {
+      # for MotifDb, motif names come in a variety of forms, and our first step
+      # is to convert them all, if needed, into that which is found in
+      # the "providerId" column of the MotifDb metadata table.
+      #
+      # first check to see if the supplied motif name is actually a MotifDb
+      # matrix list name, e.g., Hsapiens-HOCOMOCOv10-IKZF1_HUMAN.H10MO.C
+      # when those cases are discovered, they are translated to the matrices
+      # providerId - which is our standard currency for lookup, using
+      # the mcols (the metadata, the annotation) which accompanies
+      # each pfm matrix
+
+     name.map <- as.list(motifs)
+     names(name.map) <- motifs
+     for(i in seq_len(length(motifs))){
+        x <-match(motifs[i], names(MotifDb));
+        if(!is.na(x)){
+           newValue <-  mcols(MotifDb[motifs[i]])$providerId
+           names(name.map)[i] <- newValue
+           motifs[i] <-newValue
+            }
+        } # for i
+     #browser()
      source <- tolower(source)
-     stopifnot(source %in% c("motifdb", "tfclass"))
-     tbl <- data.frame()
-     if(source %in% c("motifdb")){
+     stopifnot(all(source %in% c("motifdb", "tfclass")))
+     tbl.mdb <- data.frame()
+     if("motifdb" %in% source){
         providerId <- NULL   # avoid R CMD check note
-        tbl <- as.data.frame(subset(mcols(object), providerId %in% motifs))
-        if(nrow(tbl) == 0)
+        tbl.mdb <- as.data.frame(subset(mcols(object), providerId %in% motifs))
+        if(nrow(tbl.mdb) == 0)
            return(data.frame())
-        tbl <- unique(tbl [, c("geneSymbol", "providerId", "dataSource", "organism", "pubmedID")])
-        colnames(tbl) <- c("geneSymbol", "motif", "dataSource", "organism", "pubmedID")
-        tbl <- tbl[, c("motif", "geneSymbol", "dataSource", "organism", "pubmedID")]
-        if(nrow(tbl) > 0)
-           tbl$source <- "MotifDb"
-        }
-     if(source %in% c("tfclass")){
+        tbl.mdb <- unique(tbl.mdb [, c("geneSymbol", "providerId", "dataSource", "organism", "pubmedID")])
+        colnames(tbl.mdb) <- c("geneSymbol", "motif", "dataSource", "organism", "pubmedID")
+        tbl.mdb <- tbl.mdb[, c("motif", "geneSymbol", "dataSource", "organism", "pubmedID")]
+        if(nrow(tbl.mdb) > 0){
+           tbl.mdb$source <- "MotifDb"
+           tbl.mdb <- tbl.mdb[, c("motif", "geneSymbol", "pubmedID", "organism", "source")]
+           rownames(tbl.mdb) <- NULL
+           }
+        }  # motifDb
+     tbl.tfc <- data.frame()
+     if("tfclass" %in% source){
         motif <- NULL
-        tbl <- subset(object@manuallyCuratedGeneMotifAssociationTable, motif %in% motifs)
-        if(nrow(tbl) == 0)
+        tbl.tfc <- subset(object@manuallyCuratedGeneMotifAssociationTable, motif %in% motifs)
+        if(nrow(tbl.tfc) == 0)
            return(data.frame())
-        tbl <- unique(tbl[, c("motif", "tf.gene", "pubmedID")])
-        tbl <- tbl[order(tbl$motif),]
-        rownames(tbl) <- NULL
-        colnames(tbl) <- c("motif", "geneSymbol", "pubmedID")
-        if(nrow(tbl) > 0)
-           tbl$source <- "TFClass"
+        tbl.tfc <- unique(tbl.tfc[, c("motif", "tf.gene", "pubmedID")])
+        tbl.tfc <- tbl.tfc[order(tbl.tfc$motif),]
+        rownames(tbl.tfc) <- NULL
+        colnames(tbl.tfc) <- c("motif", "geneSymbol", "pubmedID")
+        if(nrow(tbl.tfc) > 0){
+           tbl.tfc$source <- "TFClass"
+           tbl.tfc$organism <- "Hsapiens"
+           }
         }
-     tbl
-     })
+      tbl.out <- rbind(tbl.mdb, tbl.tfc)
+      if(length(name.map) > 0)
+         tbl.out$motif <- as.character(name.map[tbl.out$motif])
+      #browser()
+      tbl.out
+      })
 
 #-------------------------------------------------------------------------------
 # returns a data.frame with motif, geneSymbol, source, pubmedID columns
