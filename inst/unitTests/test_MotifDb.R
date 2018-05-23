@@ -953,6 +953,14 @@ test.motifToGene <- function()
    checkEquals(sort(unique(tbl$geneSymbol)),
                     c("AR", "RUNX1", "TFAP2A", "TFAP2A(var.3)", "TFAP2B", "TFAP2C", "TFAP2D", "TFAP2E"))
 
+      # (23 may 2018) found that MotifDb works, but c("MotifDb", "TFClass") does not
+      # test the fix here
+
+   motifs <- c("Hsapiens-jolma2013-IRF5-2", "Hsapiens-SwissRegulon-IRF5.SwissRegulon")
+   checkEquals(motifToGene(MotifDb, motifs, source=c("MotifDb"))$geneSymbol, c("IRF5", "IRF5"))
+   checkEquals(nrow(motifToGene(MotifDb, motifs, source=c("TFClass"))), 0)
+   checkEquals(motifToGene(MotifDb, motifs, source=c("MotifDb", "TFClass"))$geneSymbol, c("IRF5", "IRF5"))
+
    } # test.motifToGene
 #------------------------------------------------------------------------------------------------------------------------
 test.associateTranscriptionFactors <- function()

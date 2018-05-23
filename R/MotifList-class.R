@@ -431,6 +431,9 @@ setMethod ('motifToGene', 'MotifList',
       # the mcols (the metadata, the annotation) which accompanies
       # each pfm matrix
 
+     tbl.mdb <- data.frame()
+     tbl.tfc <- data.frame()
+
      name.map <- as.list(motifs)
      names(name.map) <- motifs
      for(i in seq_len(length(motifs))){
@@ -441,46 +444,44 @@ setMethod ('motifToGene', 'MotifList',
            motifs[i] <-newValue
             }
         } # for i
-     #browser()
+
      source <- tolower(source)
      stopifnot(all(source %in% c("motifdb", "tfclass")))
-     tbl.mdb <- data.frame()
      if("motifdb" %in% source){
         providerId <- NULL   # avoid R CMD check note
         tbl.mdb <- as.data.frame(subset(mcols(object), providerId %in% motifs))
-        if(nrow(tbl.mdb) == 0)
-           return(data.frame())
-        tbl.mdb <- unique(tbl.mdb [, c("geneSymbol", "providerId", "dataSource", "organism", "pubmedID")])
-        colnames(tbl.mdb) <- c("geneSymbol", "motif", "dataSource", "organism", "pubmedID")
-        tbl.mdb <- tbl.mdb[, c("motif", "geneSymbol", "dataSource", "organism", "pubmedID")]
         if(nrow(tbl.mdb) > 0){
+           tbl.mdb <- unique(tbl.mdb [, c("geneSymbol", "providerId", "dataSource", "organism", "pubmedID")])
+           colnames(tbl.mdb) <- c("geneSymbol", "motif", "dataSource", "organism", "pubmedID")
+           tbl.mdb <- tbl.mdb[, c("motif", "geneSymbol", "dataSource", "organism", "pubmedID")]
            tbl.mdb$source <- "MotifDb"
            tbl.mdb <- tbl.mdb[, c("motif", "geneSymbol", "pubmedID", "organism", "source")]
            rownames(tbl.mdb) <- NULL
-           }
+           } # nrow of tbl.mdb > 0
         }  # motifDb
-     tbl.tfc <- data.frame()
+
      if("tfclass" %in% source){
         motif <- NULL
         tbl.tfc <- subset(object@manuallyCuratedGeneMotifAssociationTable, motif %in% motifs)
-        if(nrow(tbl.tfc) == 0)
-           return(data.frame())
-        tbl.tfc <- unique(tbl.tfc[, c("motif", "tf.gene", "pubmedID")])
-        tbl.tfc <- tbl.tfc[order(tbl.tfc$motif),]
-        rownames(tbl.tfc) <- NULL
-        colnames(tbl.tfc) <- c("motif", "geneSymbol", "pubmedID")
         if(nrow(tbl.tfc) > 0){
+           tbl.tfc <- unique(tbl.tfc[, c("motif", "tf.gene", "pubmedID")])
+           tbl.tfc <- tbl.tfc[order(tbl.tfc$motif),]
+           rownames(tbl.tfc) <- NULL
+           colnames(tbl.tfc) <- c("motif", "geneSymbol", "pubmedID")
            tbl.tfc$source <- "TFClass"
            tbl.tfc$organism <- "Hsapiens"
-           }
-        }
+           } # nrow(tbl.tfc) > 0
+        } # tfclass
+
+      if(nrow(tbl.mdb) == 0 && nrow(tbl.tfc) == 0)
+         return(data.frame())
+
       tbl.out <- rbind(tbl.mdb, tbl.tfc)
       dups <- which(duplicated(tbl.out[, c("motif", "geneSymbol", "organism", "source")]))
       if(length(dups) > 0)
          tbl.out <- tbl.out[-dups,]
       if(length(name.map) > 0)
          tbl.out$motif <- as.character(name.map[tbl.out$motif])
-      #browser()
       tbl.out
       })
 
