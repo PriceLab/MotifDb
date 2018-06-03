@@ -1070,3 +1070,5 @@ findMotifsWithMutuallyExclusiveMappings <- function()
 
 } # findMotifsWithMutuallyExclusiveMappings
 #------------------------------------------------------------------------------------------------------------------------
+if(!interactive())
+   runTests()

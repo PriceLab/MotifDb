@@ -491,7 +491,7 @@ setMethod ('geneToMotif', 'MotifList',
 
    function (object, geneSymbols, source, ignore.case=FALSE) {
      source <- tolower(source)
-     stopifnot(source %in% c("motifdb", "tfclass"))
+     stopifnot(all(source %in% c("motifdb", "tfclass")))
      extract.mdb <- function(gene){
         geneSymbol <- NULL # workaround the R CMD check "no visible binding for global variable"
         if(ignore.case)
@@ -503,13 +503,13 @@ setMethod ('geneToMotif', 'MotifList',
         colnames(tbl) <- c("geneSymbol", "motif", "dataSource", "organism", "pubmedID")
         tbl
         }
-     if(source %in% c("motifdb")){
+     if("motifdb" %in% source){
         tbls <- lapply(geneSymbols, extract.mdb)
         result <- do.call(rbind, tbls)
         if(nrow(result) > 0)
            result$source <- "MotifDb"
         }
-     if(source %in% c("tfclass")){
+     if("tfclass" %in% source){
         if(ignore.case)
            tbl <- subset(object@manuallyCuratedGeneMotifAssociationTable, tolower(tf.gene) %in% tolower(geneSymbols))
         else
