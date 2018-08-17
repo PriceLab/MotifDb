@@ -6,6 +6,7 @@ plotMotifs <- function(motifs)
   if(length(motifs) == 1){
     pcm <- new("pcm", mat=motifs[[1]], name=names(motifs))
     plot(pcm)
+    return()
     }
 
   motifStack(lapply(names(motifs), function(mName) new("pfm", motifs[[mName]], name=mName)))
