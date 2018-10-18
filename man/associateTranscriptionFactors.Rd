@@ -26,14 +26,17 @@ for each row in the data.frame.
 
 }
 \usage{
-\S4method{associateTranscriptionFactors}{MotifList}(object, tbl.withMotifs, source, expand.rows)
+\S4method{associateTranscriptionFactors}{MotifList}(object, tbl.withMotifs, source, expand.rows, motifColumnName="motifName")
 }
 \arguments{
   \item{object}{a \code{MotifList} object.}
   \item{tbl.withMotifs}{a \code{data.frame}}
-  \item{source}{a \code{character} string, either 'MotifDb' or "TFClass' (case insensitive)}
-    \item{expand.rows}{a \code{logical} value, recommended especially for the TFClass source,
-      in which sometimes many TFs are mapped to the same motif}
+  \item{source}{a \code{character} string, either "MotifDb" or "TFClass" (case insensitive)}
+  \item{expand.rows}{a \code{logical} value, recommended especially for the TFClass source,
+    in which sometimes many TFs are mapped to the same motif}
+  \item{motifColumnName}{a \code{character} string identifying the
+    column in tbl.withMotifs which contains the motifs to be associated
+    with transcription factors}
 }
 
 \value{

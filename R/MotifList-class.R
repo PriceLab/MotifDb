@@ -2,7 +2,8 @@ setGeneric('query', signature='object', function(object, andStrings, orStrings=c
 setGeneric('motifToGene', signature='object', function(object, motifs, source) standardGeneric('motifToGene'))
 setGeneric('geneToMotif', signature='object', function(object, geneSymbols, source, ignore.case=FALSE) standardGeneric('geneToMotif'))
 setGeneric('associateTranscriptionFactors', signature='object',
-           function(object, tbl.withMotifs,  source, expand.rows) standardGeneric('associateTranscriptionFactors'))
+           function(object, tbl.withMotifs,  source, expand.rows, motifColumnName="motifName")
+              standardGeneric('associateTranscriptionFactors'))
 #------------------------------------------------------------------------------------------------------------------------
 setClass ('MotifList',
           contains='SimpleList',
@@ -529,10 +530,10 @@ setMethod ('geneToMotif', 'MotifList',
 #-------------------------------------------------------------------------------
 setMethod('associateTranscriptionFactors', 'MotifList',
 
-     function(object, tbl.withMotifs, source, expand.rows){
-        stopifnot("motifName" %in% colnames(tbl.withMotifs))
-        tbl.tf <- motifToGene(object, tbl.withMotifs$motifName, source)
-        merge(tbl.withMotifs, tbl.tf, by.x="motifName", by.y="motif", all.x=TRUE)
+     function(object, tbl.withMotifs, source, expand.rows, motifColumnName="motifName"){
+        stopifnot(motifColumnName %in% colnames(tbl.withMotifs))
+        tbl.tf <- motifToGene(object, unique(tbl.withMotifs[, motifColumnName]), source)
+        merge(tbl.withMotifs, tbl.tf, by.x=motifColumnName, by.y="motif", all.x=TRUE)
         })
 
 #-------------------------------------------------------------------------------
