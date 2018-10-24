@@ -449,6 +449,7 @@ test.query <- function()
   ors <- c("MA0511.1", "MA0057.1")
   ands <- c("jaspar2018", "sapiens")
   nots <- "cisbp"
+
   x <- query(mdb, andStrings=ands, orStrings=ors)
   checkEquals(length(x), 2)
   checkEquals(sort(names(x)),
@@ -476,6 +477,24 @@ test.query <- function()
   checkEquals (length (query (mdb, 'UniPROBE')), sources.list$UniPROBE)
 
 } # test.query
+#------------------------------------------------------------------------------------------------------------------------
+test.query2 <- function()
+{
+  mdb <- MotifDb
+  matrices.human <- query(mdb, 'hsapiens')
+  matrices.sox4 <- query(mdb, 'sox4')
+
+  matrices.human.sox4 <- query(mdb, c("hsapiens", "sox4"))
+  matrices.human.sox4.oldStyle <- query(matrices.human, "sox4")
+  checkTrue(length(matrices.human.sox4) > 0)   # 6 found on (24 oct 2018)
+  checkEquals(length(matrices.human.sox4), length(matrices.human.sox4.oldStyle))
+
+  checkTrue(length(matrices.human.sox4) < length(matrices.human))
+  checkTrue(length(matrices.human.sox4) < length(matrices.sox4))
+
+  uniprobe.sox.matrices <- query(mdb, c('uniprobe', '^sox'))
+
+} # test.query2
 #------------------------------------------------------------------------------------------------------------------------
 test.transformMatrixToMemeRepresentation = function ()
 {

@@ -307,8 +307,10 @@ setMethod ('query', 'MotifList',
 
          # get the cumulative intersection of all the "and" terms
          # this steadily dimishes the set of indices
-       for(indices in and.indices)
-         final.indices <- intersect(final.indices, indices)
+       for(indices in and.indices){
+          final.indices <- intersect(final.indices, indices)
+          #message(sprintf(" final.indices length is now %d", length(final.indices)))
+          }
 
          # lump all of the "or" terms together: they all get included
        final.indices <- intersect(unlist(or.indices), final.indices)
@@ -319,6 +321,7 @@ setMethod ('query', 'MotifList',
 
        object [final.indices]
        })
+
 #-------------------------------------------------------------------------------
 # Addition on 2017/06/15 from Matt Richards
 
