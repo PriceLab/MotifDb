@@ -2,7 +2,7 @@
 %% %\VignetteIndexEntry{MotifDb Overview}
 %% %\VignettePackage{MotifDb}
 \usepackage[noae]{Sweave}
-\usepackage[left=0.5in,top=0.5in,right=0.5in,bottom=0.75in,nohead,nofoot]{geometry} 
+\usepackage[left=0.5in,top=0.5in,right=0.5in,bottom=0.75in,nohead,nofoot]{geometry}
 \usepackage{hyperref}
 \usepackage[noae]{Sweave}
 \usepackage{color}
@@ -30,16 +30,16 @@
 
 \renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
 \fvset{listparameters={\setlength{\topsep}{6pt}}}
-% These determine the rules used to place floating objects like figures 
+% These determine the rules used to place floating objects like figures
 % They are only guides, but read the manual to see the effect of each.
 \renewcommand{\topfraction}{.99}
 \renewcommand{\bottomfraction}{.99}
 \renewcommand{\textfraction}{0.0}
 
-\title{MotifDb} 
+\title{MotifDb}
 \author{Paul Shannon}
 
-\begin{document} 
+\begin{document}
 
 \maketitle
 \begin{abstract}
@@ -52,7 +52,7 @@ described as \emph{motifs} represented numerically as frequency matrices, and vi
 in current research, there has been until now no single, annotated, comprehensive collection of publicly available motifs.
 The current package provides such a collection, offering more than two thousand annotated matrices from multiple organisms, within the
 context of the Bioconductor project.  The matrices can be filtered and selected on the basis of their metadata, used with other
-Bioconductor packages (MotIV for motif comparison, seqLogo for visualization) or easily exported for use with 
+Bioconductor packages (MotIV for motif comparison, seqLogo for visualization) or easily exported for use with
 standard software and websites such as those provided by the MEME Suite\footnote{http://meme.sdsc.edu/meme/doc/meme.html}.
 \end{abstract}
 
@@ -75,25 +75,31 @@ The first step is to load the necessary packages:
 %% names, and the rownames of the metadata table, are identical, so it is easy to map back and forth between
 %% the two.  Some measure of convenience is gained by extracting these two kinds of data into separate variables,
 %% as we shall see.  The cost in extra memory should not significant.
-%% 
+%%
 %% <<all.matrices>>=
 %% matrices.all = as.list (MotifDb)
 %% metadata <- values (MotifDb)
-%% @ 
+%% @
 There are  more than two thousand  matrices, from five sources:
 \begin{Schunk}
 \begin{Sinput}
 > length (MotifDb)
 \end{Sinput}
 \begin{Soutput}
-[1] 2086
+[1] 10333
 \end{Soutput}
 \begin{Sinput}
 > sort (table (values (MotifDb)$dataSource), decreasing=TRUE)
 \end{Sinput}
 \begin{Soutput}
-FlyFactorSurvey     JASPAR_CORE            hPDI        UniPROBE          ScerTF 
-            614             459             437             380             196 
+     jaspar2018      jaspar2016     HOCOMOCOv10      cisbp_1.02       jolma2013 
+           1564            1209            1066             874             843 
+   SwissRegulon         stamlab FlyFactorSurvey     JASPAR_2014     JASPAR_CORE 
+            684             683             614             592             459 
+           hPDI        UniPROBE           HOMER          ScerTF    HOCOMOCOv11A 
+            437             380             332             196             181 
+   HOCOMOCOv11C    HOCOMOCOv11B 
+            135              84 
 \end{Soutput}
 \end{Schunk}
 And 22 organisms (though the majority of the matrices come from just four):
@@ -102,16 +108,126 @@ And 22 organisms (though the majority of the matrices come from just four):
 > sort (table (values (MotifDb)$organism), decreasing=TRUE)
 \end{Sinput}
 \begin{Soutput}
-Dmelanogaster      Hsapiens   Scerevisiae     Mmusculus   Rnorvegicus 
-          739           505           464           329             8 
-     Celegans         Zmays     Athaliana    Vertebrata        Amajus 
-            7             6             5             4             3 
-     Psativum        Gallus   Pfalciparum       Cparvum      Hroretzi 
-            3             2             2             1             1 
-     Hvulgare   Nsylvestris    Ocuniculus      Phybrida       Rrattus 
-            1             1             1             1             1 
-    Taestivam       Xlaevis 
-            1             1 
+                                                                     Hsapiens 
+                                                                         5016 
+                                                                    Mmusculus 
+                                                                         1411 
+                                                                Dmelanogaster 
+                                                                         1287 
+                                                                  Scerevisiae 
+                                                                         1051 
+                                                                    Athaliana 
+                                                                          803 
+                                                                     Celegans 
+                                                                           90 
+                                                                           NA 
+                                                                           40 
+                                                                  Rnorvegicus 
+                                                                           35 
+                                                                  Pfalciparum 
+                                                                           28 
+                                                                        Zmays 
+                                                                           27 
+                                                                   Vertebrata 
+                                                                           18 
+                                                                      Ncrassa 
+                                                                           15 
+                                                                     Psativum 
+                                                                           13 
+                                                                       Amajus 
+                                                                           12 
+                                                                  Ddiscoideum 
+                                                                            9 
+                                                                    Anidulans 
+                                                                            8 
+                                                                      Ggallus 
+                                                                            8 
+                                                                      Ppatens 
+                                                                            7 
+                                                                      Xlaevis 
+                                                                            7 
+                                               Mmusculus;Rnorvegicus;Hsapiens 
+                                                                            6 
+                                                                      Osativa 
+                                                                            5 
+                                                                     Hroretzi 
+                                                                            4 
+                                                                     Hvulgare 
+                                                                            4 
+                                                                   Ocuniculus 
+                                                                            4 
+                                                                     Phybrida 
+                                                                            4 
+                                                                      Rrattus 
+                                                                            4 
+                                                                    Taestivam 
+                                                                            4 
+                                                                       Drerio 
+                                                                            3 
+                                                                       Gallus 
+                                                                            3 
+                                                           Mmusculus;Hsapiens 
+                                                                            3 
+                                                                  Bdistachyon 
+                                                                            2 
+                                                                      Cparvum 
+                                                                            2 
+                                                                      Csativa 
+                                                                            2 
+                                                        Mmusculus;Rnorvegicus 
+                                                                            2 
+Mmusculus;Rnorvegicus;Xlaevis;Stropicalis;Ggallus;Hsapiens;Btaurus;Ocuniculus 
+                                                                            2 
+                                                                         Nsp. 
+                                                                            2 
+                                                                  Nsylvestris 
+                                                                            2 
+                                                                       Otauri 
+                                                                            2 
+                                                                Acarolinensis 
+                                                                            1 
+                                                                       Apisum 
+                                                                            1 
+                                                                     Aterreus 
+                                                                            1 
+                                                                   Gaculeatus 
+                                                                            1 
+                                                                  Hcapsulatum 
+                                                                            1 
+                                                                   Mdomestica 
+                                                                            1 
+                                                                   Mgallopavo 
+                                                                            1 
+                                                                     Mmurinus 
+                                                                            1 
+                                    Mmusculus;Rnorvegicus;Hsapiens;Ocuniculus 
+                                                                            1 
+                               Mmusculus;Rnorvegicus;Omykiss;Ggallus;Hsapiens 
+                                                                            1 
+                                        Mmusculus;Rrattus;Hsapiens;Ocuniculus 
+                                                                            1 
+                                                                  Mtruncatula 
+                                                                            1 
+                                                                     Ngruberi 
+                                                                            1 
+                                                                Nhaematococca 
+                                                                            1 
+                                                                   Nvectensis 
+                                                                            1 
+                                                                    Pcapensis 
+                                                                            1 
+                                                                    Ppygmaeus 
+                                                                            1 
+                                                                 Ptetraurelia 
+                                                                            1 
+                                                         Rnorvegicus;Hsapiens 
+                                                                            1 
+                                                                 Tthermophila 
+                                                                            1 
+                                                                    Vvinifera 
+                                                                            1 
+                                                                  Xtropicalis 
+                                                                            1 
 \end{Soutput}
 \end{Schunk}
 
@@ -130,34 +246,51 @@ With these categories of metadata
 \section{Selection}
 
 There are three ways to extract subsets of interest from the MotifDb collection.  All three operate upon the MotifDb metadata,
-matching values in one or more of those fifteen attributes (listed just above), and returning the subset of MotifDb  which 
+matching values in one or more of those fifteen attributes (listed just above), and returning the subset of MotifDb  which
 meet the specified criteria.  The three techniques:  \emph{query}, \emph{subset} and \emph{grep}
 
 \subsection{query}
-This is the simplest technique to use, and will suffice in many circumstances.  For example, if you want 
+This is the simplest technique to use, and will suffice in many circumstances.  For example, if you want
 all of the human matrices:
 \begin{Schunk}
 \begin{Sinput}
 > query (MotifDb, 'hsapiens')
 \end{Sinput}
 \begin{Soutput}
-MotifDb object of length 505
-| Created from downloaded public sources: 2012-Jul6
-| 505 position frequency matrices from 3 sources:
-|        JASPAR_CORE:   66
-|           UniPROBE:    2
+MotifDb object of length 5031
+| Created from downloaded public sources: 2013-Aug-30
+| 5031 position frequency matrices from 14 sources:
+|         cisbp_1.02:  313
+|        HOCOMOCOv10:  640
+|       HOCOMOCOv11A:  181
+|       HOCOMOCOv11B:   84
+|       HOCOMOCOv11C:  135
 |               hPDI:  437
-| 1 organism/s
-|           Hsapiens:  505
-Hsapiens-hPDI-ABCF2 
-Hsapiens-hPDI-ACF 
-Hsapiens-hPDI-ACO1 
-Hsapiens-hPDI-ADARB1 
-Hsapiens-hPDI-AFF4 
+|        JASPAR_2014:  117
+|        JASPAR_CORE:   66
+|         jaspar2016:  442
+|         jaspar2018:  537
+|          jolma2013:  710
+|            stamlab:  683
+|       SwissRegulon:  684
+|           UniPROBE:    2
+| 8 organism/s
+|           Hsapiens: 5016
+| Mmusculus;Rnorvegicus;Hsapiens:    6
+| Mmusculus;Hsapiens:    3
+| Mmusculus;Rnorvegicus;Xlaevis;Stropicalis;Ggallus;Hsapiens;Btaurus;Ocuniculus:    2
+| Mmusculus;Rnorvegicus;Hsapiens;Ocuniculus:    1
+| Mmusculus;Rnorvegicus;Omykiss;Ggallus;Hsapiens:    1
+|              other:    2
+Hsapiens-cisbp_1.02-M1838_1.02 
+Hsapiens-cisbp_1.02-M1857_1.02 
+Hsapiens-cisbp_1.02-M1875_1.02 
+Hsapiens-cisbp_1.02-M1880_1.02 
+Hsapiens-cisbp_1.02-M1889_1.02 
 ...
-Hsapiens-JASPAR_CORE-SP1-MA0079.2 
-Hsapiens-JASPAR_CORE-ESR2-MA0258.1 
-Hsapiens-JASPAR_CORE-HIF1A::ARNT-MA0259.1 
+Hsapiens-SwissRegulon-ZNF784.SwissRegulon 
+Hsapiens-SwissRegulon-ZNF8.SwissRegulon 
+Hsapiens-SwissRegulon-ZSCAN4.SwissRegulon 
 Hsapiens-UniPROBE-Sox4.UP00401 
 Hsapiens-UniPROBE-Oct_1.UP00399 
 \end{Soutput}
@@ -168,22 +301,36 @@ If you want all matrices associated with \textbf{\emph{Sox}} transcription facto
 > query (MotifDb, 'sox')
 \end{Sinput}
 \begin{Soutput}
-MotifDb object of length 24
-| Created from downloaded public sources: 2012-Jul6
-| 24 position frequency matrices from 4 sources:
+MotifDb object of length 184
+| Created from downloaded public sources: 2013-Aug-30
+| 184 position frequency matrices from 14 sources:
 |    FlyFactorSurvey:    2
-|        JASPAR_CORE:    5
-|           UniPROBE:   15
+|        HOCOMOCOv10:   25
+|       HOCOMOCOv11A:    1
+|       HOCOMOCOv11B:    5
+|       HOCOMOCOv11C:    2
+|              HOMER:    9
 |               hPDI:    2
-| 3 organism/s
-|          Mmusculus:   18
-|           Hsapiens:    4
+|        JASPAR_2014:    8
+|        JASPAR_CORE:    5
+|         jaspar2016:   16
+|         jaspar2018:   19
+|          jolma2013:   56
+|       SwissRegulon:   19
+|           UniPROBE:   15
+| 7 organism/s
+|           Hsapiens:  103
+|          Mmusculus:   67
 |      Dmelanogaster:    2
+| Mmusculus;Rnorvegicus;Hsapiens:    1
+|        Rnorvegicus:    1
+|         Vertebrata:    1
+|              other:    9
 Dmelanogaster-FlyFactorSurvey-Sox14_SANGER_10_FBgn0005612 
 Dmelanogaster-FlyFactorSurvey-Sox15_SANGER_5_FBgn0005613 
-Hsapiens-hPDI-SOX13 
-Hsapiens-hPDI-SOX14 
-Hsapiens-JASPAR_CORE-SOX9-MA0077.1 
+Hsapiens-HOCOMOCOv10-SOX10_HUMAN.H10MO.D 
+Hsapiens-HOCOMOCOv10-SOX11_HUMAN.H10MO.D 
+Hsapiens-HOCOMOCOv10-SOX13_HUMAN.H10MO.D 
 ...
 Mmusculus-UniPROBE-Sox30.UP00023 
 Mmusculus-UniPROBE-Sox4.UP00062 
@@ -198,28 +345,31 @@ For all yeast transcription factors with a homeo domain
 > query (query (MotifDb, 'cerevisiae'), 'homeo')
 \end{Sinput}
 \begin{Soutput}
-MotifDb object of length 14
-| Created from downloaded public sources: 2012-Jul6
-| 14 position frequency matrices from 2 sources:
+MotifDb object of length 32
+| Created from downloaded public sources: 2013-Aug-30
+| 32 position frequency matrices from 5 sources:
+|        JASPAR_2014:   10
 |        JASPAR_CORE:   10
+|         jaspar2016:    4
+|         jaspar2018:    4
 |           UniPROBE:    4
 | 1 organism/s
-|        Scerevisiae:   14
+|        Scerevisiae:   32
+Scerevisiae-JASPAR_CORE-CUP9-MA0288.1 
+Scerevisiae-JASPAR_CORE-HMRA2-MA0318.1 
+Scerevisiae-JASPAR_CORE-MATA1-MA0327.1 
+Scerevisiae-JASPAR_CORE-MATALPHA2-MA0328.1 
+Scerevisiae-JASPAR_CORE-PHO2-MA0356.1 
+...
+Scerevisiae-jaspar2018-TOS8-MA0408.1 
 Scerevisiae-UniPROBE-Cup9.UP00308 
 Scerevisiae-UniPROBE-Matalpha2.UP00307 
 Scerevisiae-UniPROBE-Pho2.UP00268 
 Scerevisiae-UniPROBE-Yox1.UP00274 
-Scerevisiae-JASPAR_CORE-CUP9-MA0288.1 
-...
-Scerevisiae-JASPAR_CORE-STE12-MA0393.1 
-Scerevisiae-JASPAR_CORE-TEC1-MA0406.1 
-Scerevisiae-JASPAR_CORE-TOS8-MA0408.1 
-Scerevisiae-JASPAR_CORE-YHP1-MA0426.1 
-Scerevisiae-JASPAR_CORE-YOX1-MA0433.1 
 \end{Soutput}
 \end{Schunk}
 The last example may inspire more confidence in the precision of the result than is justified, and for a couple
-of reasons.  First, the assignment of  protein binding domains to specific categories is, as of 2012, an ad hoc 
+of reasons.  First, the assignment of  protein binding domains to specific categories is, as of 2012, an ad hoc
 and incomplete process.  Second, the query commands matches the supplied character string to \emph{all} metadata
 columns.  In this case, 'homeo' appears both in the \emph{bindingDomain} column and the \emph{tfFamily} column,
 and the above \emph{query} will return matches from both.
@@ -241,8 +391,19 @@ illustrate:
 > unique (grep ('homeo', values(MotifDb)$tfFamily, ignore.case=T, v=T))
 \end{Sinput}
 \begin{Soutput}
-[1] "Homeo"                                
-[2] "Homeo::Nuclear Factor I-CCAAT-binding"
+ [1] "HOX-related factors{3.1.1}: CDX (Caudal type homeobox){3.1.1.9}"          
+ [2] "TALE-type homeo domain factors{3.1.4}: MEIS{3.1.4.2}"                     
+ [3] "Paired domain only{3.2.2}: PAX-2-like factors (partial homeobox){3.2.2.2}"
+ [4] "Paired plus homeo domain{3.2.1}: PAX-4/6{3.2.1.2}"                        
+ [5] "TALE-type homeo domain factors{3.1.4}: PBX{3.1.4.4}"                      
+ [6] "TALE-type homeo domain factors{3.1.4}: PKNOX{3.1.4.5}"                    
+ [7] "TALE-type homeo domain factors{3.1.4}: TGIF{3.1.4.6}"                     
+ [8] "Homeo"                                                                    
+ [9] "Homeo::Nuclear Factor I-CCAAT-binding"                                    
+[10] "Homeodomain"                                                              
+[11] "Paired plus homeo domain"                                                 
+[12] "TALE-type homeo domain factors"                                           
+[13] "homeodomain"                                                              
 \end{Soutput}
 \end{Schunk}
 \subsection{grep}
@@ -308,31 +469,50 @@ There are two of these in MotifDb, both from mouse, and each from a different da
 
 \begin{Schunk}
 \begin{Sinput}
->   # subset is convenient: 
+>   # subset is convenient:
 > if (interactive ())
 +   as.list (subset (MotifDb, tolower (geneSymbol) == 'egr1'))
 >   # grep returns indices which allow for more flexibility
-> indices = grep ('egr1', values (MotifDb)$geneSymbol, ignore.case=TRUE)  
+> indices = grep ('egr1', values (MotifDb)$geneSymbol, ignore.case=TRUE)
 > length (indices)
 \end{Sinput}
 \begin{Soutput}
-[1] 2
+[1] 17
 \end{Soutput}
 \end{Schunk}
-There are a variety of ways to examine and extract data from this object, a MotifList of length 2.  
+There are a variety of ways to examine and extract data from this object, a MotifList of length 2.
 \begin{Schunk}
 \begin{Sinput}
 > MotifDb [indices]
 \end{Sinput}
 \begin{Soutput}
-MotifDb object of length 2
-| Created from downloaded public sources: 2012-Jul6
-| 2 position frequency matrices from 2 sources:
+MotifDb object of length 17
+| Created from downloaded public sources: 2013-Aug-30
+| 17 position frequency matrices from 10 sources:
+|        HOCOMOCOv10:    3
+|       HOCOMOCOv11A:    1
+|              HOMER:    1
+|        JASPAR_2014:    1
 |        JASPAR_CORE:    1
+|         jaspar2016:    2
+|         jaspar2018:    3
+|          jolma2013:    3
+|       SwissRegulon:    1
 |           UniPROBE:    1
-| 1 organism/s
-|          Mmusculus:    2
-Mmusculus-JASPAR_CORE-Egr1-MA0162.1 
+| 3 organism/s
+|           Hsapiens:   10
+|          Mmusculus:    6
+|              other:    1
+Hsapiens-HOCOMOCOv10-EGR1_HUMAN.H10MO.A 
+Hsapiens-HOCOMOCOv10-EGR1_HUMAN.H10MO.S 
+Mmusculus-HOCOMOCOv10-EGR1_MOUSE.H10MO.A 
+Hsapiens-HOCOMOCOv11A-EGR1_HUMAN.H11MO.0.A 
+NA-HOMER-Egr1(Zf)/K562-Egr1-ChIP-Seq(GSE32465)/Homer 
+...
+Hsapiens-jolma2013-EGR1 
+Hsapiens-jolma2013-EGR1-2 
+Mmusculus-jolma2013-Egr1 
+Hsapiens-SwissRegulon-EGR1.SwissRegulon 
 Mmusculus-UniPROBE-Egr1.UP00007 
 \end{Soutput}
 \end{Schunk}
@@ -343,7 +523,202 @@ Now view the matrices as a named list:
 > as.list (MotifDb [indices])
 \end{Sinput}
 \begin{Soutput}
+$`Hsapiens-HOCOMOCOv10-EGR1_HUMAN.H10MO.A`
+      1     2     3     4     5     6     7     8     9    10    11    12    13
+A 0.190 0.208 0.212 0.270 0.222 0.116 0.168 0.042 0.034 0.160 0.008 0.032 0.262
+C 0.192 0.206 0.144 0.140 0.074 0.082 0.484 0.042 0.008 0.006 0.000 0.038 0.452
+G 0.438 0.446 0.452 0.468 0.380 0.756 0.050 0.808 0.452 0.804 0.976 0.914 0.006
+T 0.180 0.140 0.192 0.122 0.324 0.046 0.298 0.108 0.506 0.030 0.016 0.016 0.280
+     14    15    16    17    18
+A 0.180 0.072 0.236 0.278 0.218
+C 0.012 0.012 0.092 0.098 0.184
+G 0.750 0.774 0.534 0.458 0.490
+T 0.058 0.142 0.138 0.166 0.108
+
+$`Hsapiens-HOCOMOCOv10-EGR1_HUMAN.H10MO.S`
+          1          2          3           4           5          6
+A 0.1515633 0.04398516 0.05988341 0.003709592 0.009538951 0.07578166
+C 0.1886592 0.06041335 0.82829889 0.001059883 0.013248543 0.01907790
+G 0.3184950 0.88288288 0.01854796 0.993640700 0.490726020 0.90196078
+T 0.3412825 0.01271860 0.09326974 0.001589825 0.486486486 0.00317965
+            7          8           9          10         11
+A 0.025437202 0.01218866 0.089030207 0.021727610 0.09062003
+C 0.065712772 0.01006889 0.748277689 0.007419184 0.06518283
+G 0.900900901 0.97774245 0.007419184 0.955484897 0.60943296
+T 0.007949126 0.00000000 0.155272920 0.015368309 0.23476418
+
+$`Mmusculus-HOCOMOCOv10-EGR1_MOUSE.H10MO.A`
+          1          2          3           4           5          6
+A 0.1515633 0.04398516 0.05988341 0.003709592 0.009538951 0.07578166
+C 0.1886592 0.06041335 0.82829889 0.001059883 0.013248543 0.01907790
+G 0.3184950 0.88288288 0.01854796 0.993640700 0.490726020 0.90196078
+T 0.3412825 0.01271860 0.09326974 0.001589825 0.486486486 0.00317965
+            7          8           9          10         11
+A 0.025437202 0.01218866 0.089030207 0.021727610 0.09062003
+C 0.065712772 0.01006889 0.748277689 0.007419184 0.06518283
+G 0.900900901 0.97774245 0.007419184 0.955484897 0.60943296
+T 0.007949126 0.00000000 0.155272920 0.015368309 0.23476418
+
+$`Hsapiens-HOCOMOCOv11A-EGR1_HUMAN.H11MO.0.A`
+      1     2     3     4     5     6     7     8     9    10    11    12    13
+A 0.232 0.320 0.278 0.236 0.112 0.236 0.056 0.032 0.092 0.016 0.024 0.220 0.088
+C 0.248 0.128 0.180 0.112 0.030 0.506 0.034 0.004 0.002 0.004 0.032 0.476 0.010
+G 0.410 0.318 0.460 0.354 0.808 0.046 0.870 0.410 0.892 0.958 0.930 0.004 0.842
+T 0.110 0.234 0.082 0.298 0.050 0.212 0.040 0.554 0.014 0.022 0.014 0.300 0.060
+     14    15    16    17
+A 0.110 0.338 0.312 0.264
+C 0.022 0.128 0.082 0.182
+G 0.696 0.406 0.456 0.436
+T 0.172 0.128 0.150 0.118
+
+$`NA-HOMER-Egr1(Zf)/K562-Egr1-ChIP-Seq(GSE32465)/Homer`
+      1     2     3     4     5     6     7     8     9    10
+A 0.128 0.078 0.154 0.001 0.001 0.027 0.001 0.001 0.153 0.034
+C 0.072 0.036 0.523 0.001 0.001 0.001 0.002 0.001 0.415 0.002
+G 0.142 0.882 0.023 0.997 0.282 0.971 0.973 0.997 0.010 0.940
+T 0.658 0.004 0.300 0.001 0.716 0.001 0.024 0.001 0.422 0.024
+
 $`Mmusculus-JASPAR_CORE-Egr1-MA0162.1`
+           1          2         3 4   5   6          7 8         9 10
+A 0.20000000 0.13333333 0.0000000 0 0.0 0.2 0.06666667 0 0.1333333  0
+C 0.26666667 0.06666667 0.8666667 0 0.0 0.0 0.00000000 0 0.6666667  0
+G 0.06666667 0.80000000 0.0000000 1 0.2 0.8 0.93333333 1 0.0000000  1
+T 0.46666667 0.00000000 0.1333333 0 0.8 0.0 0.00000000 0 0.2000000  0
+          11
+A 0.06666667
+C 0.00000000
+G 0.46666667
+T 0.46666667
+
+$`Hsapiens-JASPAR_2014-EGR1-MA0162.2`
+           1         2          3          4          5         6 7          8
+A 0.08958877 0.1228786 0.09464752 0.10892624 0.01901110 0.2375163 0 0.00000000
+C 0.46736292 0.5586651 0.49355418 0.85109334 0.94435379 0.0000000 1 0.96703655
+G 0.25155026 0.1108845 0.18358355 0.00000000 0.00000000 0.5580940 0 0.00000000
+T 0.19149804 0.2075718 0.22821475 0.03998042 0.03663512 0.2043897 0 0.03296345
+           9         10         11        12         13        14
+A 0.00000000 0.29797650 0.00000000 0.1932115 0.00000000 0.2468995
+C 0.82849217 0.68219648 0.97519582 0.0000000 0.80360640 0.4565111
+G 0.04985313 0.00000000 0.00000000 0.5384302 0.11586162 0.1560868
+T 0.12165470 0.01982702 0.02480418 0.2683584 0.08053198 0.1405026
+
+$`Mmusculus-jaspar2016-Egr1-MA0162.1`
+           1          2         3 4   5   6          7 8         9 10
+A 0.20000000 0.13333333 0.0000000 0 0.0 0.2 0.06666667 0 0.1333333  0
+C 0.26666667 0.06666667 0.8666667 0 0.0 0.0 0.00000000 0 0.6666667  0
+G 0.06666667 0.80000000 0.0000000 1 0.2 0.8 0.93333333 1 0.0000000  1
+T 0.46666667 0.00000000 0.1333333 0 0.8 0.0 0.00000000 0 0.2000000  0
+          11
+A 0.06666667
+C 0.00000000
+G 0.46666667
+T 0.46666667
+
+$`Hsapiens-jaspar2016-EGR1-MA0162.2`
+           1         2          3          4          5         6 7          8
+A 0.08958877 0.1228786 0.09464752 0.10892624 0.01901110 0.2375163 0 0.00000000
+C 0.46736292 0.5586651 0.49355418 0.85109334 0.94435379 0.0000000 1 0.96703655
+G 0.25155026 0.1108845 0.18358355 0.00000000 0.00000000 0.5580940 0 0.00000000
+T 0.19149804 0.2075718 0.22821475 0.03998042 0.03663512 0.2043897 0 0.03296345
+           9         10         11        12         13        14
+A 0.00000000 0.29797650 0.00000000 0.1932115 0.00000000 0.2468995
+C 0.82849217 0.68219648 0.97519582 0.0000000 0.80360640 0.4565111
+G 0.04985313 0.00000000 0.00000000 0.5384302 0.11586162 0.1560868
+T 0.12165470 0.01982702 0.02480418 0.2683584 0.08053198 0.1405026
+
+$`Mmusculus-jaspar2018-Egr1-MA0162.1`
+           1          2         3 4   5   6          7 8         9 10
+A 0.20000000 0.13333333 0.0000000 0 0.0 0.2 0.06666667 0 0.1333333  0
+C 0.26666667 0.06666667 0.8666667 0 0.0 0.0 0.00000000 0 0.6666667  0
+G 0.06666667 0.80000000 0.0000000 1 0.2 0.8 0.93333333 1 0.0000000  1
+T 0.46666667 0.00000000 0.1333333 0 0.8 0.0 0.00000000 0 0.2000000  0
+          11
+A 0.06666667
+C 0.00000000
+G 0.46666667
+T 0.46666667
+
+$`Hsapiens-jaspar2018-EGR1-MA0162.2`
+           1         2          3          4          5         6 7          8
+A 0.08958877 0.1228786 0.09464752 0.10892624 0.01901110 0.2375163 0 0.00000000
+C 0.46736292 0.5586651 0.49355418 0.85109334 0.94435379 0.0000000 1 0.96703655
+G 0.25155026 0.1108845 0.18358355 0.00000000 0.00000000 0.5580940 0 0.00000000
+T 0.19149804 0.2075718 0.22821475 0.03998042 0.03663512 0.2043897 0 0.03296345
+           9         10         11        12         13        14
+A 0.00000000 0.29797650 0.00000000 0.1932115 0.00000000 0.2468995
+C 0.82849217 0.68219648 0.97519582 0.0000000 0.80360640 0.4565111
+G 0.04985313 0.00000000 0.00000000 0.5384302 0.11586162 0.1560868
+T 0.12165470 0.01982702 0.02480418 0.2683584 0.08053198 0.1405026
+
+$`Hsapiens-jaspar2018-EGR1-MA0162.3`
+          1           2           3          4 5           6         7
+A 0.2722977 0.737507906 0.006723716 0.01834431 0 0.000000000 0.0000000
+C 0.2309510 0.249209361 0.987775061 0.00000000 1 0.992159228 0.9797136
+G 0.1139988 0.001897533 0.001833741 0.98165569 0 0.000000000 0.0000000
+T 0.3827525 0.011385199 0.003667482 0.00000000 0 0.007840772 0.0202864
+            8            9           10         11         12         13
+A 0.795439739 0.0000000000 0.0000000000 0.00000000 0.86166008 0.29390244
+C 0.200000000 0.9993943065 0.0000000000 0.99220156 0.01317523 0.27926829
+G 0.004560261 0.0000000000 0.9990732159 0.00000000 0.10540184 0.06341463
+T 0.000000000 0.0006056935 0.0009267841 0.00779844 0.01976285 0.36341463
+         14
+A 0.3035714
+C 0.1255952
+G 0.1077381
+T 0.4630952
+
+$`Hsapiens-jolma2013-EGR1`
+          1          2           3           4           5           6
+A 0.2494781 0.51390568 0.003223727 0.105202754 0.000000000 0.002604167
+C 0.2411273 0.39540508 0.969696970 0.005355777 0.980025773 0.992838542
+G 0.1539666 0.03627570 0.007736944 0.854246366 0.007731959 0.000000000
+T 0.3554280 0.05441354 0.019342360 0.035195103 0.012242268 0.004557292
+            7           8           9         10       11         12        13
+A 0.000000000 0.652638191 0.003253090 0.01906158 0.010000 0.68089431 0.2790573
+C 0.928214732 0.343592965 0.995445673 0.01136364 0.938125 0.06910569 0.2485270
+G 0.009363296 0.000000000 0.000000000 0.93181818 0.011875 0.14227642 0.1253348
+T 0.062421973 0.003768844 0.001301236 0.03775660 0.040000 0.10772358 0.3470809
+         14
+A 0.2673936
+C 0.1905504
+G 0.1396677
+T 0.4023884
+
+$`Hsapiens-jolma2013-EGR1-2`
+          1           2           3          4 5           6         7
+A 0.2722977 0.737507906 0.006723716 0.01834431 0 0.000000000 0.0000000
+C 0.2309510 0.249209361 0.987775061 0.00000000 1 0.992159228 0.9797136
+G 0.1139988 0.001897533 0.001833741 0.98165569 0 0.000000000 0.0000000
+T 0.3827525 0.011385199 0.003667482 0.00000000 0 0.007840772 0.0202864
+            8            9           10         11         12         13
+A 0.795439739 0.0000000000 0.0000000000 0.00000000 0.86166008 0.29390244
+C 0.200000000 0.9993943065 0.0000000000 0.99220156 0.01317523 0.27926829
+G 0.004560261 0.0000000000 0.9990732159 0.00000000 0.10540184 0.06341463
+T 0.000000000 0.0006056935 0.0009267841 0.00779844 0.01976285 0.36341463
+         14
+A 0.3035714
+C 0.1255952
+G 0.1077381
+T 0.4630952
+
+$`Mmusculus-jolma2013-Egr1`
+          1          2           3            4           5            6
+A 0.3231418 0.32278481 0.618181818 0.0000000000 0.075444498 0.0000000000
+C 0.3241961 0.30907173 0.366753247 0.9968454259 0.004324844 0.9994728519
+G 0.1133368 0.03691983 0.003636364 0.0005257624 0.911100432 0.0005271481
+T 0.2393253 0.33122363 0.011428571 0.0026288118 0.009130226 0.0000000000
+            7 8           9          10         11          12         13
+A 0.001578117 0 0.517114271 0.003149606 0.00422833 0.001579779 0.89181562
+C 0.997369805 1 0.481305951 0.995275591 0.16732105 0.998420221 0.05738476
+G 0.001052078 0 0.001579779 0.000000000 0.25581395 0.000000000 0.03621825
+T 0.000000000 0 0.000000000 0.001574803 0.57263667 0.000000000 0.01458137
+          14         15         16
+A 0.44251055 0.31170886 0.26213080
+C 0.32278481 0.19778481 0.31012658
+G 0.04957806 0.04272152 0.09651899
+T 0.18512658 0.44778481 0.33122363
+
+$`Hsapiens-SwissRegulon-EGR1.SwissRegulon`
            1          2         3 4   5   6          7 8         9 10
 A 0.20000000 0.13333333 0.0000000 0 0.0 0.2 0.06666667 0 0.1333333  0
 C 0.26666667 0.06666667 0.8666667 0 0.0 0.0 0.00000000 0 0.6666667  0
@@ -379,6 +754,86 @@ and finally, the metadata associated with these two matrices, transposed, for ea
 > noquote (t (as.data.frame (values (MotifDb [indices]))))
 \end{Sinput}
 \begin{Soutput}
+                Hsapiens-HOCOMOCOv10-EGR1_HUMAN.H10MO.A
+providerName    EGR1_HUMAN.H10MO.A                     
+providerId      EGR1_HUMAN.H10MO.A                     
+dataSource      HOCOMOCOv10                            
+geneSymbol      EGR1                                   
+geneId          <NA>                                   
+geneIdType      <NA>                                   
+proteinId       P18146                                 
+proteinIdType   UNIPROT                                
+organism        Hsapiens                               
+sequenceCount   500                                    
+bindingSequence <NA>                                   
+bindingDomain   <NA>                                   
+tfFamily        <NA>                                   
+experimentType  low- and high-throughput methods       
+pubmedID        26586801                               
+                Hsapiens-HOCOMOCOv10-EGR1_HUMAN.H10MO.S
+providerName    EGR1_HUMAN.H10MO.S                     
+providerId      EGR1_HUMAN.H10MO.S                     
+dataSource      HOCOMOCOv10                            
+geneSymbol      EGR1                                   
+geneId          <NA>                                   
+geneIdType      <NA>                                   
+proteinId       P18146                                 
+proteinIdType   UNIPROT                                
+organism        Hsapiens                               
+sequenceCount   1887                                   
+bindingSequence <NA>                                   
+bindingDomain   <NA>                                   
+tfFamily        <NA>                                   
+experimentType  low- and high-throughput methods       
+pubmedID        26586801                               
+                Mmusculus-HOCOMOCOv10-EGR1_MOUSE.H10MO.A
+providerName    EGR1_MOUSE.H10MO.A                      
+providerId      EGR1_MOUSE.H10MO.A                      
+dataSource      HOCOMOCOv10                             
+geneSymbol      EGR1                                    
+geneId          <NA>                                    
+geneIdType      <NA>                                    
+proteinId       P08046                                  
+proteinIdType   UNIPROT                                 
+organism        Mmusculus                               
+sequenceCount   1887                                    
+bindingSequence <NA>                                    
+bindingDomain   <NA>                                    
+tfFamily        <NA>                                    
+experimentType  low- and high-throughput methods        
+pubmedID        26586801                                
+                Hsapiens-HOCOMOCOv11A-EGR1_HUMAN.H11MO.0.A                            
+providerName    EGR1_HUMAN.H11MO.0.A                                                  
+providerId      EGR1_HUMAN.H11MO.0.A                                                  
+dataSource      HOCOMOCOv11A                                                          
+geneSymbol      EGR1                                                                  
+geneId          1958                                                                  
+geneIdType      ENTREZ                                                                
+proteinId       EGR1_HUMAN                                                            
+proteinIdType   UNIPROT                                                               
+organism        Hsapiens                                                              
+sequenceCount   500                                                                   
+bindingSequence <NA>                                                                  
+bindingDomain   <NA>                                                                  
+tfFamily        Three-zinc finger Krüppel-related factors{2.3.1}: EGR factors{2.3.1.3}
+experimentType  ChIP-Seq                                                              
+pubmedID        23175603                                                              
+                NA-HOMER-Egr1(Zf)/K562-Egr1-ChIP-Seq(GSE32465)/Homer
+providerName    Egr1(Zf)/K562-Egr1-ChIP-Seq(GSE32465)/Homer         
+providerId      Egr1(Zf)/K562-Egr1-ChIP-Seq(GSE32465)/Homer         
+dataSource      HOMER                                               
+geneSymbol      Egr1                                                
+geneId          <NA>                                                
+geneIdType      <NA>                                                
+proteinId       ?query=Egr1(Zf)_K562-Egr1-ChIP-Seq(GSE32465)        
+proteinIdType   UNIPROT                                             
+organism        <NA>                                                
+sequenceCount   1                                                   
+bindingSequence <NA>                                                
+bindingDomain   <NA>                                                
+tfFamily        <NA>                                                
+experimentType  low- and high-throughput methods                    
+pubmedID        26586801                                            
                 Mmusculus-JASPAR_CORE-Egr1-MA0162.1
 providerName    Egr1                               
 providerId      MA0162.1                           
@@ -395,6 +850,150 @@ bindingDomain   Zinc-coordinating
 tfFamily        BetaBetaAlpha-zinc finger          
 experimentType  bacterial 1-hybrid                 
 pubmedID        16041365                           
+                Hsapiens-JASPAR_2014-EGR1-MA0162.2
+providerName    EGR1                              
+providerId      MA0162.2                          
+dataSource      JASPAR_2014                       
+geneSymbol      EGR1                              
+geneId          1958                              
+geneIdType      ENTREZ                            
+proteinId       P18146                            
+proteinIdType   UNIPROT                           
+organism        Hsapiens                          
+sequenceCount   12256                             
+bindingSequence <NA>                              
+bindingDomain   Zinc-coordinating                 
+tfFamily        BetaBetaAlpha-zinc finger         
+experimentType  ChIP-seq                          
+pubmedID        16041365                          
+                Mmusculus-jaspar2016-Egr1-MA0162.1
+providerName    MA0162.1                          
+providerId      MA0162.1                          
+dataSource      jaspar2016                        
+geneSymbol      Egr1                              
+geneId          <NA>                              
+geneIdType      <NA>                              
+proteinId       P08046                            
+proteinIdType   UNIPROT                           
+organism        Mmusculus                         
+sequenceCount   15                                
+bindingSequence <NA>                              
+bindingDomain   <NA>                              
+tfFamily        BetaBetaAlpha-zinc finger         
+experimentType  bacterial 1-hybrid                
+pubmedID        24194598                          
+                Hsapiens-jaspar2016-EGR1-MA0162.2        
+providerName    MA0162.2                                 
+providerId      MA0162.2                                 
+dataSource      jaspar2016                               
+geneSymbol      EGR1                                     
+geneId          <NA>                                     
+geneIdType      <NA>                                     
+proteinId       P18146                                   
+proteinIdType   UNIPROT                                  
+organism        Hsapiens                                 
+sequenceCount   12256                                    
+bindingSequence <NA>                                     
+bindingDomain   <NA>                                     
+tfFamily        Three-zinc finger Krüppel-related factors
+experimentType  ChIP-seq                                 
+pubmedID        24194598                                 
+                Mmusculus-jaspar2018-Egr1-MA0162.1        
+providerName    MA0162.1                                  
+providerId      MA0162.1                                  
+dataSource      jaspar2018                                
+geneSymbol      Egr1                                      
+geneId          <NA>                                      
+geneIdType      <NA>                                      
+proteinId       P08046                                    
+proteinIdType   UNIPROT                                   
+organism        Mmusculus                                 
+sequenceCount   15                                        
+bindingSequence <NA>                                      
+bindingDomain   <NA>                                      
+tfFamily        Three-zinc finger Kruppel-related factors 
+experimentType  bacterial 1-hybrid                        
+pubmedID        16041365                                  
+                Hsapiens-jaspar2018-EGR1-MA0162.2         
+providerName    MA0162.2                                  
+providerId      MA0162.2                                  
+dataSource      jaspar2018                                
+geneSymbol      EGR1                                      
+geneId          <NA>                                      
+geneIdType      <NA>                                      
+proteinId       P18146                                    
+proteinIdType   UNIPROT                                   
+organism        Hsapiens                                  
+sequenceCount   12256                                     
+bindingSequence <NA>                                      
+bindingDomain   <NA>                                      
+tfFamily        Three-zinc finger Kruppel-related factors 
+experimentType  ChIP-seq                                  
+pubmedID        16041365                                  
+                Hsapiens-jaspar2018-EGR1-MA0162.3         
+providerName    MA0162.3                                  
+providerId      MA0162.3                                  
+dataSource      jaspar2018                                
+geneSymbol      EGR1                                      
+geneId          <NA>                                      
+geneIdType      <NA>                                      
+proteinId       P18146                                    
+proteinIdType   UNIPROT                                   
+organism        Hsapiens                                  
+sequenceCount   2158                                      
+bindingSequence <NA>                                      
+bindingDomain   <NA>                                      
+tfFamily        Three-zinc finger Kruppel-related factors 
+experimentType  HT-SELEX                                  
+pubmedID        16041365                                  
+                Hsapiens-jolma2013-EGR1 Hsapiens-jolma2013-EGR1-2
+providerName    Hsapiens-jolma2013-EGR1 Hsapiens-jolma2013-EGR1-2
+providerId      EGR1                    EGR1                     
+dataSource      jolma2013               jolma2013                
+geneSymbol      EGR1                    EGR1                     
+geneId          1958                    1958                     
+geneIdType      ENTREZ                  ENTREZ                   
+proteinId       <NA>                    <NA>                     
+proteinIdType   <NA>                    <NA>                     
+organism        Hsapiens                Hsapiens                 
+sequenceCount   1831                    1703                     
+bindingSequence NMCGCCCMCGCANN          NACGCCCACGCANN           
+bindingDomain   <NA>                    <NA>                     
+tfFamily        C2H2                    C2H2                     
+experimentType  SELEX                   SELEX                    
+pubmedID        23332764                23332764                 
+                Mmusculus-jolma2013-Egr1
+providerName    Mmusculus-jolma2013-Egr1
+providerId      Egr1                    
+dataSource      jolma2013               
+geneSymbol      Egr1                    
+geneId          1958                    
+geneIdType      ENTREZ                  
+proteinId       <NA>                    
+proteinIdType   <NA>                    
+organism        Mmusculus               
+sequenceCount   2013                    
+bindingSequence NNMCGCCCMCTCANNN        
+bindingDomain   <NA>                    
+tfFamily        C2H2                    
+experimentType  SELEX                   
+pubmedID        23332764                
+                Hsapiens-SwissRegulon-EGR1.SwissRegulon
+providerName    EGR1.SwissRegulon                      
+providerId      EGR1.SwissRegulon                      
+dataSource      SwissRegulon                           
+geneSymbol      EGR1                                   
+geneId          <NA>                                   
+geneIdType      <NA>                                   
+proteinId       <NA>                                   
+proteinIdType   UNIPROT                                
+organism        Hsapiens                               
+sequenceCount   15                                     
+bindingSequence <NA>                                   
+bindingDomain   <NA>                                   
+tfFamily        <NA>                                   
+experimentType  low- and high-throughput methods       
+pubmedID        19377474                               
                 Mmusculus-UniPROBE-Egr1.UP00007
 providerName    SCI09/Egr1_pwm_primary.txt     
 providerId      UP00007                        
@@ -413,7 +1012,7 @@ experimentType  protein binding microarray
 pubmedID        19443739                       
 \end{Soutput}
 \end{Schunk}
- 
+
 We used the \emph{grep} function above to find rows in the metadata table whose \emph{geneSymbol} column includes the string 'Egr1'.
 If you wish to identify matrices (and/or their attendant metadata) based upon a richer combination of criteria, for instance:
 
@@ -429,25 +1028,25 @@ the grep solution, while serviceable, becomes a little awkward:
 > geneSymbol.rows = grep ('Egr1', values (MotifDb)$geneSymbol, ignore.case=TRUE)
 > organism.rows = grep ('Mmusculus', values (MotifDb)$organism, ignore.case=TRUE)
 > source.rows = grep ('JASPAR', values (MotifDb)$dataSource, ignore.case=TRUE)
-> egr1.mouse.jaspar.rows = intersect (geneSymbol.rows, 
+> egr1.mouse.jaspar.rows = intersect (geneSymbol.rows,
 +                            intersect (organism.rows, source.rows))
 > print (egr1.mouse.jaspar.rows)
 \end{Sinput}
 \begin{Soutput}
-[1] 1402
+[1] 3878 5032 6153
 \end{Soutput}
 \begin{Sinput}
 > egr1.motif <- MotifDb [egr1.mouse.jaspar.rows]
 \end{Sinput}
 \end{Schunk}
 
-Far more concise, and fully reliable as an interactive command (though \emph{not} if used in a 
+Far more concise, and fully reliable as an interactive command (though \emph{not} if used in a
 script\footnote{See the help page of the base R command subset for detail), is the \emph{subset} command}):
 \begin{Schunk}
 \begin{Sinput}
 > if (interactive ()) {
-+   egr1.motif <- subset (MotifDb, organism=='Mmusculus' & 
-+                         dataSource=='JASPAR_CORE' & 
++   egr1.motif <- subset (MotifDb, organism=='Mmusculus' &
++                         dataSource=='JASPAR_CORE' &
 +                         geneSymbol=='Egr1')
 +   }
 \end{Sinput}
@@ -459,19 +1058,47 @@ textually-transformed for easy reading within the size constraints of this page.
 > egr1.motif
 \end{Sinput}
 \begin{Soutput}
-MotifDb object of length 1
-| Created from downloaded public sources: 2012-Jul6
-| 1 position frequency matrices from 1 source:
+MotifDb object of length 3
+| Created from downloaded public sources: 2013-Aug-30
+| 3 position frequency matrices from 3 sources:
 |        JASPAR_CORE:    1
+|         jaspar2016:    1
+|         jaspar2018:    1
 | 1 organism/s
-|          Mmusculus:    1
+|          Mmusculus:    3
 Mmusculus-JASPAR_CORE-Egr1-MA0162.1 
+Mmusculus-jaspar2016-Egr1-MA0162.1 
+Mmusculus-jaspar2018-Egr1-MA0162.1 
 \end{Soutput}
 \begin{Sinput}
 > as.list (egr1.motif)
 \end{Sinput}
 \begin{Soutput}
 $`Mmusculus-JASPAR_CORE-Egr1-MA0162.1`
+           1          2         3 4   5   6          7 8         9 10
+A 0.20000000 0.13333333 0.0000000 0 0.0 0.2 0.06666667 0 0.1333333  0
+C 0.26666667 0.06666667 0.8666667 0 0.0 0.0 0.00000000 0 0.6666667  0
+G 0.06666667 0.80000000 0.0000000 1 0.2 0.8 0.93333333 1 0.0000000  1
+T 0.46666667 0.00000000 0.1333333 0 0.8 0.0 0.00000000 0 0.2000000  0
+          11
+A 0.06666667
+C 0.00000000
+G 0.46666667
+T 0.46666667
+
+$`Mmusculus-jaspar2016-Egr1-MA0162.1`
+           1          2         3 4   5   6          7 8         9 10
+A 0.20000000 0.13333333 0.0000000 0 0.0 0.2 0.06666667 0 0.1333333  0
+C 0.26666667 0.06666667 0.8666667 0 0.0 0.0 0.00000000 0 0.6666667  0
+G 0.06666667 0.80000000 0.0000000 1 0.2 0.8 0.93333333 1 0.0000000  1
+T 0.46666667 0.00000000 0.1333333 0 0.8 0.0 0.00000000 0 0.2000000  0
+          11
+A 0.06666667
+C 0.00000000
+G 0.46666667
+T 0.46666667
+
+$`Mmusculus-jaspar2018-Egr1-MA0162.1`
            1          2         3 4   5   6          7 8         9 10
 A 0.20000000 0.13333333 0.0000000 0 0.0 0.2 0.06666667 0 0.1333333  0
 C 0.26666667 0.06666667 0.8666667 0 0.0 0.0 0.00000000 0 0.6666667  0
@@ -503,6 +1130,38 @@ bindingDomain   Zinc-coordinating
 tfFamily        BetaBetaAlpha-zinc finger          
 experimentType  bacterial 1-hybrid                 
 pubmedID        16041365                           
+                Mmusculus-jaspar2016-Egr1-MA0162.1
+providerName    MA0162.1                          
+providerId      MA0162.1                          
+dataSource      jaspar2016                        
+geneSymbol      Egr1                              
+geneId          <NA>                              
+geneIdType      <NA>                              
+proteinId       P08046                            
+proteinIdType   UNIPROT                           
+organism        Mmusculus                         
+sequenceCount   15                                
+bindingSequence <NA>                              
+bindingDomain   <NA>                              
+tfFamily        BetaBetaAlpha-zinc finger         
+experimentType  bacterial 1-hybrid                
+pubmedID        24194598                          
+                Mmusculus-jaspar2018-Egr1-MA0162.1        
+providerName    MA0162.1                                  
+providerId      MA0162.1                                  
+dataSource      jaspar2018                                
+geneSymbol      Egr1                                      
+geneId          <NA>                                      
+geneIdType      <NA>                                      
+proteinId       P08046                                    
+proteinIdType   UNIPROT                                   
+organism        Mmusculus                                 
+sequenceCount   15                                        
+bindingSequence <NA>                                      
+bindingDomain   <NA>                                      
+tfFamily        Three-zinc finger Kruppel-related factors 
+experimentType  bacterial 1-hybrid                        
+pubmedID        16041365                                  
 \end{Soutput}
 \end{Schunk}
 
@@ -520,224 +1179,12 @@ Next we use the bioconductor \emph{seqLogo} package to display this motif.
   \includegraphics[width=0.3\textwidth]{MotifDb-egr1}
   \caption{Mmusculus-JASPAR\_CORE-Egr1-MA0162.1}
 \end{figure}
-  
+
 \section{Motif Matching}
 We will look for the ten position frequency matrices which are the best match to JASPAR's mouse EGR1, using
-the MotIV package.  We actually request the top eleven hits from the entire MotifDb, since the first hit 
+the MotIV package.  We actually request the top eleven hits from the entire MotifDb, since the first hit
 should be the target matrix itself, since that is of necessity found in the full MotifDb.
 
 \begin{Schunk}
 \begin{Sinput}
 > egr1.hits <- motifMatch (as.list (egr1.motif) [1], as.list (MotifDb), top=11)
-\end{Sinput}
-\begin{Soutput}
-	Ungapped Alignment
-	Scores read
-	Database read
-	Motif matches : 11
-\end{Soutput}
-\begin{Sinput}
-> # 'MotIV.toTable' -- defined above (and hidden) -- will become part of MotIV in the upcoming release
-> tbl.hits <- MotIV.toTable (egr1.hits)
-> print (tbl.hits)
-\end{Sinput}
-\begin{Soutput}
-                                                               name
-1                               Mmusculus-JASPAR_CORE-Egr1-MA0162.1
-2             Dmelanogaster-FlyFactorSurvey-sr_SANGER_5_FBgn0003499
-3                                 Mmusculus-UniPROBE-Zif268.UP00400
-4           Dmelanogaster-FlyFactorSurvey-klu_SANGER_10_FBgn0013469
-5                                   Mmusculus-UniPROBE-Egr1.UP00007
-6            Dmelanogaster-FlyFactorSurvey-klu_SOLEXA_5_FBgn0013469
-7            Dmelanogaster-FlyFactorSurvey-Sp1_SANGER_5_FBgn0020378
-8        Dmelanogaster-FlyFactorSurvey-Bteb2_SANGER_2.5_FBgn0025679
-9  Dmelanogaster-FlyFactorSurvey-CG3065_F1.3_SANGER_2.5_FBgn0034946
-10                                 Scerevisiae-ScerTF-SUT1-harbison
-11         Dmelanogaster-FlyFactorSurvey-Sp1_SOLEXA_2.5_FBgn0020378
-           eVal                sequence                   match strand
-1  1.110223e-16             NGCGTGGGCGK             NGCGTGGGCGK      +
-2  2.638001e-12          -NGCGTGGGCGK--          NKRNGKGGGCGKNN      +
-3  1.550782e-11 ------NGCGTGGGCGK------ NNNNNNTGCGTGGGCGNNNNNTN      -
-4  2.341696e-10             NGCGTGGGCGK             TGYGTGGGTGK      +
-5  8.184576e-10          --NGCGTGGGCGK-          NNNGCGGGGGCGGN      -
-6  1.812032e-08         NGCGTGGGCGK----         NGYGTGGGTGKNNNN      +
-7  1.998650e-08          NGCGTGGGCGK---          ---GKGGGCGKRNN      +
-8  1.632763e-07             NGCGTGGGCGK             ---GGGGGCGT      +
-9  2.892135e-07          NGCGTGGGCGK---          ---GKGGGCGTGGC      +
-10 6.714194e-07             NGCGTGGGCGK             -GCSGSGNNSG      +
-11 1.033784e-06         NGCGTGGGCGK----         -NNGKGGGCGKRNCN      +
-\end{Soutput}
-\end{Schunk}
-
-The \emph{sequence} column in this table is the \emph{consensus sequence} -- with heterogeneity left out -- for the 
-matrix it describes.   
-
-\vspace{10 mm}
-
-\textbf{\emph{Puzzling: the strand of the match reported above is opposite of what I expected, and opposite of what seqLogo displays.
-  This is a question for the MotIV developers.}}
-
-\vspace{10 mm}
-
-The six logos appear below, beginning with the logo of the query matrix, \emph{Mmusculus-JASPAR\_CORE-Egr1-MA0162.1}, including
-two other mouse matrices, and two zinc-finger fly matrices.  Examining the three mouse matrices and their metadata reveals that
-all three (geneSymbol differences aside) describe the same protein:
-\begin{Schunk}
-\begin{Sinput}
-> if (interactive ())
-+   noquote (t (as.data.frame (subset (values (MotifDb), geneId=='13653'))))
-\end{Sinput}
-\end{Schunk}
-Zinc finger protein domains are classified into many \emph{fold groups}; their respective cognate DNA sequence may classify similarly.
-That two fly matrices significantly match three reports of the mouse Egr1 motif suggests impressive conservation of this 
-binding pattern, or convergent evolution.  
-
-Let us look at the metadata for the first fly match, whose geneId is \textbf{FBgn0003499}:
-\begin{Schunk}
-\begin{Sinput}
-> noquote (t (as.data.frame (values (MotifDb)[grep ('FBgn0003499', values (MotifDb)$geneId),])))
-\end{Sinput}
-\begin{Soutput}
-                Dmelanogaster-FlyFactorSurvey-sr_SANGER_5_FBgn0003499
-providerName    sr_SANGER_5_FBgn0003499                              
-providerId      FBgn0003499                                          
-dataSource      FlyFactorSurvey                                      
-geneSymbol      Sr                                                   
-geneId          FBgn0003499                                          
-geneIdType      FLYBASE                                              
-proteinId       E1JIP0                                               
-proteinIdType   UNIPROT                                              
-organism        Dmelanogaster                                        
-sequenceCount     18                                                 
-bindingSequence <NA>                                                 
-bindingDomain   zf-C2H2                                              
-tfFamily        <NA>                                                 
-experimentType  bacterial 1-hybrid, SANGER sequencing                
-pubmedID        <NA>                                                 
-                Dmelanogaster-FlyFactorSurvey-sr_SOLEXA_5_FBgn0003499
-providerName    sr_SOLEXA_5_FBgn0003499                              
-providerId      FBgn0003499                                          
-dataSource      FlyFactorSurvey                                      
-geneSymbol      Sr                                                   
-geneId          FBgn0003499                                          
-geneIdType      FLYBASE                                              
-proteinId       E1JIP0                                               
-proteinIdType   UNIPROT                                              
-organism        Dmelanogaster                                        
-sequenceCount   2316                                                 
-bindingSequence <NA>                                                 
-bindingDomain   zf-C2H2                                              
-tfFamily        <NA>                                                 
-experimentType  bacterial 1-hybrid, SOLEXA sequencing                
-pubmedID        <NA>                                                 
-\end{Soutput}
-\end{Schunk}
-that the SOLEXA motif, based upon 2316 sequences, did not (in work not shown, it appears 22nd in the an expanded
-motifMatch hit list, with a eval of 10e-5).  It is possible that the SOLEXA motif is more accurate, and that a close
-examination of this case, including sequence logos, position frequency matrices, and the search parameters of
-motifMatch, will be instructive.  Repeating the search with \emph{tomtom} might also be illuminating -- either as
-confirmation of MotIV and the default parameterization we used, or as a correction to it.  Here we see the facilities
-for exploratory data analysis MotifDb provides, and the opportunities for data analysis which result.
-
-
-
-
-
-
-
-
-\begin{figure}[htpb!]
-  \centering
-  \begin{subfigure}[b]{0.38\textwidth}
-    \includegraphics[width=\textwidth]{MotifDb-logo1}
-    \caption{Mmusculus-JASPAR\_CORE-Egr1-MA0162.1}
-    \label{fig:Egr1-MA0162.1}
-    \end{subfigure}%
-  \begin{subfigure}[b]{0.38\textwidth}
-    \includegraphics[width=\textwidth]{MotifDb-logo2}
-    \caption{Dme-FFS-sr\_SANGER\_5\_FBgn0003499\\(abbreviated)}
-    \label{fig:Egr1-logo2}
-    \end{subfigure}%
-\end{figure}
-
-\begin{figure}[htpb!]
-  \centering
-  \begin{subfigure}[b]{0.38\textwidth}
-    \includegraphics[width=\textwidth]{MotifDb-logo3}
-    \caption{Mmusculus-UniPROBE-Zif268.UP00400}
-    \label{fig:Egr1-logo3}
-    \end{subfigure}%
-  \begin{subfigure}[b]{0.38\textwidth}
-    \includegraphics[width=\textwidth]{MotifDb-logo4}
-    \caption{Dme-FFS-klu\_SANGER\_10\_FBgn0013469}
-    \label{fig:Egr1-logo4}
-    \end{subfigure}%
-\end{figure}
-
-
-\begin{figure}[htpb!]
-  \centering
-  \begin{subfigure}[b]{0.38\textwidth}
-    \includegraphics[width=\textwidth]{MotifDb-logo5}
-    \caption{Mmusculus-UniPROBE-Egr1.UP00007}
-    \label{fig:Egr1-logo5}
-    \end{subfigure}%
-  \begin{subfigure}[b]{0.38\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{MotifDb-logo6}
-    \caption{Dme-FFS-klu\_SOLEXA\_5\_FBgn0013469}
-    \label{fig:Egr1-logo6}
-    \end{subfigure}%
-\end{figure}
-
-\newpage
-
-\section{Exporting to the MEME Suite}
-Some users of this package may wish to export the data -- both matrices and metadata -- so that they may be used in
-other programs.  The MEME suite, among others, is broadly useful, continuously improved and well-regarded throughout the
-bioinformatics community.  The code below exports all of the MotifDb matrices as a text file in the MEME format, and all
-of the metadata as a tab-delimited text file.
-
-\begin{Schunk}
-\begin{Sinput}
-> matrix.output.file = tempfile ()   # substitute your preferred filename here
-> meme.text = export (MotifDb, matrix.output.file, 'meme')
-> metadata.output.file = tempfile () # substitute your preferred filename here
-> write.table (as.data.frame (values (MotifDb)), file=metadata.output.file, sep='\t', 
-+              row.names=TRUE, col.names=TRUE, quote=FALSE)
-\end{Sinput}
-\end{Schunk}
-
-\section{Future Work}
-This first version of MotifDb collects into one R package all of the best-known public domain protein-DNA binding matrices, with
-as much metadata as could be gleaned from the five providers.  However, not all of these matrices are equally supported by data
-and by no means are all are accompanied by complete metadata.
-
-With the passage of time our knowledge of protein-DNA binding sequence motifs will improve.  They will be derived from more 
-binding events, with more precision and specificity, and accompanied by more (and better understood) contextual detail.  Cooperative binding, 
-mentioned only in a few times in the current (July 2012) version of this package, will be well-represented.  Metadata will improve.
-Better assignment of binding domains to consensus categories will be especially useful when it is available.  Three-dimensional 
-models of specific proteins binding to specific DNA may someday become commonplace.
-
-
-\section{References}
-
-\begin{itemize}
-
-\item Portales-Casamar E, Thongjuea S, Kwon AT, Arenillas D, Zhao X, Valen E, Yusuf D, Lenhard B, Wasserman WW, Sandelin A. JASPAR 2010: the greatly expanded open-access database of transcription factor binding profiles. Nucleic Acids Res. 2010 Jan;38(Database issue):D105-10. Epub 2009 Nov 11.
-
-\item Robasky K, Bulyk ML. UniPROBE, update 2011: expanded content and search tools in the online database of protein-binding microarray data on protein-DNA interactions. Nucleic Acids Res. 2011 Jan;39(Database issue):D124-8. Epub 2010 Oct 30.
-
-\item Spivak AT, Stormo GD. ScerTF: a comprehensive database of benchmarked position weight matrices for Saccharomyces species. Nucleic Acids Res. 2012 Jan;40(Database issue):D162-8. Epub 2011 Dec 2.
-
-\item Xie Z, Hu S, Blackshaw S, Zhu H, Qian J. hPDI: a database of experimental human protein-DNA interactions. Bioinformatics. 2010 Jan 15;26(2):287-9. Epub 2009 Nov 9.
-
-\item Zhu LJ, et al. 2011. FlyFactorSurvey: a database of Drosophila transcription factor binding specificities determined using the bacterial one-hybrid system. Nucleic Acids Res. 2011 Jan;39(Database issue):D111-7. Epub 2010 Nov 19.
-
-
-\end{itemize}
-
-
-\end{document}
-
-
