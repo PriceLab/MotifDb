@@ -1196,19 +1196,19 @@ test.hocomoco11.with.reliabilityScores <- function()
    checkEquals(length(query(MotifDb, "hocomocov10")), 1066)
    checkEquals(length(query(MotifDb, "hocomocov11")), 768)
    checkEquals(length(query(MotifDb, "hocomocov11-core")), 400)
-   checkEquals(length(query(MotifDb, "hocomocov11-full")), 368)
+   checkEquals(length(query(MotifDb, "hocomocov11-secondary")), 368)
 
    checkEquals(length(query(MotifDb, "hocomocov11-core-A")), 181)
-   checkEquals(length(query(MotifDb, "hocomocov11-full-A")), 46)
+   checkEquals(length(query(MotifDb, "hocomocov11-secondary-A")), 46)
 
    checkEquals(length(query(MotifDb, "hocomocov11-core-B")), 84)
-   checkEquals(length(query(MotifDb, "hocomocov11-full-B")), 19)
+   checkEquals(length(query(MotifDb, "hocomocov11-secondary-B")), 19)
 
    checkEquals(length(query(MotifDb, "hocomocov11-core-C")), 135)
-   checkEquals(length(query(MotifDb, "hocomocov11-full-C")), 13)
+   checkEquals(length(query(MotifDb, "hocomocov11-secondary-C")), 13)
 
    checkEquals(length(query(MotifDb, "hocomocov11-core-D")), 0)
-   checkEquals(length(query(MotifDb, "hocomocov11-full-D")), 290)
+   checkEquals(length(query(MotifDb, "hocomocov11-secondary-D")), 290)
 
 } # test.hocomoco11.with.reliabilityScores
 #------------------------------------------------------------------------------------------------------------------------

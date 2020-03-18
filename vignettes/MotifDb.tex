@@ -86,20 +86,24 @@ There are  more than two thousand  matrices, from five sources:
 > length (MotifDb)
 \end{Sinput}
 \begin{Soutput}
-[1] 10333
+[1] 10701
 \end{Soutput}
 \begin{Sinput}
 > sort (table (values (MotifDb)$dataSource), decreasing=TRUE)
 \end{Sinput}
 \begin{Soutput}
-     jaspar2018      jaspar2016     HOCOMOCOv10      cisbp_1.02       jolma2013 
-           1564            1209            1066             874             843 
-   SwissRegulon         stamlab FlyFactorSurvey     JASPAR_2014     JASPAR_CORE 
-            684             683             614             592             459 
-           hPDI        UniPROBE           HOMER          ScerTF    HOCOMOCOv11A 
-            437             380             332             196             181 
-   HOCOMOCOv11C    HOCOMOCOv11B 
-            135              84 
+        jaspar2018         jaspar2016        HOCOMOCOv10         cisbp_1.02 
+              1564               1209               1066                874 
+         jolma2013       SwissRegulon            stamlab    FlyFactorSurvey 
+               843                684                683                614 
+       JASPAR_2014        JASPAR_CORE               hPDI           UniPROBE 
+               592                459                437                380 
+             HOMER HOCOMOCOv11-full-D             ScerTF HOCOMOCOv11-core-A 
+               332                290                196                181 
+HOCOMOCOv11-core-C HOCOMOCOv11-core-B HOCOMOCOv11-full-A HOCOMOCOv11-full-B 
+               135                 84                 46                 19 
+HOCOMOCOv11-full-C 
+                13 
 \end{Soutput}
 \end{Schunk}
 And 22 organisms (though the majority of the matrices come from just four):
@@ -109,7 +113,7 @@ And 22 organisms (though the majority of the matrices come from just four):
 \end{Sinput}
 \begin{Soutput}
                                                                      Hsapiens 
-                                                                         5016 
+                                                                         5384 
                                                                     Mmusculus 
                                                                          1411 
                                                                 Dmelanogaster 
@@ -257,14 +261,18 @@ all of the human matrices:
 > query (MotifDb, 'hsapiens')
 \end{Sinput}
 \begin{Soutput}
-MotifDb object of length 5031
+MotifDb object of length 5399
 | Created from downloaded public sources: 2013-Aug-30
-| 5031 position frequency matrices from 14 sources:
+| 5399 position frequency matrices from 18 sources:
 |         cisbp_1.02:  313
 |        HOCOMOCOv10:  640
-|       HOCOMOCOv11A:  181
-|       HOCOMOCOv11B:   84
-|       HOCOMOCOv11C:  135
+| HOCOMOCOv11-core-A:  181
+| HOCOMOCOv11-core-B:   84
+| HOCOMOCOv11-core-C:  135
+| HOCOMOCOv11-full-A:   46
+| HOCOMOCOv11-full-B:   19
+| HOCOMOCOv11-full-C:   13
+| HOCOMOCOv11-full-D:  290
 |               hPDI:  437
 |        JASPAR_2014:  117
 |        JASPAR_CORE:   66
@@ -275,7 +283,7 @@ MotifDb object of length 5031
 |       SwissRegulon:  684
 |           UniPROBE:    2
 | 8 organism/s
-|           Hsapiens: 5016
+|           Hsapiens: 5384
 | Mmusculus;Rnorvegicus;Hsapiens:    6
 | Mmusculus;Hsapiens:    3
 | Mmusculus;Rnorvegicus;Xlaevis;Stropicalis;Ggallus;Hsapiens;Btaurus;Ocuniculus:    2
@@ -301,14 +309,17 @@ If you want all matrices associated with \textbf{\emph{Sox}} transcription facto
 > query (MotifDb, 'sox')
 \end{Sinput}
 \begin{Soutput}
-MotifDb object of length 184
+MotifDb object of length 196
 | Created from downloaded public sources: 2013-Aug-30
-| 184 position frequency matrices from 14 sources:
+| 196 position frequency matrices from 17 sources:
 |    FlyFactorSurvey:    2
 |        HOCOMOCOv10:   25
-|       HOCOMOCOv11A:    1
-|       HOCOMOCOv11B:    5
-|       HOCOMOCOv11C:    2
+| HOCOMOCOv11-core-A:    1
+| HOCOMOCOv11-core-B:    5
+| HOCOMOCOv11-core-C:    2
+| HOCOMOCOv11-full-A:    2
+| HOCOMOCOv11-full-B:    1
+| HOCOMOCOv11-full-D:    9
 |              HOMER:    9
 |               hPDI:    2
 |        JASPAR_2014:    8
@@ -319,7 +330,7 @@ MotifDb object of length 184
 |       SwissRegulon:   19
 |           UniPROBE:   15
 | 7 organism/s
-|           Hsapiens:  103
+|           Hsapiens:  115
 |          Mmusculus:   67
 |      Dmelanogaster:    2
 | Mmusculus;Rnorvegicus;Hsapiens:    1
@@ -392,18 +403,22 @@ illustrate:
 \end{Sinput}
 \begin{Soutput}
  [1] "HOX-related factors{3.1.1}: CDX (Caudal type homeobox){3.1.1.9}"          
- [2] "TALE-type homeo domain factors{3.1.4}: MEIS{3.1.4.2}"                     
- [3] "Paired domain only{3.2.2}: PAX-2-like factors (partial homeobox){3.2.2.2}"
- [4] "Paired plus homeo domain{3.2.1}: PAX-4/6{3.2.1.2}"                        
- [5] "TALE-type homeo domain factors{3.1.4}: PBX{3.1.4.4}"                      
- [6] "TALE-type homeo domain factors{3.1.4}: PKNOX{3.1.4.5}"                    
- [7] "TALE-type homeo domain factors{3.1.4}: TGIF{3.1.4.6}"                     
- [8] "Homeo"                                                                    
- [9] "Homeo::Nuclear Factor I-CCAAT-binding"                                    
-[10] "Homeodomain"                                                              
-[11] "Paired plus homeo domain"                                                 
-[12] "TALE-type homeo domain factors"                                           
-[13] "homeodomain"                                                              
+ [2] "HOX-related factors{3.1.1}: GBX (Gastrulation brain homeobox){3.1.1.11}"  
+ [3] "TALE-type homeo domain factors{3.1.4}: IRX (Iroquois){3.1.4.1}"           
+ [4] "TALE-type homeo domain factors{3.1.4}: MEIS{3.1.4.2}"                     
+ [5] "Paired domain only{3.2.2}: PAX-1/9 (no homeo remnant){3.2.2.1}"           
+ [6] "Paired domain only{3.2.2}: PAX-2-like factors (partial homeobox){3.2.2.2}"
+ [7] "Paired plus homeo domain{3.2.1}: PAX-3/7{3.2.1.1}"                        
+ [8] "Paired plus homeo domain{3.2.1}: PAX-4/6{3.2.1.2}"                        
+ [9] "TALE-type homeo domain factors{3.1.4}: PBX{3.1.4.4}"                      
+[10] "TALE-type homeo domain factors{3.1.4}: PKNOX{3.1.4.5}"                    
+[11] "TALE-type homeo domain factors{3.1.4}: TGIF{3.1.4.6}"                     
+[12] "Homeo"                                                                    
+[13] "Homeo::Nuclear Factor I-CCAAT-binding"                                    
+[14] "Homeodomain"                                                              
+[15] "Paired plus homeo domain"                                                 
+[16] "TALE-type homeo domain factors"                                           
+[17] "homeodomain"                                                              
 \end{Soutput}
 \end{Schunk}
 \subsection{grep}
@@ -490,7 +505,7 @@ MotifDb object of length 17
 | Created from downloaded public sources: 2013-Aug-30
 | 17 position frequency matrices from 10 sources:
 |        HOCOMOCOv10:    3
-|       HOCOMOCOv11A:    1
+| HOCOMOCOv11-core-A:    1
 |              HOMER:    1
 |        JASPAR_2014:    1
 |        JASPAR_CORE:    1
@@ -805,7 +820,7 @@ pubmedID        26586801
                 Hsapiens-HOCOMOCOv11A-EGR1_HUMAN.H11MO.0.A                            
 providerName    EGR1_HUMAN.H11MO.0.A                                                  
 providerId      EGR1_HUMAN.H11MO.0.A                                                  
-dataSource      HOCOMOCOv11A                                                          
+dataSource      HOCOMOCOv11-core-A                                                    
 geneSymbol      EGR1                                                                  
 geneId          1958                                                                  
 geneIdType      ENTREZ                                                                
@@ -1033,7 +1048,7 @@ the grep solution, while serviceable, becomes a little awkward:
 > print (egr1.mouse.jaspar.rows)
 \end{Sinput}
 \begin{Soutput}
-[1] 3878 5032 6153
+[1] 4246 5400 6521
 \end{Soutput}
 \begin{Sinput}
 > egr1.motif <- MotifDb [egr1.mouse.jaspar.rows]
