@@ -1192,6 +1192,11 @@ test.hocomoco11.with.reliabilityScores <- function()
 {
    printf("--- test.hocomoco11.with.reliabilityScores")
 
+     #-------------------------------------------------------------------------
+     # these queries rely primarily upon the dataSoure column of the metadata
+     # subsequent checks below look at metadata rownames and matrix names
+     #-------------------------------------------------------------------------
+
    checkEquals(length(query(MotifDb, "hocomoco")), 1834)
    checkEquals(length(query(MotifDb, "hocomocov10")), 1066)
    checkEquals(length(query(MotifDb, "hocomocov11")), 768)
@@ -1209,6 +1214,15 @@ test.hocomoco11.with.reliabilityScores <- function()
 
    checkEquals(length(query(MotifDb, "hocomocov11-core-D")), 0)
    checkEquals(length(query(MotifDb, "hocomocov11-secondary-D")), 290)
+
+     #-------------------------------------------------------------------------
+     # check matrix names
+     #-------------------------------------------------------------------------
+   checkEquals(length(grep("HOCOMOCOv11-core-A", names(MotifDb))), 181)
+   checkEquals(length(grep("HOCOMOCOv11-secondary-A", names(MotifDb))), 46)
+
+   checkEquals(length(grep("HOCOMOCOv11-core-A", rownames(mcols(MotifDb)))), 181)
+   checkEquals(length(grep("HOCOMOCOv11-secondary-A", rownames(mcols(MotifDb)))), 46)
 
 } # test.hocomoco11.with.reliabilityScores
 #------------------------------------------------------------------------------------------------------------------------
