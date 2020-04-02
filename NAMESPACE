@@ -4,7 +4,6 @@ exportMethods (
    export,
    show,
    query,
-   matchMotif,
    motifToGene,
    geneToMotif,
    associateTranscriptionFactors
@@ -13,11 +12,6 @@ exportMethods (
 export(
     MotifDb
 )
-
-import(motifmatchr)
-import(TFBSTools)
-importFrom(universalmotif, convert_motifs)
-
 
 import(BiocGenerics)
 import(S4Vectors)

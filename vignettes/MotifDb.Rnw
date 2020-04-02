@@ -272,119 +272,153 @@ seqLogo (as.list (egr1.motif)[[1]])
 \end{figure}
 
 \section{Motif Matching}
-We will look for the ten position frequency matrices which are the best match to JASPAR's mouse EGR1, using
-the MotIV package.  We actually request the top eleven hits from the entire MotifDb, since the first hit
-should be the target matrix itself, since that is of necessity found in the full MotifDb.
+Note: this section is disabled for now (2 april 2020) due to the
+breakage and perhaps end-of-life status of the Bioconductor package MotIV.
 
-<<motifmatch>>=
-egr1.hits <- motifMatch (as.list (egr1.motif) [1], as.list (MotifDb), top=11)
-# 'MotIV.toTable' -- defined above (and hidden) -- will become part of MotIV in the upcoming release
-tbl.hits <- MotIV.toTable (egr1.hits)
-print (tbl.hits)
+An alternative Bioconductor package for motif matching is motifmatchr,
+which uses the C++ moods library.  Unfortunately, the inclusion of
+motifmatchr and supporting packages needed to render it interoperable
+with MotifDb requires the further inclusion of very many dependencies.
+
+For that reason, we present only non-executable code here:
+
+<<motifmatchr, eval=FALSE>>=
+
+ gr.region <- GRanges(seqnames="chr1", IRanges(start=47229520, end=47229560))
+ motifs <- query(MotifDb, c("jaspar2018", "ZNF263"))
+
+ motifs.pfmatrix <- lapply(motifs,
+                           function(motif) convert_motifs(motif, "TFBSTools-PFMatrix"))
+
+ motifs.pfmList <- do.call(PFMatrixList, motifs.pfmatrix)
+ gr.list <- motifmatchr::matchMotifs(motifs.pfmList, regions, genome=genomeName,
+                                     out="positions", p.cutoff=1e-5)
+ gr <- unlist(gr.list)
+ motif.names <- names(gr)
+ names(gr) <- NULL
+ tbl <- as.data.frame(gr)
+ tbl$motif_id <- motif.names
+ colnames(tbl)[1] <- "chrom"
+ tbl$chrom <- as.character(tbl$chrom)
+ colnames(tbl)[grep("score", colnames(tbl))] <- "mood.score"
+ new.order <- order(tbl$start, decreasing=FALSE)
+ tbl <- tbl[new.order,]
+
 @
 
-The \emph{sequence} column in this table is the \emph{consensus sequence} -- with heterogeneity left out -- for the
-matrix it describes.
+%% We will look for the ten position frequency matrices which are the best match to JASPAR's mouse EGR1, using
+%% the MotIV package.  We actually request the top eleven hits from the entire MotifDb, since the first hit
+%% should be the target matrix itself, since that is of necessity found in the full MotifDb.
 
-\vspace{10 mm}
-
-\textbf{\emph{Puzzling: the strand of the match reported above is opposite of what I expected, and opposite of what seqLogo displays.
-  This is a question for the MotIV developers.}}
-
-\vspace{10 mm}
-
-The six logos appear below, beginning with the logo of the query matrix, \emph{Mmusculus-JASPAR\_CORE-Egr1-MA0162.1}, including
-two other mouse matrices, and two zinc-finger fly matrices.  Examining the three mouse matrices and their metadata reveals that
-all three (geneSymbol differences aside) describe the same protein:
-<<three.mice.metadata>>=
-if (interactive ())
-  noquote (t (as.data.frame (subset (values (MotifDb), geneId=='13653'))))
-@
-Zinc finger protein domains are classified into many \emph{fold groups}; their respective cognate DNA sequence may classify similarly.
-That two fly matrices significantly match three reports of the mouse Egr1 motif suggests impressive conservation of this
-binding pattern, or convergent evolution.
-
-Let us look at the metadata for the first fly match, whose geneId is \textbf{FBgn0003499}:
-<<fly.Sr.metadata>>=
-noquote (t (as.data.frame (values (MotifDb)[grep ('FBgn0003499', values (MotifDb)$geneId),])))
-@ Note that the SANGER motif, based on 18 sequences, had a high fidelity match to mouse Egr1 (see above, 10e-12), but
-that the SOLEXA motif, based upon 2316 sequences, did not (in work not shown, it appears 22nd in the an expanded
-motifMatch hit list, with a eval of 10e-5).  It is possible that the SOLEXA motif is more accurate, and that a close
-examination of this case, including sequence logos, position frequency matrices, and the search parameters of
-motifMatch, will be instructive.  Repeating the search with \emph{tomtom} might also be illuminating -- either as
-confirmation of MotIV and the default parameterization we used, or as a correction to it.  Here we see the facilities
-for exploratory data analysis MotifDb provides, and the opportunities for data analysis which result.
-
-
-<<logo1, fig=TRUE, include=FALSE, echo=FALSE>>=
-  seqLogo (MotifDb [[tbl.hits$name[1]]])
-@
-
-<<logo2, fig=TRUE, include=FALSE, echo=FALSE>>=
-  seqLogo (MotifDb [[tbl.hits$name[2]]])
-@
-
-<<logo3, fig=TRUE, include=FALSE, echo=FALSE>>=
-  seqLogo (MotifDb [[tbl.hits$name[3]]])
-@
-
-<<logo4, fig=TRUE, include=FALSE, echo=FALSE>>=
-  seqLogo (MotifDb [[tbl.hits$name[4]]])
-@
-
-<<logo5, fig=TRUE, include=FALSE, echo=FALSE>>=
-  seqLogo (MotifDb [[tbl.hits$name[5]]])
-@
-
-<<logo6, fig=TRUE, include=FALSE, echo=FALSE>>=
-  seqLogo (MotifDb [[tbl.hits$name[6]]])
-@
-
-\begin{figure}[htpb!]
-  \centering
-  \begin{subfigure}[b]{0.38\textwidth}
-    \includegraphics[width=\textwidth]{MotifDb-logo1}
-    \caption{Mmusculus-JASPAR\_CORE-Egr1-MA0162.1}
-    \label{fig:Egr1-MA0162.1}
-    \end{subfigure}%
-  \begin{subfigure}[b]{0.38\textwidth}
-    \includegraphics[width=\textwidth]{MotifDb-logo2}
-    \caption{Dme-FFS-sr\_SANGER\_5\_FBgn0003499\\(abbreviated)}
-    \label{fig:Egr1-logo2}
-    \end{subfigure}%
-\end{figure}
-
-\begin{figure}[htpb!]
-  \centering
-  \begin{subfigure}[b]{0.38\textwidth}
-    \includegraphics[width=\textwidth]{MotifDb-logo3}
-    \caption{Mmusculus-UniPROBE-Zif268.UP00400}
-    \label{fig:Egr1-logo3}
-    \end{subfigure}%
-  \begin{subfigure}[b]{0.38\textwidth}
-    \includegraphics[width=\textwidth]{MotifDb-logo4}
-    \caption{Dme-FFS-klu\_SANGER\_10\_FBgn0013469}
-    \label{fig:Egr1-logo4}
-    \end{subfigure}%
-\end{figure}
-
-
-\begin{figure}[htpb!]
-  \centering
-  \begin{subfigure}[b]{0.38\textwidth}
-    \includegraphics[width=\textwidth]{MotifDb-logo5}
-    \caption{Mmusculus-UniPROBE-Egr1.UP00007}
-    \label{fig:Egr1-logo5}
-    \end{subfigure}%
-  \begin{subfigure}[b]{0.38\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{MotifDb-logo6}
-    \caption{Dme-FFS-klu\_SOLEXA\_5\_FBgn0013469}
-    \label{fig:Egr1-logo6}
-    \end{subfigure}%
-\end{figure}
-
-\newpage
+%% <<motifmatch>>=
+%% egr1.hits <- motifMatch (as.list (egr1.motif) [1], as.list (MotifDb), top=11)
+%% # 'MotIV.toTable' -- defined above (and hidden) -- will become part of MotIV in the upcoming release
+%% tbl.hits <- MotIV.toTable (egr1.hits)
+%% print (tbl.hits)
+%% @
+%%
+%% The \emph{sequence} column in this table is the \emph{consensus sequence} -- with heterogeneity left out -- for the
+%% matrix it describes.
+%%
+%% \vspace{10 mm}
+%%
+%% \textbf{\emph{Puzzling: the strand of the match reported above is opposite of what I expected, and opposite of what seqLogo displays.
+%%   This is a question for the MotIV developers.}}
+%%
+%% \vspace{10 mm}
+%%
+%% The six logos appear below, beginning with the logo of the query matrix, \emph{Mmusculus-JASPAR\_CORE-Egr1-MA0162.1}, including
+%% two other mouse matrices, and two zinc-finger fly matrices.  Examining the three mouse matrices and their metadata reveals that
+%% all three (geneSymbol differences aside) describe the same protein:
+%% <<three.mice.metadata>>=
+%% if (interactive ())
+%%   noquote (t (as.data.frame (subset (values (MotifDb), geneId=='13653'))))
+%% @
+%% Zinc finger protein domains are classified into many \emph{fold groups}; their respective cognate DNA sequence may classify similarly.
+%% That two fly matrices significantly match three reports of the mouse Egr1 motif suggests impressive conservation of this
+%% binding pattern, or convergent evolution.
+%%
+%% Let us look at the metadata for the first fly match, whose geneId is \textbf{FBgn0003499}:
+%% <<fly.Sr.metadata>>=
+%% noquote (t (as.data.frame (values (MotifDb)[grep ('FBgn0003499', values (MotifDb)$geneId),])))
+%% @ Note that the SANGER motif, based on 18 sequences, had a high fidelity match to mouse Egr1 (see above, 10e-12), but
+%% that the SOLEXA motif, based upon 2316 sequences, did not (in work not shown, it appears 22nd in the an expanded
+%% motifMatch hit list, with a eval of 10e-5).  It is possible that the SOLEXA motif is more accurate, and that a close
+%% examination of this case, including sequence logos, position frequency matrices, and the search parameters of
+%% motifMatch, will be instructive.  Repeating the search with \emph{tomtom} might also be illuminating -- either as
+%% confirmation of MotIV and the default parameterization we used, or as a correction to it.  Here we see the facilities
+%% for exploratory data analysis MotifDb provides, and the opportunities for data analysis which result.
+%%
+%%
+%% <<logo1, fig=TRUE, include=FALSE, echo=FALSE>>=
+%%   seqLogo (MotifDb [[tbl.hits$name[1]]])
+%% @
+%%
+%% <<logo2, fig=TRUE, include=FALSE, echo=FALSE>>=
+%%   seqLogo (MotifDb [[tbl.hits$name[2]]])
+%% @
+%%
+%% <<logo3, fig=TRUE, include=FALSE, echo=FALSE>>=
+%%   seqLogo (MotifDb [[tbl.hits$name[3]]])
+%% @
+%%
+%% <<logo4, fig=TRUE, include=FALSE, echo=FALSE>>=
+%%   seqLogo (MotifDb [[tbl.hits$name[4]]])
+%% @
+%%
+%% <<logo5, fig=TRUE, include=FALSE, echo=FALSE>>=
+%%   seqLogo (MotifDb [[tbl.hits$name[5]]])
+%% @
+%%
+%% <<logo6, fig=TRUE, include=FALSE, echo=FALSE>>=
+%%   seqLogo (MotifDb [[tbl.hits$name[6]]])
+%% @
+%%
+%% \begin{figure}[htpb!]
+%%   \centering
+%%   \begin{subfigure}[b]{0.38\textwidth}
+%%     \includegraphics[width=\textwidth]{MotifDb-logo1}
+%%     \caption{Mmusculus-JASPAR\_CORE-Egr1-MA0162.1}
+%%     \label{fig:Egr1-MA0162.1}
+%%     \end{subfigure}%
+%%   \begin{subfigure}[b]{0.38\textwidth}
+%%     \includegraphics[width=\textwidth]{MotifDb-logo2}
+%%     \caption{Dme-FFS-sr\_SANGER\_5\_FBgn0003499\\(abbreviated)}
+%%     \label{fig:Egr1-logo2}
+%%     \end{subfigure}%
+%% \end{figure}
+%%
+%% \begin{figure}[htpb!]
+%%   \centering
+%%   \begin{subfigure}[b]{0.38\textwidth}
+%%     \includegraphics[width=\textwidth]{MotifDb-logo3}
+%%     \caption{Mmusculus-UniPROBE-Zif268.UP00400}
+%%     \label{fig:Egr1-logo3}
+%%     \end{subfigure}%
+%%   \begin{subfigure}[b]{0.38\textwidth}
+%%     \includegraphics[width=\textwidth]{MotifDb-logo4}
+%%     \caption{Dme-FFS-klu\_SANGER\_10\_FBgn0013469}
+%%     \label{fig:Egr1-logo4}
+%%     \end{subfigure}%
+%% \end{figure}
+%%
+%%
+%% \begin{figure}[htpb!]
+%%   \centering
+%%   \begin{subfigure}[b]{0.38\textwidth}
+%%     \includegraphics[width=\textwidth]{MotifDb-logo5}
+%%     \caption{Mmusculus-UniPROBE-Egr1.UP00007}
+%%     \label{fig:Egr1-logo5}
+%%     \end{subfigure}%
+%%   \begin{subfigure}[b]{0.38\textwidth}
+%%     \centering
+%%     \includegraphics[width=\textwidth]{MotifDb-logo6}
+%%     \caption{Dme-FFS-klu\_SOLEXA\_5\_FBgn0013469}
+%%     \label{fig:Egr1-logo6}
+%%     \end{subfigure}%
+%% \end{figure}
+%%
+%% \newpage
 
 \section{Exporting to the MEME Suite}
 Some users of this package may wish to export the data -- both matrices and metadata -- so that they may be used in

@@ -4,8 +4,8 @@ setGeneric('geneToMotif', signature='object', function(object, geneSymbols, sour
 setGeneric('associateTranscriptionFactors', signature='object',
            function(object, tbl.withMotifs,  source, expand.rows, motifColumnName="motifName")
               standardGeneric('associateTranscriptionFactors'))
-setGeneric('matchMotif', signature='object', function(object, motifs, genomeName, regions, pval.cutoff,
-                                                      fimoDataFrameStyle=FALSE) standardGeneric('matchMotif'))
+#setGeneric('matchMotif', signature='object', function(object, motifs, genomeName, regions, pval.cutoff,
+#                                                      fimoDataFrameStyle=FALSE) standardGeneric('matchMotif'))
 #------------------------------------------------------------------------------------------------------------------------
 setClass ('MotifList',
           contains='SimpleList',
@@ -64,29 +64,29 @@ MotifList = function (matrices=list(), tbl.metadata=data.frame ())
 
 } # ctor
 #-------------------------------------------------------------------------------
-setMethod('matchMotif', signature='MotifList',
-
-   function(object, motifs, genomeName, regions, pval.cutoff, fimoDataFrameStyle=FALSE){
-     motifs.pfmatrix <- lapply(motifs, function(motif) convert_motifs(motif, "TFBSTools-PFMatrix"))
-     motifs.pfmList <- do.call(PFMatrixList, motifs.pfmatrix)
-     gr.list <- matchMotifs(motifs.pfmList, regions, genome=genomeName, out="positions", p.cutoff=pval.cutoff)
-     result <- gr.list
-     if(fimoDataFrameStyle){
-        gr <- unlist(gr.list)
-        motif.names <- names(gr)
-        names(gr) <- NULL
-        tbl <- as.data.frame(gr)
-        tbl$motif_id <- motif.names
-        colnames(tbl)[1] <- "chrom"
-        tbl$chrom <- as.character(tbl$chrom)
-        colnames(tbl)[grep("score", colnames(tbl))] <- "mood.score"
-        new.order <- order(tbl$start, decreasing=FALSE)
-        tbl <- tbl[new.order,]
-        result <- tbl
-        }
-     return(result)
-     })
-
+# setMethod('matchMotif', signature='MotifList',
+#
+#    function(object, motifs, genomeName, regions, pval.cutoff, fimoDataFrameStyle=FALSE){
+#      motifs.pfmatrix <- lapply(motifs, function(motif) convert_motifs(motif, "TFBSTools-PFMatrix"))
+#      motifs.pfmList <- do.call(PFMatrixList, motifs.pfmatrix)
+#      gr.list <- motifmatchr::matchMotifs(motifs.pfmList, regions, genome=genomeName, out="positions", p.cutoff=pval.cutoff)
+#      result <- gr.list
+#      if(fimoDataFrameStyle){
+#         gr <- unlist(gr.list)
+#         motif.names <- names(gr)
+#         names(gr) <- NULL
+#         tbl <- as.data.frame(gr)
+#         tbl$motif_id <- motif.names
+#         colnames(tbl)[1] <- "chrom"
+#         tbl$chrom <- as.character(tbl$chrom)
+#         colnames(tbl)[grep("score", colnames(tbl))] <- "mood.score"
+#         new.order <- order(tbl$start, decreasing=FALSE)
+#         tbl <- tbl[new.order,]
+#         result <- tbl
+#         }
+#      return(result)
+#      })
+#
 #-------------------------------------------------------------------------------
 setMethod ('subset', signature = 'MotifList',
 

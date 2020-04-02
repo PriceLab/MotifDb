@@ -36,8 +36,6 @@ runTests = function()
   test.export_memeFormatToFile()
   test.export_memeFormatToFileDuplication()
   test.export_memeFormatToFile_run_tomtom()
-  #test.MotIV.toTable()
-  #test.run_MotIV.motifMatch()
   test.flyFactorGeneSymbols()
   test.export_jasparFormatStdOut()
   test.export_jasparFormatToFile()
@@ -47,8 +45,6 @@ runTests = function()
   test.geneToMotif.oneGene.noMotifs
   test.motifToGene()
   test.associateTranscriptionFactors()
-
-  test.match()
 
   test.hocomoco11.with.reliabilityScores()
 
@@ -1102,69 +1098,71 @@ test.associateTranscriptionFactors <- function()
       # now some motif names
 } # test.associateTranscriptionFactors
 #------------------------------------------------------------------------------------------------------------------------
-test.match <- function()
-{
-   printf("--- test.match")
-   gr.region <- GRanges(seqnames="chr1", IRanges(start=47229520, end=47229560))
-   motifs <- query(MotifDb, c("jaspar2018", "ZNF263"))
-   checkEquals(length(motifs), 1)
-   gr.match <- matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-5)
-   checkEquals(length(gr.match), 1)  # just one motif
-   checkEquals(names(gr.match), names(motifs))
-   checkEquals(length(gr.match[[1]]), 3)
-
-   tbl.match <- matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-5, fimoDataFrameStyle=TRUE)
-   checkEquals(dim(tbl.match), c(3, 7))
-   checkTrue(all(tbl.match$motif == names(motifs)))
-   checkEquals(class(tbl.match$chrom), "character")  # not a factor
-
-   motifs <- query(MotifDb, "ZNF263", c("jaspar2018", "swissregulon"))
-   checkEquals(length(motifs), 2)
-   gr.match <- matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-5)
-   checkEquals(names(gr.match), names(motifs))
-   checkEquals(as.numeric(lapply(gr.match, length)), c(3, 1))
-
-   tbl.match <-matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-5, fimoDataFrameStyle=TRUE)
-   checkEquals(dim(tbl.match), c(4, 7))
-   checkEquals(length(unique(tbl.match$motif)), 2)
-   checkEquals(unique(tbl.match$motif), names(motifs))
-   checkEquals(colnames(tbl.match), c("chrom", "start", "end", "width", "strand", "mood.score", "motif_id"))
-
-
-        #------------------------------------------------
-        # now all jaspar2018 human motifs
-        #------------------------------------------------
-
-   motifs <- query(MotifDb, c("jaspar2018", "hsapiens"))
-   tbl.match <- matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-5, fimoDataFrameStyle=TRUE)
-   checkEquals(dim(tbl.match), c(7, 7))
-   checkEquals(sort(unique(tbl.match$motif)),
-               c("Hsapiens-jaspar2018-EWSR1-FLI1-MA0149.1", "Hsapiens-jaspar2018-ZNF263-MA0528.1"))
-
-        #-----------------------------------------------------
-        # now all jaspar2018 human motifs, loosen the pValue
-        #-----------------------------------------------------
-
-   motifs <- query(MotifDb, c("jaspar2018", "hsapiens"))
-   tbl.match <- matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-4, fimoDataFrameStyle=TRUE)
-   checkTrue(nrow(tbl.match) > 15)
-
-   tbl.match <- matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-3, fimoDataFrameStyle=TRUE)
-   checkTrue(nrow(tbl.match) > 50)
-
-       #-------------------------------------------------------------
-       # now all jaspar2018 and hocomoco human motifs across 10kb
-       #------------------------------------------------------------
-
-   motifs <- query(MotifDb, "hsapiens", orStrings=c("jaspar2018", "hocomoco-core"))
-   checkTrue(length(motifs) > 500)
-   gr.region <- GRanges(seqnames="chr1", IRanges(start=47229000, end=47239000))
-
-   tbl.match <- matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-7, fimoDataFrameStyle=TRUE)
-   checkTrue(nrow(tbl.match) > 90 && nrow(tbl.match) < 110)
-   checkEquals(order(tbl.match$start), seq_len(nrow(tbl.match)))
-
-} # test.match
+# disabled (2 apr 2020) due to very large (~100?) dependendencies introducted directly and indirectly
+# via motifmatchr, TFBSTools, universalmotif
+# test.match <- function()
+# {
+#    printf("--- test.match")
+#    gr.region <- GRanges(seqnames="chr1", IRanges(start=47229520, end=47229560))
+#    motifs <- query(MotifDb, c("jaspar2018", "ZNF263"))
+#    checkEquals(length(motifs), 1)
+#    gr.match <- matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-5)
+#    checkEquals(length(gr.match), 1)  # just one motif
+#    checkEquals(names(gr.match), names(motifs))
+#    checkEquals(length(gr.match[[1]]), 3)
+#
+#    tbl.match <- matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-5, fimoDataFrameStyle=TRUE)
+#    checkEquals(dim(tbl.match), c(3, 7))
+#    checkTrue(all(tbl.match$motif == names(motifs)))
+#    checkEquals(class(tbl.match$chrom), "character")  # not a factor
+#
+#    motifs <- query(MotifDb, "ZNF263", c("jaspar2018", "swissregulon"))
+#    checkEquals(length(motifs), 2)
+#    gr.match <- matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-5)
+#    checkEquals(names(gr.match), names(motifs))
+#    checkEquals(as.numeric(lapply(gr.match, length)), c(3, 1))
+#
+#    tbl.match <-matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-5, fimoDataFrameStyle=TRUE)
+#    checkEquals(dim(tbl.match), c(4, 7))
+#    checkEquals(length(unique(tbl.match$motif)), 2)
+#    checkEquals(unique(tbl.match$motif), names(motifs))
+#    checkEquals(colnames(tbl.match), c("chrom", "start", "end", "width", "strand", "mood.score", "motif_id"))
+#
+#
+#         #------------------------------------------------
+#         # now all jaspar2018 human motifs
+#         #------------------------------------------------
+#
+#    motifs <- query(MotifDb, c("jaspar2018", "hsapiens"))
+#    tbl.match <- matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-5, fimoDataFrameStyle=TRUE)
+#    checkEquals(dim(tbl.match), c(7, 7))
+#    checkEquals(sort(unique(tbl.match$motif)),
+#                c("Hsapiens-jaspar2018-EWSR1-FLI1-MA0149.1", "Hsapiens-jaspar2018-ZNF263-MA0528.1"))
+#
+#         #-----------------------------------------------------
+#         # now all jaspar2018 human motifs, loosen the pValue
+#         #-----------------------------------------------------
+#
+#    motifs <- query(MotifDb, c("jaspar2018", "hsapiens"))
+#    tbl.match <- matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-4, fimoDataFrameStyle=TRUE)
+#    checkTrue(nrow(tbl.match) > 15)
+#
+#    tbl.match <- matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-3, fimoDataFrameStyle=TRUE)
+#    checkTrue(nrow(tbl.match) > 50)
+#
+#        #-------------------------------------------------------------
+#        # now all jaspar2018 and hocomoco human motifs across 10kb
+#        #------------------------------------------------------------
+#
+#    motifs <- query(MotifDb, "hsapiens", orStrings=c("jaspar2018", "hocomoco-core"))
+#    checkTrue(length(motifs) > 500)
+#    gr.region <- GRanges(seqnames="chr1", IRanges(start=47229000, end=47239000))
+#
+#    tbl.match <- matchMotif(MotifDb, motifs, "hg38", gr.region, 1e-7, fimoDataFrameStyle=TRUE)
+#    checkTrue(nrow(tbl.match) > 90 && nrow(tbl.match) < 110)
+#    checkEquals(order(tbl.match$start), seq_len(nrow(tbl.match)))
+#
+# } # test.match
 #------------------------------------------------------------------------------------------------------------------------
 findMotifsWithMutuallyExclusiveMappings <- function()
 {

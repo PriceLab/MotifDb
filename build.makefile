@@ -1,6 +1,6 @@
 quick: install
 
-all:  vig build check
+all:  install vig build check
 
 vig:
 	R -e "devtools::build_vignettes()"
