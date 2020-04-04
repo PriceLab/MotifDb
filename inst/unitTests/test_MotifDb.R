@@ -1,6 +1,5 @@
 library(MotifDb)
 library(RUnit)
-library(MotIV)
 library(seqLogo)
 #----------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
