@@ -6,7 +6,7 @@ Date: 2020-04-04
 Author: Paul Shannon, Matt Richards
 Maintainer: Paul Shannon <pshannon@systemsbiology.org>
 Depends: R (>= 3.5.0), methods, BiocGenerics, S4Vectors, IRanges, GenomicRanges, Biostrings
-Suggests: RUnit, seqLogo, MotIV
+Suggests: RUnit, seqLogo
 Imports: rtracklayer, splitstackshape
 Description: More than 9900 annotated position frequency matrices from 14 public sources, for multiple organisms.
 License: Artistic-2.0 | file LICENSE
