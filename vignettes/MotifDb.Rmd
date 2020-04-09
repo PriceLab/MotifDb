@@ -41,3 +41,28 @@ Still, motif-matching to DNA sequence plays an important role in identifying gen
 
 # Quick Start
 
+CTCF is a DNA-binding factor regulating the 3D structure of
+chromatin^[CTCF: Master Weaver of the Genome, Philips and Corces, 2009, Cell.  https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3040116].
+What is its binding motif?  
+
+The MotifDb **query** function performs a broad, case-neutral text search through all the metadata (all the annotation) for all of
+the motifs.  It returns a list of matching motifs.  More information about the metadata is provided below.
+
+We begin with a simple search, retrieving all motifs annotated with the case-neutral string "CTCF".
+
+```{r load MotifDb, query CTCF, prompt=FALSE, message=FALSE, results="show"}
+library(MotifDb)
+query(MotifDb, "CTCF")
+```
+
+Let us sharpen the search, looking only for human Jaspar 2018, or HOCOMOCO v11 core motifs, category "A". Eliminate "CTCFL".
+
+```{r query CTCF human, prompt=FALSE, message=FALSE, results="show"}
+library(MotifDb)
+query(MotifDb, andStrings=c("CTCF", "hsapiens"),
+               orStrings=c("jaspar2018", "hocomocov11-core-A"),
+               notStrings="ctcfl")
+```
+
+
+# References
