@@ -48,21 +48,64 @@ What is its binding motif?
 The MotifDb **query** function performs a broad, case-neutral text search through all the metadata (all the annotation) for all of
 the motifs.  It returns a list of matching motifs.  More information about the metadata is provided below.
 
-We begin with a simple search, retrieving all motifs annotated with the case-neutral string "CTCF".
+We begin with a simple search which retrieves all motifs annotated with the case-neutral string "ctcf".
 
 ```{r load MotifDb, query CTCF, prompt=FALSE, message=FALSE, results="show"}
 library(MotifDb)
-query(MotifDb, "CTCF")
+query(MotifDb, "ctcf")
 ```
 
-Let us sharpen the search, looking only for human Jaspar 2018, or HOCOMOCO v11 core motifs, category "A". Eliminate "CTCFL".
+Let us refine the search, looking only for human Jaspar 2018, or HOCOMOCO v11 core motifs, category "A". Eliminate "CTCFL".
 
 ```{r query CTCF human, prompt=FALSE, message=FALSE, results="show"}
 library(MotifDb)
-query(MotifDb, andStrings=c("CTCF", "hsapiens"),
-               orStrings=c("jaspar2018", "hocomocov11-core-A"),
-               notStrings="ctcfl")
+motifs <- query(MotifDb, andStrings=c("CTCF", "hsapiens"),
+                orStrings=c("jaspar2018", "hocomocov11-core-A"),
+                notStrings="ctcfl")
+length(motifs)
 ```
+Motifs from different sources sometimes agree and sometimes differ.  Analytical methods for comparison exist, of which two are
+
+    * Bioconductor package [DiffLogo](https://bioconductor.org/packages/release/bioc/html/DiffLogo.html)
+    * Meme Suites [Tomtom](http://meme-suite.org/doc/tomtom.html)
+
+The Biostrings function *consensusString* provides  a quick and sometimes adequate comparison.  In this case, this
+reveals that the two motifs are nearly identical:
+
+```{r compare CTCF motifs, prompt=FALSE, message=FALSE, results="show"}
+sapply(motifs, consensusString)
+```
+We can also inspect the similarity visually, using the Bioconductor package [seqLogo](https://bioconductor.org/packages/release/bioc/html/seqLogo.html)
+
+```{r use seqLogo, prompt=FALSE, message=FALSE, results="hide", fig.width = 5, fig.height = 5, fig.show = "hold", out.width = "50%"}
+library(seqLogo)
+seqLogo(motifs[[1]])  # Hsapiens-jaspar2018-CTCF-MA0139.1
+seqLogo(motifs[[2]])  # Hsapiens-HOCOMOCOv11-core-A-CTCF_HUMAN.H11MO.0.A
+
+```
+
+# Beware of False Precision
+
+Though we cannot offer published, peer-reviewed support for this cautionary warning, we urge you to consider
+it and its implications.
+
+One is tempted to regard curated motif matrices from respected sources as a
+reliable guide to TF/DNA binding potential.  A common strategy is to match motif against sequence, retaining
+only matches above a certain threshold fidelity:  for instance a *minScore* for Biostrings::matchPWM, or a p-value
+or q-value threshold for [FIMO](http://meme-suite.org/doc/fimo.html).
+
+We explored this topic (unpublished data) using recent high-quality CTCF ChIP-seq and FIMO, for which the default
+p-value sequence match threshold is 1e-4.  This scatterplot shows that high-scoring ChIP-seq hits sometimes occur at
+binding sites where motif-match scores are low.  We therefore suggest that motif-matching is most useful
+in conjuction with other information, for instance open chromatin from highly-resovled experiments (scATAC-seq),
+DNAse footprinting, epigenetic markers, and correlated tissue-specific, or cell-type specific gene and
+TF protein expression.
+
+```{r ChIP-vs-FIMO, eval=TRUE, echo=FALSE}
+knitr::include_graphics("GSM749704-CTCF-chipVsFimo.png")
+```
+
+
 
 
 # References
