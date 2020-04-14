@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.30
+-----------------------
+NEW FEATURES
+
+     o now has HOCOMOCO version 11, with all motifs classified, and queryable,
+       by category ("core", "secondary") and reliability (A, B, C, D).
+
 CHANGES IN VERSION 1.24
 -----------------------
 
