@@ -14,18 +14,21 @@ vignette: >
 Many kinds of biological activity are regulated by the binding of proteins to their cognate
 substrates.  Of particular interest is the sequence-specific binding of transcription factors to
 DNA, often in regulatory regions just upstream of the transcription start site of a gene.  These
-binding events play a pivotal role in regulating gene expression.  Sequence specificity among
-closely related binding sites is nearly always incomplete: some variety in the DNA sequence is
-routinely observed.  For this reason, these inexact binding sequence patterns are commonly described
-as **motifs**, represented numerically as frequency matrices, and visualized as sequence logos.
+binding events play a pivotal role in regulating gene expression.
 
-Despite their importance in current research, there has been until now no single, annotated,
-comprehensive collection of publicly available motifs. The current package attempts to provide such
-a collection, offering more than ten thousand annotated matrices from multiple organisms, within the
-context of the Bioconductor project.  The matrices can be filtered and selected on the basis of
-their metadata, used with other Bioconductor packages (for instance, seqLogo can be used for for
-visualization) or easily exported for use with standard software and websites such as those provided
-by the [MEME Suite](http://meme.sdsc.edu/meme/doc/meme.html).
+Sequence specificity among closely related binding sites is nearly always incomplete: some variety
+in the DNA sequence is routinely observed.  For this reason, these inexact binding sequence patterns
+are commonly described as **motifs**, represented numerically as frequency matrices, and visualized
+as sequence logos.
+
+Despite their importance in current research, there has been until now, to the best of our
+knowledge, no single, annotated, comprehensive collection of publicly available motifs. The current
+package attempts to provide such a collection, offering more than ten thousand annotated matrices
+from multiple organisms, within the context of the Bioconductor project.  The matrices can be
+filtered and selected on the basis of their metadata, used with other Bioconductor packages (for
+instance, seqLogo can be used for for visualization) or easily exported for use with standard
+software and websites such as those provided by the [MEME
+Suite](http://meme.sdsc.edu/meme/doc/meme.html).
 
 Transcription factor binding sites (TFBS) can only be imperfectly predicted from sequence matching
 of motif to DNA sequence.  When using MotifDb, please keep in mind that actual and functional TF
