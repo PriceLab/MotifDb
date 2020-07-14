@@ -250,7 +250,7 @@ setMethod('show', 'MotifList',
       cat ('| Created from downloaded public sources: 2013-Aug-30', '\n', sep='')
 
       tbl.dataSource = as.data.frame (table (mcols (object)$dataSource))
-      tbl.org = as.data.frame (table (mcols (object)$organism))
+      tbl.org = as.data.frame (table (mcols (object)$organism, useNA="ifany"))
       tbl.org = head (tbl.org [order (tbl.org$Freq, decreasing=TRUE),])
       totalMatrixCount = length (object)
       totalOrganismCount = length (unique (mcols (object)$organism))
