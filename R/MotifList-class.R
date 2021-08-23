@@ -159,7 +159,7 @@ matrixToMemeText = function (matrices)
     s [index] = sprintf ('MOTIF %s', fixed.name)
     index = index + 1
     new.line =
-       sprintf ('letter-probability matrix: alength= 4 w= %d nsites= %d E=8.1e-020',
+       sprintf ('letter-probability matrix: alength= 4 w= %d nsites= %d E=%f',
           nrow (tfMat), 45, 8.1e-020)
     s [index] =  new.line
     index = index + 1

@@ -387,11 +387,18 @@ blendCoreAndSecondaryDataSets <- function()
      # now revise all of the tbl.md rownames: they need "core" and "secondary"
      # inserted also
 
-   x <- rownames(tbl.md)
+   x <- rownames(tbl.secondary)
+   x[unmapped.secondary.only] <- sub("HOCOMOCOv11", "HOCOMOCOv11-secondary-", x[unmapped.secondary.only])
+   x[mapping] <- sub("HOCOMOCOv11", "HOCOMOCOv11-core-", x[mapping])
 
+   length(x)
 
    matrices <- matrices.secondary
    tbl.md <- tbl.secondary
+
+   rownames(tbl.md) <- x
+   names(matrices) <- x
+
    save(matrices, tbl.md, file="hocomoco11.RData")
 
 
