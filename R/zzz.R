@@ -13,6 +13,7 @@ MotifDb <- NULL
     for(data.file in data.files) {
        # define these to keep 'check' happy.  they are loaded by 'load'
       tbl.md = NA; matrices = NA;
+      # print(noquote(sprintf("--- about to load and append from file '%s'", data.file)))
       variables = load(data.file)
       mdb = append(mdb, MotifList(matrices, tbl.md))
       if(!quiet)

@@ -1,15 +1,4 @@
-quick: install
-
-all:  install vig build check
-
-vig:
-	R -e "devtools::build_vignettes()"
-
-build:
-	(cd ..; R CMD build --no-build-vignettes MotifDb)
-
-install:
-	(cd ..; R CMD INSTALL --no-test-load MotifDb)
+oMotifDb)
 
 check: build
 	(cd ..; R CMD check --no-manual --no-build-vignettes --ignore-vignettes `ls -t MotifDb_* | head -1`)
