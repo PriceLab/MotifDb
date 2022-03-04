@@ -6,7 +6,7 @@ pshannon@fredhutch.org
 
 MotifDb collects currently nine sources of protein-binding DNA sequences, with metadata, into
 one common format.   The heterogeneity of these sources is large, and sometimes daunting, but
-by transforming them into a standard form (a list of position weightm matrices and a standard
+by transforming them into a standard form (a list of position weight matrices and a standard
 fifteen-column metadata DataFrame) they may be easily used together.
 
 In the inst/scripts/import directories you will one subdirectory for each data source.
@@ -18,9 +18,9 @@ The best way to learn the ropes is to run, study, and thoroughly understand
 
    inst/scripts/import/demo/import.R
 
-In the demo directory you will also find the raw files, each describing four binding site motifs.
-This particular data is taken from the much larger extracted from the much larger
-jasper core data set.  It is presented here only as an example.
+In the demo directory you will also find the raw files, each describing four binding site
+motifs.  This particular data is taken from the much larger jaspar core data set.  It is
+presented here only as an example.
 
 The first of four matrices:
 
@@ -30,13 +30,13 @@ The first of four matrices:
     0	1	0	20	0	20
     0	0	0	0	20	0
 
-It's metadata:
+And its metadata:
 
 id	jaspar.class	ma.name	unknown	gene.symbol	uniprot	ncbi.tax.code	class	comment	family	medline	tax_group	type	pazar_tf_id	description	tfbs_shape_id	consensus	jaspar	mcs	transfac	end_relative_to_tss	start_relative_to_tss	included_models	source	centrality_logp	tfe_id	symbol	alias
 9232	CORE	MA0004	1	Arnt	P53762	10090	Zipper-Type	-	Helix-Loop-Helix	7592839	vertebrates	SELEX	TF0000003	aryl hydrocarbon receptor nuclear translocator	11	NA	NA	NA	NA	NA	NA	NA	NA	NA	580	ARNT	HIF-1beta,bHLHe2
 
 
-Once standardized:
+Once standardized into a frequency matrix:
 
     $`Mmusculus-jaspar2014-Arnt-MA0004`
         1    2 3 4 5 6
@@ -45,7 +45,7 @@ Once standardized:
     G 0.0 0.05 0 1 0 1
     T 0.0 0.00 0 0 1 0
 
-Transpose the corresponding row of the metadata for easy reading:
+Here is the single row of the corresponding metadata, transposed for easy reading:
 
     t(tbl.md[1,])
                     Mmusculus-jaspar2014-Arnt-MA0004
@@ -90,7 +90,7 @@ is a siple master script, importAll.R.  You will typically invoke this from the 
 
    R -f importAll.R
 
-as watch as it runs all of the nested import.R scripts.
+and watch as it runs all of the nested import.R scripts.
 
 Important point:  importAll.R must be told where to find all of the raw data.  And there is a LOT
 of it.  I keep a copy on my laptop during development, but it is only a duplicate of the permanent

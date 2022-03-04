@@ -1,2 +1,7 @@
 ^doc$
 ^Meta$
+inst/scripts
+misc/
+notInstalled/
+explore/
+inst/unitTests/*.RData

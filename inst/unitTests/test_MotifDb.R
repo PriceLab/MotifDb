@@ -442,7 +442,7 @@ test.queryOldStyle = function()
   # Change on 8/1/2017: increase top limit of sox entries as they've expanded
   sox.entries = query(mdb, '^sox')
   checkTrue(length(sox.entries) > 10)
-  checkTrue(length(sox.entries) < 200)
+  checkTrue(length(sox.entries) < 300)
 
     # manual inspection reveals that some of these genes have names which are all capitalized.  test that.
   checkTrue(length(query(mdb, '^sox', ignore.case=TRUE)) > length(query(mdb, '^SOX', ignore.case=FALSE)))
@@ -864,7 +864,7 @@ test.geneToMotif <- function()
 
       # MotifDb mode uses the MotifDb metadata, pulled from many sources
    tbl.mdb <- geneToMotif(mdb, genes, source="mOtifdb")     # intentional mis-capitalization
-   checkEquals(dim(tbl.mdb), c(14, 6))
+   checkEquals(dim(tbl.mdb), c(16, 6))
    checkEquals(subset(tbl.mdb, dataSource=="jaspar2016" & geneSymbol== "FOS")$motif, "MA0476.1")
       # no recognizable(i.e., jaspar standard) motif name returned by MotifDb metadata
       # MotifDb for ATF5
@@ -913,7 +913,7 @@ test.geneToMotif.ignore.jasparSuffixes <- function()
 
       # MotifDb mode uses the MotifDb metadata, pulled from many sources
    tbl.mdb <- geneToMotif(mdb, genes, source="mOtifdb")     # intentional mis-capitalization
-   checkEquals(dim(tbl.mdb), c(14, 6))
+   checkEquals(dim(tbl.mdb), c(16, 6))
    checkEquals(subset(tbl.mdb, dataSource=="jaspar2016" & geneSymbol== "FOS")$motif, "MA0476.1")
       # no recognizable(i.e., jaspar standard) motif name returned by MotifDb metadata
       # MotifDb for ATF5
@@ -1029,7 +1029,8 @@ test.associateTranscriptionFactors <- function()
    tbl <- data.frame(motifName=motif.names, score=runif(7), stringsAsFactors=FALSE)
 
    tbl.anno.mdb <- associateTranscriptionFactors(mdb, tbl, source="MotifDb", expand.rows=TRUE)
-   checkEquals(nrow(tbl), nrow(tbl.anno.mdb))
+   checkEquals(nrow(tbl), 7)
+   checkEquals(nrow(tbl.anno.mdb), 8)
    checkTrue(is.na(tbl.anno.mdb$geneSymbol[grep("hocus.pocus", tbl.anno.mdb$motifName)]))
    checkTrue(all(c("AR", "RUNX1", "TFAP2A", "TFAP2A", "TFAP2A", "TFAP2A(var.3)") %in% tbl.anno.mdb$geneSymbol))
 
@@ -1038,7 +1039,7 @@ test.associateTranscriptionFactors <- function()
    checkEquals(sort(unique(tbl.anno.tfc$geneSymbol)), c("TFAP2A", "TFAP2B", "TFAP2C", "TFAP2D", "TFAP2E"))
 
    tbl.anno.both <- associateTranscriptionFactors(mdb, tbl, source=c("MotifDb", "TFClass"), expand.rows=TRUE)
-   checkEquals(length(grep("MotifDb", tbl.anno.both$source)), 6)
+   checkEquals(length(grep("MotifDb", tbl.anno.both$source)), 7)
    checkEquals(length(grep("TFClass", tbl.anno.both$source)), 10)
 
    #   checkEquals(dim(tbl.anno.mdb), c(nrow(tbl), ncol(tbl) + 4))
